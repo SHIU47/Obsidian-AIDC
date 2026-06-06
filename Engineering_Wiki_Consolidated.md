@@ -1,4 +1,4 @@
-﻿# AIDC HVAC Engineering Wiki - Consolidated Knowledge Base
+# AIDC HVAC Engineering Wiki - Consolidated Knowledge Base
 Generated on: 2026-06-06 14:24:38
 This document contains a consolidated version of all engineering wiki pages for easy import into NotebookLM.
 ---
