@@ -1,0 +1,10 @@
+# Obsidian workspace layout and state (avoids sync conflicts between home and work PCs)
+.obsidian/workspace
+.obsidian/workspace.json
+.obsidian/backups/
+.obsidian/cache/
+
+# OS-specific temporary files
+.DS_Store
+Thumbs.db
+*.tmp
