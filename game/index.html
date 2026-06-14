@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AIDC Engineer — 冷卻宇宙的守護者</title>
+  <meta name="description" content="把 Obsidian HVAC/AIDC 技術筆記做成任天堂 Switch 風格的網頁學習遊戲：上課、打 Boss、修復知識裂痕。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 6 C40 18 52 28 52 42 a20 20 0 1 1-40 0 C12 28 24 18 32 6Z' fill='%235BC2FF' stroke='%233B2B20' stroke-width='3.5'/></svg>">
+  <style>
+    body { margin: 0; background: #8FE3FF; overflow-x: hidden; }
+    #root { min-height: 100vh; }
+    #loading { display:flex; align-items:center; justify-content:center; min-height:100vh;
+      font-family:'M PLUS Rounded 1c',sans-serif; font-size:24px; font-weight:900; color:#3B2B20; }
+  </style>
+</head>
+<body>
+  <div id="root"><div id="loading">載入中⋯</div></div>
+
+  <!-- 關卡資料（由 pipeline 或手動更新） -->
+  <script src="game-data.js"></script>
+
+  <!-- React 18 + ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone：讓 JSX 在瀏覽器直接轉譯 -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- 遊戲主程式（內嵌以避開本地 CORS 限制） -->
+  <script type="text/babel">
+// game-app.js — AIDC ENGINEER v6
+// 完整版：9 大區域 + 比較戰場 + 廠商城市 + 86 關
+// 基於 v5 prototype，擴展為多區域世界地圖
+
+/* ================================================================
+   0. React 解構
+   ================================================================ */
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+/* ================================================================
+   1. THEME
+   ================================================================ */
+const K = {
+  sky1:"#8FE3FF", sky2:"#DFF8FF",
+  cream:"#FFFDF5", paper:"#FFF6DC",
+  ink:"#3B2B20",
+  red:"#FF5A5F", redD:"#D63B40",
+  yellow:"#FFC93C", yellowD:"#E0A416",
+  green:"#3DDC84", greenD:"#1FA85C",
+  blue:"#3FA7FF", blueD:"#1D7FD6",
+  purple:"#B07CFF", purpleD:"#8B54E0",
+  orange:"#FF9F43", orangeD:"#E07F1D",
+  grass:"#7ED957",
+  dim:"#9C8A78",
+  pink:"#FF8FB1", pinkD:"#D96B8F",
+  teal:"#4ECDC4", tealD:"#2BA098",
+  navy:"#2C3E6B", navyD:"#1A2547",
+};
+const FONT = "'M PLUS Rounded 1c','Noto Sans TC',sans-serif";
+
+// 區域主題設定
+const REGION_THEMES = {
+  foundation: { name:"基礎大陸", sub:"Foundation Land", bg1:"#C2F1FF", bg2:"#DDFBE7", bg3:"#A4ED83", bg4:"#7ED957", accent:K.blue },
+  air:        { name:"空冷高原", sub:"Air Realm",       bg1:"#D6F0FF", bg2:"#E8F4FD", bg3:"#B5D8EB", bg4:"#8CC5DE", accent:K.teal },
+  liquid:     { name:"液冷深海", sub:"Liquid Sea",       bg1:"#C2E0FF", bg2:"#D6EFFA", bg3:"#7CB8E0", bg4:"#5BA0D0", accent:K.blue },
+  source:     { name:"冷源冰原", sub:"Cooling Source",   bg1:"#D4F1F9", bg2:"#E1F5FE", bg3:"#80DEEA", bg4:"#4DD0E1", accent:K.tealD },
+  power:      { name:"電力電網", sub:"Power Grid",       bg1:"#FFF8E1", bg2:"#FFFDE7", bg3:"#FFD54F", bg4:"#FFC107", accent:K.yellow },
+  calc:       { name:"計算高塔", sub:"Calc Tower",       bg1:"#F3E5F5", bg2:"#F8EAF6", bg3:"#CE93D8", bg4:"#AB47BC", accent:K.purple },
+  safety:     { name:"安全城堡", sub:"Safety Citadel",   bg1:"#FFEBEE", bg2:"#FFCDD2", bg3:"#EF9A9A", bg4:"#E57373", accent:K.red },
+  rack:       { name:"機櫃島嶼", sub:"Rack Island",      bg1:"#E0F2F1", bg2:"#B2DFDB", bg3:"#80CBC4", bg4:"#4DB6AC", accent:K.green },
+  chip:       { name:"晶片實驗室", sub:"Chip Lab",        bg1:"#FFF3E0", bg2:"#FFE0B2", bg3:"#FFCC80", bg4:"#FFB74D", accent:K.orange },
+  comparison: { name:"比較戰場", sub:"Battle Arena",     bg1:"#EDE7F6", bg2:"#D1C4E9", bg3:"#B39DDB", bg4:"#9575CD", accent:K.purpleD },
+  vendor:     { name:"廠商城市", sub:"Vendor City",       bg1:"#E8EAF6", bg2:"#C5CAE9", bg3:"#9FA8DA", bg4:"#7986CB", accent:K.navyD },
+};
+
+const Style = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght=700;800;900&family=Noto+Sans+TC:wght=700;900&display=swap');
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:${FONT};}
+    html{scroll-behavior:smooth;}
+    @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+    @keyframes bobBig{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-11px) rotate(2deg);}}
+    @keyframes wobble{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+    @keyframes pop{0%{transform:scale(0);}60%{transform:scale(1.22);}80%{transform:scale(.96);}100%{transform:scale(1);}}
+    @keyframes bounceIn{0%{opacity:0;transform:translateY(36px) scale(.85);}60%{transform:translateY(-7px) scale(1.03);}100%{opacity:1;transform:translateY(0) scale(1);}}
+    @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-10px) rotate(-2deg);}50%{transform:translateX(9px) rotate(2deg);}75%{transform:translateX(-5px);}}
+    @keyframes starSpin{0%{transform:rotate(0) scale(0);}55%{transform:rotate(200deg) scale(1.35);}100%{transform:rotate(360deg) scale(1);}}
+    @keyframes dmgFly{0%{opacity:1;transform:translateY(0) scale(.6) rotate(-6deg);}30%{transform:translateY(-26px) scale(1.3) rotate(4deg);}100%{opacity:0;transform:translateY(-64px) scale(1);}}
+    @keyframes cloudMove{from{transform:translateX(-130px);}to{transform:translateX(calc(100vw + 130px));}}
+    @keyframes pathDash{to{stroke-dashoffset:-30;}}
+    @keyframes pressHint{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+    @keyframes blinkEyes{0%,92%,100%{transform:scaleY(1);}95%{transform:scaleY(.08);}}
+    @keyframes rageFlame{0%,100%{transform:scaleY(1) translateY(0);}50%{transform:scaleY(1.25) translateY(-3px);}}
+    @keyframes sparkle{0%,100%{opacity:0;transform:scale(.5);}50%{opacity:1;transform:scale(1.1);}}
+    @keyframes slideIn{0%{opacity:0;transform:translateX(-30px);}100%{opacity:1;transform:translateX(0);}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(63,167,255,.4);}50%{box-shadow:0 0 0 12px rgba(63,167,255,0);}}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(0);}25%{transform:translateY(-5px) rotate(1deg);}75%{transform:translateY(3px) rotate(-1deg);}}
+    .nbtn{transition:transform 0.05s ease, box-shadow 0.05s ease;}
+    .nbtn:active:not(:disabled){transform:translate(3px, 3px) !important;box-shadow:0 1px 0 var(--sh), 0 1px 0 4px #3B2B20 !important;}
+    .opt{transition:all .1s ease;}
+    .opt:hover:not(.show){transform:scale(1.015);box-shadow:0 0 0 3px #fff, 0 0 0 6px #00D2FF !important;border-color:#3B2B20 !important;}
+    .region-card{transition:all .15s cubic-bezier(.2,.8,.2,1);position:relative;}
+    .region-card:hover{transform:scale(1.04);z-index:10;box-shadow:0 0 0 4px #fff, 0 0 0 8px #00D2FF, 0 12px 18px rgba(0,0,0,.2) !important;}
+    .region-card:active{transform:scale(.98);box-shadow:0 0 0 2px #fff, 0 0 0 5px #00D2FF, 0 6px 10px rgba(0,0,0,.15) !important;}
+    .joycon-btn{transition:transform 0.08s ease, filter 0.08s ease, opacity 0.08s ease;}
+    .joycon-btn:hover{filter:brightness(1.15);transform:scale(1.08);}
+    .joycon-btn:active{transform:scale(0.9) translateY(1px);filter:brightness(0.85);}
+    .joycon-stick{transition:transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1.15);}
+    .joycon-stick:hover{transform:scale(1.03) translate(1px, -1px);}
+    .joycon-stick:active{transform:scale(0.95) translate(-2px, 2px);filter:brightness(0.9);}
+  `}</style>
+);
+
+/* ================================================================
+   2. SVG 角色
+   ================================================================ */
+const DropHero = ({size=52,style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <path d="M32 6 C40 18 52 28 52 42 a20 20 0 1 1-40 0 C12 28 24 18 32 6Z" fill="#5BC2FF" stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M32 6 C40 18 52 28 52 42 a20 20 0 0 1-9 17 C49 48 44 30 32 16Z" fill="#8AD8FF" opacity=".7"/>
+    <path d="M14 36 q18 -10 36 0 l-2 -8 q-16 -9 -32 0Z" fill={K.yellow} stroke={K.ink} strokeWidth="3"/>
+    <rect x="28" y="22" width="8" height="6" rx="2" fill={K.yellow} stroke={K.ink} strokeWidth="2.5"/>
+    <g style={{animation:"blinkEyes 4s infinite",transformOrigin:"32px 44px"}}>
+      <circle cx="25" cy="44" r="3.4" fill={K.ink}/><circle cx="39" cy="44" r="3.4" fill={K.ink}/>
+      <circle cx="26.2" cy="42.8" r="1.1" fill="#fff"/><circle cx="40.2" cy="42.8" r="1.1" fill="#fff"/>
+    </g>
+    <path d="M27 52 q5 4 10 0" fill="none" stroke={K.ink} strokeWidth="2.6" strokeLinecap="round"/>
+    <circle cx="18" cy="48" r="2.6" fill="#FFB3C1" opacity=".8"/><circle cx="46" cy="48" r="2.6" fill="#FFB3C1" opacity=".8"/>
+  </svg>
+);
+
+const MistBoss = ({size=84,rage}) => (
+  <svg width={size} height={size} viewBox="0 0 96 96">
+    <ellipse cx="48" cy="84" rx="26" ry="6" fill={K.ink} opacity=".12"/>
+    <path d="M20 56 a28 26 0 1 1 56 0 q0 10 -7 12 q2 8 -6 7 q-1 7 -9 4 q-3 6 -10 2 q-7 5 -11 -2 q-9 3 -8 -6 q-8 0 -5 -17Z"
+      fill={rage?"#B9A8E8":"#CFC3EE"} stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M30 40 a20 18 0 0 1 36 0" fill="#E5DDFA" opacity=".8"/>
+    <g style={{animation:"blinkEyes 3.4s infinite",transformOrigin:"48px 52px"}}>
+      <ellipse cx="38" cy="52" rx={rage?5:4} ry={rage?4:5} fill={K.ink}/>
+      <ellipse cx="58" cy="52" rx={rage?5:4} ry={rage?4:5} fill={K.ink}/>
+      <circle cx="39.5" cy="50" r="1.4" fill="#fff"/><circle cx="59.5" cy="50" r="1.4" fill="#fff"/>
+    </g>
+    {rage
+      ? <path d="M40 66 q8 -6 16 0" fill="none" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+      : <ellipse cx="48" cy="66" rx="5" ry="6" fill={K.ink}/>}
+    {rage&&<><path d="M30 42 l10 6" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/><path d="M66 42 l-10 6" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/></>}
+    <circle cx="22" cy="30" r="3" fill="#fff" style={{animation:"sparkle 2.2s infinite"}}/>
+    <circle cx="74" cy="26" r="2.4" fill="#fff" style={{animation:"sparkle 2.8s .6s infinite"}}/>
+  </svg>
+);
+
+const MagmaBoss = ({size=84,rage}) => (
+  <svg width={size} height={size} viewBox="0 0 96 96">
+    <ellipse cx="48" cy="86" rx="27" ry="6" fill={K.ink} opacity=".12"/>
+    <g style={{animation:rage?"rageFlame .5s infinite":"rageFlame 1.6s infinite",transformOrigin:"48px 30px"}}>
+      <path d="M48 4 q6 8 2 13 q8 -3 7 6 q7 1 2 9 l-22 0 q-5 -8 2 -9 q-1 -9 7 -6 q-4 -5 2 -13Z"
+        fill={rage?"#FF3D2E":K.orange} stroke={K.ink} strokeWidth="3"/>
+      <path d="M48 12 q3 5 0 8 q4 -1 4 4 l-8 0 q0 -5 4 -4 q-3 -3 0 -8Z" fill={K.yellow}/>
+    </g>
+    <path d="M22 60 a26 24 0 1 1 52 0 q0 16 -26 16 q-26 0 -26 -16Z"
+      fill={rage?"#E8503F":"#F4694F"} stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M30 48 a18 14 0 0 1 36 0" fill="#FF9E7E" opacity=".75"/>
+    <path d="M28 70 q4 5 9 1 M59 71 q4 4 9 -1" fill="none" stroke="#C13A22" strokeWidth="3" strokeLinecap="round"/>
+    <g style={{animation:"blinkEyes 3.8s infinite",transformOrigin:"48px 56px"}}>
+      <circle cx="38" cy="56" r="4" fill={K.ink}/><circle cx="58" cy="56" r="4" fill={K.ink}/>
+      <circle cx="39.4" cy="54.4" r="1.3" fill="#fff"/><circle cx="59.4" cy="54.4" r="1.3" fill="#fff"/>
+    </g>
+    {rage
+      ? <><path d="M30 48 l10 5 M66 48 l-10 5" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+         <path d="M40 70 q8 7 16 0" fill="none" stroke={K.ink} strokeWidth="3.2" strokeLinecap="round" transform="rotate(180 48 67)"/></>
+      : <path d="M40 67 q8 6 16 0" fill="none" stroke={K.ink} strokeWidth="3.2" strokeLinecap="round"/>}
+  </svg>
+);
+
+const TwinBoss = ({size=84,rage}) => (
+  <svg width={size} height={size} viewBox="0 0 110 96">
+    <ellipse cx="55" cy="86" rx="38" ry="6" fill={K.ink} opacity=".12"/>
+    <g style={{animation:"bob 2.2s infinite"}}>
+      <path d="M8 58 a22 20 0 1 1 44 0 q0 14 -22 14 q-22 0 -22 -14Z" fill="#7FD4FF" stroke={K.ink} strokeWidth="3.5"/>
+      <path d="M14 48 a15 12 0 0 1 30 0" fill="#BCE9FF" opacity=".8"/>
+      <path d="M30 22 l-4 10 8 0Z" fill="#fff" stroke={K.ink} strokeWidth="2.5"/>
+      <circle cx="22" cy="56" r="3.4" fill={K.ink}/><circle cx="38" cy="56" r="3.4" fill={K.ink}/>
+      <path d="M25 65 q5 4 10 0" fill="none" stroke={K.ink} strokeWidth="2.6" strokeLinecap="round"/>
+    </g>
+    <g style={{animation:"bob 2.2s .6s infinite"}}>
+      <path d="M58 58 a22 20 0 1 1 44 0 q0 14 -22 14 q-22 0 -22 -14Z" fill={rage?"#FF6B52":"#FF8A70"} stroke={K.ink} strokeWidth="3.5"/>
+      <path d="M64 48 a15 12 0 0 1 30 0" fill="#FFC0AE" opacity=".8"/>
+      <path d="M80 20 q4 6 0 9 q5 -1 4 5 l-10 0 q-1 -6 4 -5 q-3 -3 2 -9Z" fill={K.orange} stroke={K.ink} strokeWidth="2.2"/>
+      <circle cx="72" cy="56" r="3.4" fill={K.ink}/><circle cx="88" cy="56" r="3.4" fill={K.ink}/>
+      {rage
+        ? <path d="M75 67 q5 -4 10 0" fill="none" stroke={K.ink} strokeWidth="2.6" strokeLinecap="round"/>
+        : <path d="M75 64 q5 4 10 0" fill="none" stroke={K.ink} strokeWidth="2.6" strokeLinecap="round"/>}
+    </g>
+  </svg>
+);
+
+const FixFairy = ({size=84}) => (
+  <svg width={size} height={size} viewBox="0 0 96 96">
+    <ellipse cx="48" cy="86" rx="24" ry="5" fill={K.ink} opacity=".12"/>
+    <path d="M26 54 a22 22 0 1 1 44 0 q0 16 -22 16 q-22 0 -22 -16Z" fill={K.green} stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M32 44 a15 12 0 0 1 32 0" fill="#9FF0C2" opacity=".85"/>
+    <rect x="40" y="14" width="16" height="10" rx="4" fill={K.yellow} stroke={K.ink} strokeWidth="2.5"/>
+    <rect x="46" y="22" width="4" height="8" fill={K.ink}/>
+    <circle cx="40" cy="52" r="3.4" fill={K.ink}/><circle cx="56" cy="52" r="3.4" fill={K.ink}/>
+    <path d="M42 62 q6 5 12 0" fill="none" stroke={K.ink} strokeWidth="2.8" strokeLinecap="round"/>
+    <g transform="rotate(35 76 36)"><rect x="72" y="22" width="8" height="26" rx="3" fill="#C9BCA4" stroke={K.ink} strokeWidth="2.4"/>
+      <path d="M70 20 a7 7 0 0 1 12 0 l-3 5 -6 0Z" fill="#9C8A78" stroke={K.ink} strokeWidth="2.4"/></g>
+  </svg>
+);
+
+const BOSS_MAP = { MistBoss, MagmaBoss, TwinBoss, FixFairy };
+
+/* ================================================================
+   2.0.1 地圖裝飾地標 (Map Decorative Landmarks)
+   ================================================================ */
+const CastleLandmark = () => (
+  <svg width="64" height="64" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <ellipse cx="16" cy="26" rx="14" ry="4" fill="#000" opacity="0.15"/>
+    <rect x="7" y="3" width="14" height="13" fill="#B0BEC5" stroke={K.ink} strokeWidth="1.2"/>
+    <rect x="9" y="1" width="3" height="3" fill="#B0BEC5" stroke={K.ink} strokeWidth="1.2"/>
+    <rect x="20" y="1" width="3" height="3" fill="#B0BEC5" stroke={K.ink} strokeWidth="1.2"/>
+    <rect x="6" y="6" width="20" height="10" fill="url(#castleTowerGrad)" stroke={K.ink} strokeWidth="1.2" rx="0.5"/>
+    <rect x="2" y="1" width="5" height="15" fill="url(#castleTowerGrad)" stroke={K.ink} strokeWidth="1.2" rx="0.8"/>
+    <rect x="24" y="1" width="5" height="15" fill="url(#castleTowerGrad)" stroke={K.ink} strokeWidth="1.2" rx="0.8"/>
+    <polygon points="1,1 5,-4 9,1" fill="url(#castleRoofGrad)" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <polygon points="23,1 27,-4 31,1" fill="url(#castleRoofGrad)" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <path d="M 5,-4 L 5,-8 L 9,-6 Z" fill="#FFD54F" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+    <path d="M 27,-4 L 27,-8 L 31,-6 Z" fill="#FFD54F" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+    <path d="M 12,16 A 4,4 0 0 1 20,16 Z" fill="#37474F" stroke={K.ink} strokeWidth="1.2"/>
+    <polygon points="12,16 11,19 21,19 20,16" fill="#8D6E63" stroke={K.ink} strokeWidth="1.2"/>
+    <line x1="11.5" y1="13" x2="11" y2="17" stroke={K.ink} strokeWidth="0.6"/>
+    <line x1="20.5" y1="13" x2="21" y2="17" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="4" y="5" width="2" height="4" rx="0.5" fill="url(#magicOrbGrad)" stroke={K.ink} strokeWidth="0.8"/>
+    <rect x="26" y="5" width="2" height="4" rx="0.5" fill="url(#magicOrbGrad)" stroke={K.ink} strokeWidth="0.8"/>
+    <rect x="15" y="8" width="2" height="4" rx="0.5" fill="url(#magicOrbGrad)" stroke={K.ink} strokeWidth="0.8"/>
+  </svg>
+);
+
+const TowerLandmark = () => (
+  <svg width="50" height="50" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <ellipse cx="16" cy="28" rx="8" ry="2.5" fill="#000" opacity="0.15"/>
+    <path d="M 9,28 L 11,16 L 21,16 L 23,28 Z" fill="url(#towerGrad)" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <rect x="12" y="7" width="8" height="10" fill="url(#towerGrad)" stroke={K.ink} strokeWidth="1.2"/>
+    <polygon points="10,7 22,7 16,-2" fill="#4A148C" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <rect x="10.5" y="15" width="11" height="1.5" fill="#7B1FA2" stroke={K.ink} strokeWidth="0.8" rx="0.3"/>
+    <path d="M 10,25 Q 16,22 22,19" fill="none" stroke={K.ink} strokeWidth="1" strokeLinecap="round"/>
+    <circle cx="16" cy="-8" r="4.5" fill="url(#magicOrbGrad)" stroke={K.ink} strokeWidth="1"/>
+    <circle cx="16" cy="-8" r="9" fill="none" stroke="#E040FB" strokeWidth="0.8" strokeDasharray="3 3"/>
+    <line x1="16" y1="-16" x2="16" y2="-13" stroke="#FFF" strokeWidth="0.8" strokeLinecap="round"/>
+    <line x1="13" y1="-14.5" x2="19" y2="-14.5" stroke="#FFF" strokeWidth="0.8" strokeLinecap="round"/>
+    <rect x="14.5" y="10" width="3" height="4" rx="0.5" fill="#FFF" opacity="0.9" stroke={K.ink} strokeWidth="0.8"/>
+  </svg>
+);
+
+const VolcanoLandmark = () => (
+  <svg width="56" height="56" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <ellipse cx="16" cy="27" rx="13" ry="3.5" fill="#000" opacity="0.15"/>
+    <path d="M 3,27 C 6,18 10,6 12,4 L 20,4 C 22,6 26,18 29,27 Z" fill="url(#volcanoGrad)" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <ellipse cx="16" cy="4" rx="4" ry="1.5" fill="url(#lavaGrad)" stroke={K.ink} strokeWidth="1.2"/>
+    <path d="M 14.5,4.5 Q 13,15 11,27" fill="none" stroke="#FF5722" strokeWidth="1.6" strokeLinecap="round"/>
+    <path d="M 17.5,4.5 Q 19,15 21,27" fill="none" stroke="#FF9100" strokeWidth="1.4" strokeLinecap="round"/>
+    <circle cx="12" cy="-2" r="4" fill="url(#smokeGrad)" stroke={K.ink} strokeWidth="0.6" opacity="0.9"/>
+    <circle cx="20" cy="-3.5" r="4.5" fill="url(#smokeGrad)" stroke={K.ink} strokeWidth="0.6" opacity="0.9"/>
+    <circle cx="16" cy="-6" r="6" fill="url(#smokeGrad)" stroke={K.ink} strokeWidth="0.6" opacity="0.95"/>
+    <circle cx="10" cy="-4" r="0.8" fill="#FFFF00"/>
+    <circle cx="23" cy="-7" r="1" fill="#FF5722"/>
+  </svg>
+);
+
+const SkyscrapersLandmark = () => (
+  <svg width="56" height="56" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <ellipse cx="16" cy="28" rx="11" ry="3.5" fill="#000" opacity="0.15"/>
+    <rect x="1" y="11" width="9" height="17" fill="url(#glassGrad)" stroke={K.ink} strokeWidth="1.2" rx="0.5"/>
+    <line x1="3.5" y1="11" x2="3.5" y2="28" stroke="#FFF" strokeWidth="0.6" opacity="0.3"/>
+    <rect x="3" y="14" width="5" height="2.5" fill="#FFF9C4" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="3" y="20" width="5" height="2.5" fill="#FFF9C4" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="18" y="5" width="11" height="23" fill="url(#glassGrad)" stroke={K.ink} strokeWidth="1.2" rx="0.5"/>
+    <line x1="21" y1="5" x2="21" y2="28" stroke="#FFF" strokeWidth="0.6" opacity="0.3"/>
+    <rect x="20.5" y="8" width="6" height="3" fill="#80DEEA" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="20.5" y="14" width="6" height="3" fill="#80DEEA" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="20.5" y="20" width="6" height="3" fill="#FFF9C4" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="9" y="8" width="10" height="20" fill="url(#glassGrad)" stroke={K.ink} strokeWidth="1.2" rx="0.5"/>
+    <line x1="12" y1="8" x2="12" y2="28" stroke="#FFF" strokeWidth="0.6" opacity="0.3"/>
+    <rect x="11" y="11" width="6" height="3" fill="#FFF9C4" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <rect x="11" y="17" width="6" height="3" fill="#FFF9C4" rx="0.3" stroke={K.ink} strokeWidth="0.6"/>
+    <line x1="23.5" y1="5" x2="23.5" y2="-4" stroke={K.ink} strokeWidth="1.2"/>
+    <circle cx="23.5" cy="-4" r="1.8" fill="#FF5252"/>
+    <circle cx="23.5" cy="-4" r="4.5" fill="none" stroke="#FF5252" strokeWidth="0.6" opacity="0.5" style={{animation:"sparkle 1.5s infinite"}}/>
+  </svg>
+);
+
+const IcePeaksLandmark = () => (
+  <svg width="56" height="56" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <ellipse cx="16" cy="27" rx="12" ry="3.5" fill="#000" opacity="0.15"/>
+    <polygon points="10,27 24,5 31,27" fill="url(#plateGrad2)" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <polygon points="24,5 24,27 31,27" fill="#006064" opacity="0.25"/>
+    <polygon points="1,27 15,1 27,27" fill="#FFF" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+    <polygon points="15,1 15,27 27,27" fill="url(#plateGrad2)" opacity="0.45"/>
+    <line x1="5" y1="17" x2="8" y2="22" stroke="#FFF" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="19" y1="12" x2="22" y2="18" stroke="#FFF" strokeWidth="1.8" strokeLinecap="round"/>
+    <g transform="translate(15, -4)">
+      <path d="M 0,-5 L 1,-1 L 5,-1 L 2,1 L 3.5,5 L 0,2.5 L -3.5,5 L -2,1 L -5,-1 L -1,-1 Z" fill="#FFF" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+      <circle cx="0" cy="0" r="1.5" fill="#FFFF00"/>
+    </g>
+  </svg>
+);
+
+const SailboatLandmark = () => (
+  <svg width="36" height="36" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <g style={{animation:"float 4s infinite"}}>
+      <ellipse cx="16" cy="24" rx="10" ry="2" fill="#000" opacity="0.15"/>
+      <path d="M 6,18 C 9,24 23,24 26,18 L 23,22.5 L 9,22.5 Z" fill="#8D6E63" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+      <rect x="9" y="16.5" width="14" height="1.8" fill="#A1887F" stroke={K.ink} strokeWidth="1.2"/>
+      <line x1="16" y1="18" x2="16" y2="8" stroke={K.ink} strokeWidth="1.6" strokeLinecap="round"/>
+      <path d="M 16,8 C 21,12 21,15 16,18 Z" fill="#FFF" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+      <path d="M 15.2,9.5 C 10.5,12.5 12,15.5 15.2,18 Z" fill="#ECEFF1" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+      <polygon points="16,8 19,9.5 16,11" fill="#FF5252" stroke={K.ink} strokeWidth="0.8"/>
+    </g>
+  </svg>
+);
+
+const FishLandmark = () => (
+  <svg width="32" height="32" viewBox="0 0 32 32" style={{overflow:"visible"}}>
+    <g style={{animation:"float 2.5s infinite", animationDelay:"-1s"}}>
+      <path d="M 4,16 C 8,8 20,8 24,16 C 20,19.5 12,19.5 4,16 Z" fill="#FF7043" stroke={K.ink} strokeWidth="1.2"/>
+      <path d="M 8,13 C 12,11 16,11 20,13" fill="none" stroke="#FF8A65" strokeWidth="1.2"/>
+      <path d="M 4,16 L 0,12 L 1,16 L 0,20 Z" fill="#FF7043" stroke={K.ink} strokeWidth="1.2" strokeLinejoin="round"/>
+      <circle cx="20" cy="14" r="1.5" fill="#FFF" stroke={K.ink} strokeWidth="0.8"/>
+      <circle cx="20.5" cy="14" r="0.7" fill="#000"/>
+      <polygon points="12,18 10,22 14,20" fill="#FF5722" stroke={K.ink} strokeWidth="1"/>
+      <path d="M -2,18 Q -5,20 -3,24" fill="none" stroke="#FFF" strokeWidth="1.2" strokeLinecap="round"/>
+      <path d="M 28,18 Q 31,20 29,24" fill="none" stroke="#FFF" strokeWidth="1.2" strokeLinecap="round"/>
+    </g>
+  </svg>
+);
+
+const RoundTreeLandmark = ({color1="#2E7D32", color2="#4CAF50", color3="#81C784"}) => (
+  <svg width="24" height="28" viewBox="0 0 16 20" style={{overflow:"visible"}}>
+    <rect x="7" y="12" width="2" height="6" fill="#5D4037" stroke={K.ink} strokeWidth="1"/>
+    <circle cx="8" cy="6.5" r="6" fill={color1} stroke={K.ink} strokeWidth="1"/>
+    <circle cx="5" cy="6" r="5" fill={color2} stroke={K.ink} strokeWidth="1"/>
+    <circle cx="11" cy="5" r="4" fill={color2} stroke={K.ink} strokeWidth="1"/>
+    <circle cx="8" cy="3.5" r="4.5" fill={color3} stroke={K.ink} strokeWidth="1"/>
+    <ellipse cx="6.5" cy="2.5" rx="2" ry="1" fill="#FFF" opacity="0.3"/>
+  </svg>
+);
+
+const PineTreeLandmark = ({color1="#1B5E20", color2="#2E7D32", color3="#4CAF50"}) => (
+  <svg width="24" height="28" viewBox="0 0 16 20" style={{overflow:"visible"}}>
+    <rect x="7" y="13" width="2" height="5" fill="#5D4037" stroke={K.ink} strokeWidth="1"/>
+    <polygon points="1,13 15,13 8,7" fill={color1} stroke={K.ink} strokeWidth="1"/>
+    <polygon points="2.5,9.5 13.5,9.5 8,4.5" fill={color2} stroke={K.ink} strokeWidth="1"/>
+    <polygon points="3.5,6 12.5,6 8,1.5" fill={color3} stroke={K.ink} strokeWidth="1"/>
+  </svg>
+);
+
+/* ================================================================
+   2.1 區域圖示 (Region SVG Icons)
+   ================================================================ */
+const FoundationIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <rect x="10" y="12" width="44" height="40" rx="6" fill="#90CAF9" stroke={K.ink} strokeWidth="3.5"/>
+    <line x1="10" y1="25" x2="54" y2="25" stroke={K.ink} strokeWidth="3.5"/>
+    <line x1="10" y1="38" x2="54" y2="38" stroke={K.ink} strokeWidth="3.5"/>
+    <circle cx="18" cy="18" r="3" fill={K.blueD}/>
+    <circle cx="28" cy="18" r="3" fill={K.blueD}/>
+    <circle cx="18" cy="31" r="3" fill={K.blueD}/>
+    <circle cx="28" cy="31" r="3" fill={K.blueD}/>
+    <circle cx="18" cy="45" r="3" fill={K.blueD}/>
+    <circle cx="28" cy="45" r="3" fill={K.blueD}/>
+    <rect x="36" y="16" width="12" height="4" rx="1" fill="#fff" stroke={K.ink} strokeWidth="2"/>
+    <rect x="36" y="29" width="12" height="4" rx="1" fill="#fff" stroke={K.ink} strokeWidth="2"/>
+    <rect x="36" y="42" width="12" height="4" rx="1" fill="#fff" stroke={K.ink} strokeWidth="2"/>
+  </svg>
+);
+
+const AirIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <circle cx="32" cy="32" r="24" fill="#E0F2F1" stroke={K.ink} strokeWidth="3.5"/>
+    <circle cx="32" cy="32" r="6" fill="#fff" stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M32 26 C36 12 44 14 40 26 Z" fill={K.teal} stroke={K.ink} strokeWidth="2.5"/>
+    <path d="M32 38 C28 52 20 50 24 38 Z" fill={K.teal} stroke={K.ink} strokeWidth="2.5"/>
+    <path d="M38 32 C52 36 50 44 38 40 Z" fill={K.teal} stroke={K.ink} strokeWidth="2.5"/>
+    <path d="M26 32 C12 28 14 20 26 24 Z" fill={K.teal} stroke={K.ink} strokeWidth="2.5"/>
+  </svg>
+);
+
+const LiquidIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <path d="M32 8 C32 8 14 28 14 42 A18 18 0 1 0 50 42 C50 28 32 8 32 8 Z" fill="#80DEEA" stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M32 16 C32 16 20 30 20 40 A12 12 0 0 0 44 40 C44 30 32 16 32 16 Z" fill="#00ACC1" stroke={K.ink} strokeWidth="2" opacity=".6"/>
+    <path d="M24 38 A4 4 0 0 1 28 34" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round"/>
+  </svg>
+);
+
+const SourceIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <rect x="12" y="12" width="40" height="40" rx="6" fill="#E1F5FE" stroke={K.ink} strokeWidth="3.5" transform="rotate(-6 32 32)"/>
+    <path d="M24 18 L44 18 L46 34 L20 34 Z" fill="#B3E5FC" opacity=".5" transform="rotate(-6 32 32)"/>
+    <circle cx="20" cy="24" r="2" fill="#fff" transform="rotate(-6 32 32)"/>
+    <circle cx="38" cy="40" r="3" fill="#fff" transform="rotate(-6 32 32)"/>
+  </svg>
+);
+
+const PowerIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <path d="M38 6 L16 34 H30 L26 58 L48 30 H34 Z" fill={K.yellow} stroke={K.ink} strokeWidth="3.5" strokeLinejoin="round"/>
+    <path d="M38 12 L24 32 H34 L28 48 L42 28 H32 Z" fill="#FFF59D" strokeLinejoin="round"/>
+  </svg>
+);
+
+const CalcIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <path d="M12 48 L48 12 L52 16 L16 52 Z" fill="#FFE082" stroke={K.ink} strokeWidth="3.5"/>
+    <path d="M20 40 L24 44 M26 34 L30 38 M32 28 L36 32 M38 22 L42 26" stroke={K.ink} strokeWidth="2"/>
+    <circle cx="15" cy="49" r="2.5" fill={K.ink}/>
+    <path d="M48 48 L20 48 L14 42 Z" fill="#FFCC80" stroke={K.ink} strokeWidth="3"/>
+  </svg>
+);
+
+const SafetyIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <path d="M32 10 C42 10 50 14 50 14 V32 C50 44 32 54 32 54 C32 54 14 44 14 32 V14 C14 14 22 10 32 10 Z" fill={K.red} stroke={K.ink} strokeWidth="3.5" strokeLinejoin="round"/>
+    <path d="M32 15 C39 15 45 18 45 18 V30 C45 40 32 48 32 48 V15 Z" fill="#FF8A80" opacity=".6"/>
+    <path d="M26 28 L30 32 L38 22" fill="none" stroke="#fff" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const RackIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <rect x="14" y="8" width="36" height="48" rx="4" fill="#CFD8DC" stroke={K.ink} strokeWidth="3.5"/>
+    <rect x="18" y="14" width="28" height="8" rx="2" fill="#37474F" stroke={K.ink} strokeWidth="2.5"/>
+    <rect x="18" y="26" width="28" height="8" rx="2" fill="#37474F" stroke={K.ink} strokeWidth="2.5"/>
+    <rect x="18" y="38" width="28" height="8" rx="2" fill="#37474F" stroke={K.ink} strokeWidth="2.5"/>
+    <circle cx="22" cy="18" r="1.5" fill={K.green}/>
+    <circle cx="26" cy="18" r="1.5" fill={K.green}/>
+    <circle cx="22" cy="30" r="1.5" fill={K.green}/>
+    <circle cx="26" cy="30" r="1.5" fill={K.red}/>
+    <circle cx="22" cy="42" r="1.5" fill={K.green}/>
+    <circle cx="26" cy="42" r="1.5" fill={K.green}/>
+  </svg>
+);
+
+const ChipIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <rect x="12" y="12" width="40" height="40" rx="6" fill="#B0BEC5" stroke={K.ink} strokeWidth="3.5"/>
+    <rect x="20" y="20" width="24" height="24" rx="2" fill="#FFE082" stroke={K.ink} strokeWidth="2.5"/>
+    <line x1="22" y1="8" x2="22" y2="12" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="32" y1="8" x2="32" y2="12" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="42" y1="8" x2="42" y2="12" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="22" y1="52" x2="22" y2="56" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="32" y1="52" x2="32" y2="56" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="42" y1="52" x2="42" y2="56" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="8" y1="22" x2="12" y2="22" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="8" y1="32" x2="12" y2="32" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="8" y1="42" x2="12" y2="42" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="52" y1="22" x2="56" y2="22" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="52" y1="32" x2="56" y2="32" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+    <line x1="52" y1="42" x2="56" y2="42" stroke={K.ink} strokeWidth="3" strokeLinecap="round"/>
+  </svg>
+);
+
+const ComparisonIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <g transform="translate(4, 4)">
+      <path d="M6 42 L38 10 L42 14 L10 46 Z" fill="#ECEFF1" stroke={K.ink} strokeWidth="3" strokeLinejoin="round"/>
+      <path d="M36 10 L40 6 L44 10 L40 14 Z" fill="#FFE082" stroke={K.ink} strokeWidth="2.5" strokeLinejoin="round"/>
+      <line x1="6" y1="42" x2="2" y2="46" stroke={K.ink} strokeWidth="4" strokeLinecap="round"/>
+      <path d="M42 42 L10 10 L6 14 L38 46 Z" fill="#ECEFF1" stroke={K.ink} strokeWidth="3" strokeLinejoin="round"/>
+      <path d="M10 10 L6 6 L2 10 L6 14 Z" fill="#FFE082" stroke={K.ink} strokeWidth="2.5" strokeLinejoin="round"/>
+      <line x1="42" y1="42" x2="46" y2="46" stroke={K.ink} strokeWidth="4" strokeLinecap="round"/>
+    </g>
+  </svg>
+);
+
+const VendorIcon = ({size=48, style}) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
+    <rect x="16" y="6" width="32" height="52" rx="4" fill="#CFD8DC" stroke={K.ink} strokeWidth="3.5"/>
+    <rect x="24" y="46" width="16" height="12" fill="#546E7A" stroke={K.ink} strokeWidth="2"/>
+    <rect x="21" y="14" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="31" y="14" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="37" y="14" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="21" y="24" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="31" y="24" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="37" y="24" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="21" y="34" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="31" y="34" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+    <rect x="37" y="34" width="6" height="6" fill="#FFF9C4" stroke={K.ink} strokeWidth="1.5"/>
+  </svg>
+);
+
+const REGION_ICONS = {
+  foundation: FoundationIcon,
+  air: AirIcon,
+  liquid: LiquidIcon,
+  source: SourceIcon,
+  power: PowerIcon,
+  calc: CalcIcon,
+  safety: SafetyIcon,
+  rack: RackIcon,
+  chip: ChipIcon,
+  comparison: ComparisonIcon,
+  vendor: VendorIcon
+};
+
+const REGION_ORDER = [
+  'foundation', 'air', 'liquid', 'source', 'power',
+  'calc', 'safety', 'rack', 'chip', 'comparison', 'vendor'
+];
+
+const REGION_MAP_COORDS = {
+  foundation: { x: 18, y: 56, c: K.blue },
+  air:        { x: 14, y: 24, c: K.teal },
+  liquid:     { x: 38, y: 78, c: K.blue },
+  source:     { x: 58, y: 80, c: K.tealD },
+  power:      { x: 60, y: 52, c: K.yellow },
+  calc:       { x: 34, y: 36, c: K.purple },
+  safety:     { x: 54, y: 20, c: K.red },
+  rack:       { x: 78, y: 28, c: K.green },
+  chip:       { x: 80, y: 56, c: K.orange },
+  comparison: { x: 78, y: 82, c: K.purpleD },
+  vendor:     { x: 90, y: 40, c: K.navyD }
+};
+
+/* ================================================================
+   3. SVG 圖示
+   ================================================================ */
+const CoinIcon = ({size=20}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <circle cx="12" cy="12" r="10" fill={K.yellow} stroke={K.ink} strokeWidth="2.4"/>
+    <circle cx="12" cy="12" r="6" fill="none" stroke={K.yellowD} strokeWidth="2"/>
+    <rect x="10.6" y="7" width="2.8" height="10" rx="1.2" fill={K.yellowD}/>
+  </svg>
+);
+const SnowIcon = ({size=20}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <g stroke={K.blueD} strokeWidth="2.4" strokeLinecap="round">
+      <path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>
+    </g>
+    <circle cx="12" cy="12" r="3" fill="#fff" stroke={K.blueD} strokeWidth="2"/>
+  </svg>
+);
+const StarIcon = ({size=22,color=K.yellow}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-4px"}}>
+    <path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17l-6.1 3.6 1.4-6.8L2.2 9.1l6.9-.8Z"
+      fill={color} stroke={K.ink} strokeWidth="2"/>
+  </svg>
+);
+const MedalIcon = ({size=20}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <path d="M8 2h8l-2.4 7H10.4Z" fill={K.red} stroke={K.ink} strokeWidth="1.8"/>
+    <circle cx="12" cy="15" r="6.4" fill={K.yellow} stroke={K.ink} strokeWidth="2.2"/>
+    <path d="M12 11.4l1.2 2.5 2.7.3-2 1.9.5 2.7-2.4-1.4-2.4 1.4.5-2.7-2-1.9 2.7-.3Z" fill={K.yellowD}/>
+  </svg>
+);
+const FlameIcon = ({size=18}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <path d="M12 2q4 6 1 9 q5 -2 5 5 a6 6 0 0 1-12 0 q0 -5 4 -8 q-1 -3 2 -6Z" fill={K.orange} stroke={K.ink} strokeWidth="2"/>
+    <path d="M12 12q2 3 0 5 a2.6 2.6 0 0 1-4 -2 q0 -2 4 -3Z" fill={K.yellow}/>
+  </svg>
+);
+const SwordIcon = ({size=18}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <path d="M4 20l3-1 11-11 -2-2 -11 11Z" fill="#C9D6E8" stroke={K.ink} strokeWidth="1.8"/>
+    <path d="M15 5l4 4 2-3 -3-3Z" fill={K.blue} stroke={K.ink} strokeWidth="1.8"/>
+    <path d="M3 21l2-.6L4.6 19Z" fill={K.yellowD} stroke={K.ink} strokeWidth="1.5"/>
+  </svg>
+);
+const BookIcon = ({size=18}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <path d="M4 4h7v16H6a2 2 0 0 1-2-2Z" fill={K.blue} stroke={K.ink} strokeWidth="2"/>
+    <path d="M20 4h-7v16h5a2 2 0 0 0 2-2Z" fill={K.green} stroke={K.ink} strokeWidth="2"/>
+    <path d="M11 4v16M13 4v16" stroke={K.ink} strokeWidth="1.6"/>
+  </svg>
+);
+const BackIcon = ({size=18}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{verticalAlign:"-3px"}}>
+    <path d="M15 19l-7-7 7-7" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const ICON_MAP = { BookIcon, MedalIcon, SwordIcon };
+
+const Diff = ({n}) => (
+  <span>{[1,2,3].map(i=><StarIcon key={i} size={15} color={i<=n?K.yellow:"#E2D6C0"}/>)}</span>
+);
+
+/* ================================================================
+   4. UI 元件
+   ================================================================ */
+const Panel = ({children,color=K.ink,bg=K.cream,style,shake}) => (
+  <div style={{position:"relative",background:bg,border:`4px solid ${color}`,borderRadius:22,
+    boxShadow:`0 7px 0 ${color}30`,padding:18,animation:shake?"shake .4s":"none",...style}}>
+    {children}
+  </div>
+);
+const NBtn = ({children,onClick,color=K.green,shadow,disabled,style,big}) => {
+  const sh=shadow||{[K.green]:K.greenD,[K.red]:K.redD,[K.blue]:K.blueD,[K.yellow]:K.yellowD,[K.purple]:K.purpleD,[K.orange]:K.orangeD}[color]||K.ink;
+  return (
+    <button className="nbtn" onClick={onClick} disabled={disabled} style={{
+      "--sh":sh,background:`linear-gradient(180deg,${color},${color}E6)`,color:"#fff",
+      border:`4px solid ${K.ink}`,borderRadius:big?26:18,padding:big?"15px 34px":"11px 20px",
+      fontSize:big?18:14,fontWeight:900,letterSpacing:1,
+      boxShadow:`0 5px 0 ${sh}, 0 5px 0 4px ${K.ink}`,cursor:disabled?"not-allowed":"pointer",
+      opacity:disabled?.45:1,textShadow:"0 2px 0 rgba(0,0,0,.22)",...style}}>{children}</button>
+  );
+};
+const Badge = ({children,color=K.blue}) => (
+  <span style={{background:color,color:"#fff",border:`3px solid ${K.ink}`,borderRadius:999,
+    padding:"3px 12px",fontSize:12,fontWeight:900,textShadow:"0 1px 0 rgba(0,0,0,.18)",display:"inline-block"}}>{children}</span>
+);
+const Clouds = () => (
+  <>{[{t:"7%",d:42,s:1},{t:"20%",d:58,s:.7},{t:"46%",d:74,s:.85},{t:"70%",d:50,s:.6}].map((c,i)=>(
+    <svg key={i} width={90*c.s} height={50*c.s} viewBox="0 0 90 50" style={{position:"fixed",top:c.t,left:0,zIndex:0,
+      pointerEvents:"none",opacity:.9,animation:`cloudMove ${c.d}s linear ${-i*15}s infinite`}}>
+      <path d="M20 38 a12 12 0 0 1 4-23 a15 15 0 0 1 28-4 a12 12 0 0 1 18 10 a10 10 0 0 1-2 17Z"
+        fill="#fff" stroke="#D6EFFA" strokeWidth="2"/>
+    </svg>))}
+  </>
+);
+
+/* ================================================================
+   5. 存檔引擎（localStorage 版）
+   ================================================================ */
+const DEF = {v:6,xp:0,energy:50,coins:0,completed:{},cards:[],weak:[]};
+
+function loadSave() {
+  try {
+    const r = localStorage.getItem("aidc-v6");
+    if (r) {
+      const s = JSON.parse(r);
+      if (s.v === 6) return s;
+    }
+    // v5 遷移
+    const r5 = localStorage.getItem("aidc-v5");
+    if (r5) {
+      const s5 = JSON.parse(r5);
+      return { ...s5, v:6 };
+    }
+    return {...DEF};
+  } catch { return {...DEF}; }
+}
+function persistSave(s) {
+  try { localStorage.setItem("aidc-v6", JSON.stringify(s)); } catch(e) {}
+}
+
+/* ================================================================
+   6. 資料工具（從 game-data.js 的全域變數取資料）
+   ================================================================ */
+function getRegionLevels(region) {
+  return LEVELS.filter(lv => lv.region === region && lv.kind !== 'repair');
+}
+function getAllRegions() {
+  const seen = new Set();
+  const regions = [];
+  for (const lv of LEVELS) {
+    if (lv.kind === 'repair' || seen.has(lv.region)) continue;
+    seen.add(lv.region);
+    regions.push(lv.region);
+  }
+  return regions;
+}
+function getRepairLevel() {
+  return LEVELS.find(lv => lv.kind === 'repair');
+}
+
+/* ================================================================
+   7. HUD
+   ================================================================ */
+const BatteryIcon = ({percent, size=32}) => {
+  const fillW = Math.max(2, Math.min(22, (percent / 100) * 22));
+  const color = percent < 20 ? K.red : percent < 50 ? K.orange : K.green;
+  return (
+    <svg width={size} height={size*0.6} viewBox="0 0 32 20" style={{verticalAlign:"middle", display:"inline-block", marginRight:4}}>
+      <rect x="2" y="2" width="24" height="16" rx="4" fill="none" stroke={K.ink} strokeWidth="2.8"/>
+      <rect x="27" y="7" width="2.5" height="6" rx="1" fill={K.ink} stroke={K.ink} strokeWidth="0.5"/>
+      <rect x="4.5" y="4.5" width={fillW} height="11" rx="1.5" fill={color}/>
+    </svg>
+  );
+};
+
+function Hud({p, onBack, showBack}) {
+  const totalCompleted = Object.keys(p.completed).filter(k=>k!=="repair").length;
+  const totalLevels = LEVELS.filter(l=>l.kind!=='repair').length;
+  const [timeStr, setTimeStr] = useState("");
+
+  useEffect(() => {
+    const update = () => {
+      const d = new Date();
+      let hrs = d.getHours();
+      const mins = String(d.getMinutes()).padStart(2, "0");
+      const ampm = hrs >= 12 ? "下午" : "上午";
+      hrs = hrs % 12;
+      hrs = hrs ? hrs : 12;
+      setTimeStr(`${ampm} ${hrs}:${mins}`);
+    };
+    update();
+    const t = setInterval(update, 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <Panel bg="#F2F2F2" style={{padding:"8px 14px", border:`3px solid ${K.ink}`, boxShadow:`0 4px 0 ${K.ink}15`}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        {showBack && (
+          <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{padding:"5px 9px",fontSize:12,minWidth:0}}>
+            <BackIcon size={14}/>
+          </NBtn>
+        )}
+        <div style={{
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          border: `3px solid ${K.ink}`,
+          background: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: `0 3.5px 0 ${K.ink}18`,
+          overflow: "hidden",
+          flexShrink: 0
+        }}>
+          <div style={{transform: "translateY(2px)"}}><DropHero size={40}/></div>
+        </div>
+        <div style={{flexShrink:0}}>
+          <div style={{fontSize:13,fontWeight:900,color:K.ink,display:"flex",alignItems:"center",gap:4}}>
+            東旭 <Badge color={K.purple}>Lv.{1+totalCompleted}</Badge>
+          </div>
+          <div style={{height:8,width:90,background:"#EDE2CC",borderRadius:99,marginTop:3,border:`2.5px solid ${K.ink}`,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${Math.min(100,p.xp/(totalLevels*2))}%`,background:`linear-gradient(90deg,${K.green},${K.yellow})`,transition:"width .7s",borderRadius:99}}/>
+          </div>
+        </div>
+        <div style={{flex:1}}/>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:3,fontSize:12,fontWeight:900,color:K.ink}}>
+            <CoinIcon size={16}/> <span>{p.coins}</span>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:3,fontSize:12,fontWeight:900,color:K.ink}}>
+            <StarIcon size={16}/> <span>{totalCompleted}/{totalLevels}</span>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:2,fontSize:12,fontWeight:900,color:K.ink}}>
+            <BatteryIcon percent={p.energy} size={28}/> <span>{p.energy}%</span>
+          </div>
+          <div style={{fontSize:12,fontWeight:900,color:K.ink,opacity:0.85,marginLeft:4}}>{timeStr}</div>
+        </div>
+      </div>
+      {p.weak.length>0&&(
+        <div style={{marginTop:6,background:K.paper,border:`2.5px dashed ${K.orange}`,borderRadius:10,padding:"4px 10px",fontSize:11,fontWeight:900,color:K.orangeD}}>
+          知識裂痕：{p.weak.slice(0,5).join("・")}{p.weak.length>5?`⋯等${p.weak.length}個`:""} → 去修復小屋補強！
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ================================================================
+   8. 世界選擇（區域總覽）
+   ================================================================ */
+const PATH_PLATE1 = "M 6,24 C 8,16 16,10 24,9 C 30,8 34,13 37,17 C 39,21 39,26 38,32 C 37,38 39,44 38,50 C 36,56 32,60 26,63 C 20,66 14,64 10,61 C 6,57 5,50 6,43 C 7,36 5,30 6,24 Z";
+const PATH_PLATE2 = "M 28,76 C 33,72 40,71 47,72 C 54,73 61,71 65,75 C 68,78 67,84 64,88 C 61,92 54,94 47,93 C 40,92 33,90 28,88 C 24,86 24,80 28,76 Z";
+const PATH_PLATE3 = "M 46,26 C 49,16 55,10 62,11 C 66,12 68,18 67,25 C 66,31 65,37 63,43 C 61,49 56,54 50,51 C 45,48 44,38 46,26 Z";
+const PATH_PLATE4 = "M 75,24 C 81,18 87,13 94,20 C 97,25 96,32 94,39 C 92,46 88,54 85,62 C 82,70 78,78 74,81 C 71,83 73,77 73,71 C 74,63 74,54 74,45 C 74,36 72,30 75,24 Z";
+
+function WorldSelectScreen({p, onSelectRegion, onRepair, viewMode, setViewMode}) {
+  const regions = getAllRegions();
+  const repairLv = getRepairLevel();
+  const [hoveredRegion, setHoveredRegion] = useState(null);
+
+  const isRegionUnlocked = (r) => {
+    if (r === 'foundation') return true;
+    const idx = REGION_ORDER.indexOf(r);
+    if (idx <= 0) return true;
+    const curLvs = getRegionLevels(r);
+    if (curLvs.some(l => p.completed[l.id])) return true;
+    const prevReg = REGION_ORDER[idx - 1];
+    const prevLvs = getRegionLevels(prevReg);
+    return prevLvs.length > 0 && prevLvs.every(l => p.completed[l.id]);
+  };
+
+  const activeRegion = useMemo(() => {
+    for (const r of REGION_ORDER) {
+      const lvs = getRegionLevels(r);
+      const completedCount = lvs.filter(l => p.completed[l.id]).length;
+      if (isRegionUnlocked(r) && completedCount < lvs.length) {
+        return r;
+      }
+    }
+    return REGION_ORDER[REGION_ORDER.length - 1];
+  }, [p]);
+
+  const LockIcon = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={K.ink} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle"}}>
+      <rect x="5" y="11" width="14" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  );
+
+  return (
+    <div style={{animation:"bounceIn .5s"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",margin:"12px 0 14px"}}>
+        <div style={{width:80}}/>
+        <span style={{display:"inline-block",background:K.red,color:"#fff",border:`4px solid ${K.ink}`,borderRadius:99,
+          padding:"6px 26px",fontSize:18,fontWeight:900,boxShadow:`0 4px 0 ${K.redD}`,textShadow:"0 2px 0 rgba(0,0,0,.22)"}}>
+          SELECT AIDC REGION
+        </span>
+        <NBtn color={K.blue} onClick={() => setViewMode(viewMode === "map" ? "grid" : "map")} style={{padding:"6px 14px", fontSize:12}}>
+          {viewMode === "map" ? "列表模式" : "地圖模式"}
+        </NBtn>
+      </div>
+
+      {viewMode === "map" ? (
+        <Panel bg="#8FE3FF" style={{position:"relative", width:"100%", padding:0, border:`4px solid ${K.ink}`, borderRadius:22, boxShadow:`0 8px 0 ${K.ink}22`, overflow:"hidden"}}>
+          {/* 漂浮雲朵 (動態漂移) */}
+          <div style={{position:"absolute", inset:0, zIndex:3, pointerEvents:"none", overflow:"hidden"}}>
+            <svg width="60" height="30" viewBox="0 0 60 30" style={{position:"absolute", top:"8%", animation:"cloudMove 35s linear infinite", opacity:0.8}}>
+              <path d="M 10,20 C 10,14 16,10 22,12 C 25,8 35,8 38,12 C 44,10 50,14 50,20 C 52,24 48,28 42,28 L 18,28 C 12,28 8,24 10,20 Z" fill="#FFF" stroke={K.ink} strokeWidth="1.2"/>
+            </svg>
+            <svg width="45" height="22" viewBox="0 0 60 30" style={{position:"absolute", top:"38%", animation:"cloudMove 50s linear infinite", animationDelay:"-15s", opacity:0.75}}>
+              <path d="M 10,20 C 10,14 16,10 22,12 C 25,8 35,8 38,12 C 44,10 50,14 50,20 C 52,24 48,28 42,28 L 18,28 C 12,28 8,24 10,20 Z" fill="#FFF" stroke={K.ink} strokeWidth="1.2"/>
+            </svg>
+            <svg width="50" height="25" viewBox="0 0 60 30" style={{position:"absolute", top:"65%", animation:"cloudMove 42s linear infinite", animationDelay:"-7s", opacity:0.8}}>
+              <path d="M 10,20 C 10,14 16,10 22,12 C 25,8 35,8 38,12 C 44,10 50,14 50,20 C 52,24 48,28 42,28 L 18,28 C 12,28 8,24 10,20 Z" fill="#FFF" stroke={K.ink} strokeWidth="1.2"/>
+            </svg>
+          </div>
+
+          <div style={{position:"relative", width:"100%", minWidth:540, aspectRatio:"16/10", overflow:"hidden"}}>
+            
+            {/* 任天堂風格向量 SVG 地圖畫布 */}
+            <svg style={{position:"absolute", inset:0, width:"100%", height:"100%", zIndex:1}} viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                {/* Ocean gradient */}
+                <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#A1E8FF"/>
+                  <stop offset="100%" stopColor="#4FC3F7"/>
+                </linearGradient>
+
+                {/* Cliff gradient */}
+                <linearGradient id="cliffGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#8D6E63"/>
+                  <stop offset="100%" stopColor="#4E342E"/>
+                </linearGradient>
+
+                {/* Sand gradient */}
+                <linearGradient id="sandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FFF9C4"/>
+                  <stop offset="100%" stopColor="#FFEBB7"/>
+                </linearGradient>
+
+                {/* Island Gradients */}
+                <linearGradient id="plateGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#A4ED83"/>
+                  <stop offset="100%" stopColor="#66BB6A"/>
+                </linearGradient>
+                <linearGradient id="plateGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#80DEEA"/>
+                  <stop offset="100%" stopColor="#26C6DA"/>
+                </linearGradient>
+                <linearGradient id="plateGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FFE082"/>
+                  <stop offset="100%" stopColor="#FFB300"/>
+                </linearGradient>
+                <linearGradient id="plateGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FFCC80"/>
+                  <stop offset="100%" stopColor="#FFA726"/>
+                </linearGradient>
+
+                {/* Cylindrical shading for Castle Towers */}
+                <linearGradient id="castleTowerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#B0BEC5"/>
+                  <stop offset="30%" stopColor="#ECEFF1"/>
+                  <stop offset="70%" stopColor="#CFD8DC"/>
+                  <stop offset="100%" stopColor="#90A4AE"/>
+                </linearGradient>
+                <linearGradient id="castleRoofGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FF5252"/>
+                  <stop offset="50%" stopColor="#FF8A80"/>
+                  <stop offset="100%" stopColor="#D32F2F"/>
+                </linearGradient>
+
+                {/* Shading for Wizard Tower */}
+                <linearGradient id="towerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#BA68C8"/>
+                  <stop offset="40%" stopColor="#E1BEE7"/>
+                  <stop offset="100%" stopColor="#8E24AA"/>
+                </linearGradient>
+                <radialGradient id="magicOrbGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FFF"/>
+                  <stop offset="30%" stopColor="#FFEE58"/>
+                  <stop offset="70%" stopColor="#FF00FF"/>
+                  <stop offset="100%" stopColor="#7B1FA2"/>
+                </radialGradient>
+
+                {/* Volcano body and lava */}
+                <linearGradient id="volcanoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#5D4037"/>
+                  <stop offset="50%" stopColor="#4E342E"/>
+                  <stop offset="100%" stopColor="#2D1B18"/>
+                </linearGradient>
+                <radialGradient id="lavaGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FFFF00"/>
+                  <stop offset="50%" stopColor="#FF5722"/>
+                  <stop offset="100%" stopColor="#D84315"/>
+                </radialGradient>
+
+                {/* Soft smoke cloud gradient */}
+                <radialGradient id="smokeGrad" cx="35%" cy="35%" r="70%">
+                  <stop offset="0%" stopColor="#FFF"/>
+                  <stop offset="60%" stopColor="#ECEFF1"/>
+                  <stop offset="100%" stopColor="#B0BEC5"/>
+                </radialGradient>
+
+                {/* Glass tower reflections */}
+                <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#E0F7FA"/>
+                  <stop offset="30%" stopColor="#80DEEA"/>
+                  <stop offset="70%" stopColor="#00ACC1"/>
+                  <stop offset="100%" stopColor="#006064"/>
+                </linearGradient>
+              </defs>
+
+              {/* 海洋底色 */}
+              <rect x="0" y="0" width="100" height="100" fill="url(#oceanGrad)"/>
+              
+              {/* 海浪紋理點綴 */}
+              <path d="M10 32 Q13 30 16 32 T22 32" fill="none" stroke="#FFF" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
+              <path d="M42 62 Q45 60 48 62 T54 62" fill="none" stroke="#FFF" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
+              <path d="M72 74 Q75 72 78 74 T84 74" fill="none" stroke="#FFF" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
+              <path d="M25 85 Q28 83 31 85 T37 85" fill="none" stroke="#FFF" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
+              
+              {/* 3D 疊層浮空島嶼 1 (綠色 - 西方大陸) */}
+              <path d={PATH_PLATE1} fill="url(#sandGrad)" stroke="#FFEBB7" strokeWidth="6" strokeLinejoin="round"/>
+              <path d={PATH_PLATE1} transform="translate(0, 1.6)" fill="url(#cliffGrad)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+              <path d={PATH_PLATE1} fill="url(#plateGrad1)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+              
+              {/* 3D 疊層浮空島嶼 2 (藍色 - 南方礁島) */}
+              <path d={PATH_PLATE2} fill="url(#sandGrad)" stroke="#FFEBB7" strokeWidth="6" strokeLinejoin="round"/>
+              <path d={PATH_PLATE2} transform="translate(0, 1.6)" fill="url(#cliffGrad)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+              <path d={PATH_PLATE2} fill="url(#plateGrad2)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+
+              {/* 3D 疊層浮空島嶼 3 (黃色 - 火山與城堡半島) */}
+              <path d={PATH_PLATE3} fill="url(#sandGrad)" stroke="#FFEBB7" strokeWidth="6" strokeLinejoin="round"/>
+              <path d={PATH_PLATE3} transform="translate(0, 1.6)" fill="url(#cliffGrad)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+              <path d={PATH_PLATE3} fill="url(#plateGrad3)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+
+              {/* 3D 疊層浮空島嶼 4 (橘色 - 東方群島) */}
+              <path d={PATH_PLATE4} fill="url(#sandGrad)" stroke="#FFEBB7" strokeWidth="6" strokeLinejoin="round"/>
+              <path d={PATH_PLATE4} transform="translate(0, 1.6)" fill="url(#cliffGrad)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+              <path d={PATH_PLATE4} fill="url(#plateGrad4)" stroke={K.ink} strokeWidth="0.8" strokeLinejoin="round"/>
+            </svg>
+
+            {/* 路徑虛線 (動態) */}
+            <svg style={{position:"absolute", inset:0, width:"100%", height:"100%", zIndex:2, pointerEvents:"none"}} viewBox="0 0 100 100" preserveAspectRatio="none">
+              {REGION_ORDER.map((region, i) => {
+                const nextReg = REGION_ORDER[i+1];
+                if (!nextReg) return null;
+                const start = REGION_MAP_COORDS[region];
+                const end = REGION_MAP_COORDS[nextReg];
+                if (!start || !end) return null;
+                
+                const d = `M ${start.x} ${start.y} C ${start.x + 8} ${start.y - 4}, ${end.x - 8} ${end.y + 4}, ${end.x} ${end.y}`;
+                const isStartUnlocked = isRegionUnlocked(region);
+                const isEndUnlocked = isRegionUnlocked(nextReg);
+                const active = isStartUnlocked && isEndUnlocked;
+                
+                return (
+                  <g key={i}>
+                    <path d={d} fill="none" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity="0.9"/>
+                    <path d={d} fill="none" stroke={active ? K.yellow : "#9C8A78"} strokeWidth="2.8" strokeDasharray="1 7" strokeLinecap="round"
+                      vectorEffect="non-scaling-stroke" style={{animation: active ? "pathDash 1.2s linear infinite" : "none"}}/>
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* 裝飾性地標與植物疊層 */}
+            <div style={{position:"absolute", inset:0, zIndex:4, pointerEvents:"none"}}>
+              {/* 城堡 (安全城堡) */}
+              <div style={{position:"absolute", left:"54%", top:"14.5%", transform:"translate(-50%, -50%)"}}>
+                <CastleLandmark />
+              </div>
+
+              {/* 計算高塔 */}
+              <div style={{position:"absolute", left:"35%", top:"25%", transform:"translate(-50%, -50%)"}}>
+                <TowerLandmark />
+              </div>
+
+              {/* 火山 */}
+              <div style={{position:"absolute", left:"65%", top:"41%", transform:"translate(-50%, -50%)"}}>
+                <VolcanoLandmark />
+              </div>
+
+              {/* 摩天大樓 (廠商城市) */}
+              <div style={{position:"absolute", left:"87%", top:"24%", transform:"translate(-50%, -50%)"}}>
+                <SkyscrapersLandmark />
+              </div>
+
+              {/* 冰山 (冷源冰原) */}
+              <div style={{position:"absolute", left:"58%", top:"83%", transform:"translate(-50%, -50%)"}}>
+                <IcePeaksLandmark />
+              </div>
+
+              {/* 帆船 */}
+              <div style={{position:"absolute", left:"15%", top:"72%", transform:"translate(-50%, -50%)"}}>
+                <SailboatLandmark />
+              </div>
+
+              {/* 跳躍的小魚 */}
+              <div style={{position:"absolute", left:"35%", top:"63%", transform:"translate(-50%, -50%)"}}>
+                <FishLandmark />
+              </div>
+
+              {/* 裝飾樹木 - 西部綠地樹林群 */}
+              <div style={{position:"absolute", left:"9%", top:"50%", transform:"translate(-50%, -50%)"}}><RoundTreeLandmark /></div>
+              <div style={{position:"absolute", left:"12%", top:"52%", transform:"translate(-50%, -50%)"}}><RoundTreeLandmark color1="#1B5E20" color2="#2E7D32" /></div>
+              <div style={{position:"absolute", left:"6%", top:"53%", transform:"translate(-50%, -50%)"}}><PineTreeLandmark /></div>
+
+              {/* 裝飾樹木 - 火山旁 */}
+              <div style={{position:"absolute", left:"72%", top:"48%", transform:"translate(-50%, -50%)"}}><PineTreeLandmark color1="#1B5E20" color2="#2E7D32" /></div>
+              <div style={{position:"absolute", left:"74%", top:"53%", transform:"translate(-50%, -50%)"}}><PineTreeLandmark /></div>
+            </div>
+
+            {/* 冒險者頭像上下跳動 */}
+            {(() => {
+              const activeCoords = REGION_MAP_COORDS[activeRegion];
+              if (!activeCoords) return null;
+              return (
+                <div style={{
+                  position:"absolute",
+                  left:`${activeCoords.x}%`,
+                  top:`${activeCoords.y}%`,
+                  transform:"translate(-50%, -50%)",
+                  zIndex:8,
+                  pointerEvents:"none"
+                }}>
+                  <div style={{
+                    animation:"bob 1.5s infinite",
+                    marginTop: -34
+                  }}>
+                    <DropHero size={34} style={{filter:"drop-shadow(0 4px 0 rgba(0,0,0,0.15))"}} />
+                    <svg width="12" height="12" viewBox="0 0 12 12" style={{display:"block", margin:"2px auto 0"}}>
+                      <path d="M6 12 L12 0 H0 Z" fill={K.red} stroke={K.ink} strokeWidth="1.5"/>
+                    </svg>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* 節點繪製 */}
+            {regions.map((region) => {
+              const theme = REGION_THEMES[region] || REGION_THEMES.foundation;
+              const pos = REGION_MAP_COORDS[region];
+              if (!pos) return null;
+
+              const lvs = getRegionLevels(region);
+              const doneCount = lvs.filter(l => p.completed[l.id]).length;
+              const totalCount = lvs.length;
+              const pct = totalCount > 0 ? Math.round(doneCount/totalCount*100) : 0;
+              const ok = isRegionUnlocked(region);
+              const IconComponent = REGION_ICONS[region] || FoundationIcon;
+              const isHovered = hoveredRegion === region;
+
+              return (
+                <div key={region} style={{
+                  position:"absolute",
+                  left:`${pos.x}%`,
+                  top:`${pos.y}%`,
+                  transform:"translate(-50%, -50%)",
+                  display:"flex",
+                  flexDirection:"column",
+                  alignItems:"center",
+                  zIndex: isHovered ? 15 : 5
+                }}>
+                  
+                  {/* Tooltip 浮動詳情框 */}
+                  {isHovered && (
+                    <div style={{
+                      position:"absolute",
+                      bottom:"62px",
+                      background:"#FFF",
+                      border:`3px solid ${K.ink}`,
+                      borderRadius:14,
+                      padding:"8px 10px",
+                      boxShadow:`0 5px 0 rgba(31,31,31,0.15)`,
+                      zIndex:20,
+                      pointerEvents:"none",
+                      width: 140,
+                      animation:"pop 0.2s forwards"
+                    }}>
+                      <div style={{fontSize:12,fontWeight:900,color:K.ink,textAlign:"center"}}>{theme.name}</div>
+                      <div style={{fontSize:9,fontWeight:700,color:K.ink,opacity:0.5,textAlign:"center",marginTop:1}}>{theme.sub}</div>
+                      <div style={{height:6,background:"#ECEFF1",borderRadius:99,marginTop:6,overflow:"hidden",border:`1.5px solid ${K.ink}`}}>
+                        <div style={{height:"100%",width:`${pct}%`,background:theme.accent,borderRadius:99}}/>
+                      </div>
+                      <div style={{fontSize:9,fontWeight:900,color:K.ink,textAlign:"center",marginTop:4}}>
+                        {doneCount}/{totalCount} 關 ({pct}%)
+                      </div>
+                      <div style={{
+                        position:"absolute",
+                        bottom:-7,
+                        left:"50%",
+                        transform:"translateX(-50%) rotate(45deg)",
+                        width:10,
+                        height:10,
+                        background:"#FFF",
+                        borderRight:`3.5px solid ${K.ink}`,
+                        borderBottom:`3.5px solid ${K.ink}`
+                      }}/>
+                    </div>
+                  )}
+
+                  {/* 圓形按鈕節點 (鎖定時圖示半透明灰階) */}
+                  <div className="region-card"
+                    onMouseEnter={() => setHoveredRegion(region)}
+                    onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() => ok && onSelectRegion(region)}
+                    style={{
+                      width:46,
+                      height:46,
+                      borderRadius:"50%",
+                      background: ok ? pos.c : "#D7CCC8",
+                      border:`3px solid ${K.ink}`,
+                      display:"flex",
+                      alignItems:"center",
+                      justifyContent:"center",
+                      boxShadow:`0 4px 0 ${K.ink}`,
+                      cursor: ok ? "pointer" : "not-allowed",
+                      transition:"all 0.1s ease",
+                      position:"relative"
+                    }}>
+                    <IconComponent size={26} style={{ filter: ok ? "none" : "grayscale(1) opacity(0.45)" }} />
+                    
+                    {!ok && (
+                      <div style={{
+                        position:"absolute",
+                        bottom:-4,
+                        right:-4,
+                        background:"#FFF",
+                        border:`2.5px solid ${K.ink}`,
+                        borderRadius:"50%",
+                        width:18,
+                        height:18,
+                        display:"flex",
+                        alignItems:"center",
+                        justifyContent:"center",
+                        boxShadow:`0 2px 0 rgba(0,0,0,0.15)`
+                      }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={K.ink} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="5" y="11" width="14" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 直接顯示的區域名稱標籤 */}
+                  <div style={{
+                    marginTop: 6,
+                    background: ok ? "#FFF" : "#EBEBEB",
+                    border: `2.5px solid ${K.ink}`,
+                    borderRadius: 8,
+                    padding: "2px 6px",
+                    fontSize: 10,
+                    fontWeight: 900,
+                    color: ok ? K.ink : "#757575",
+                    boxShadow: `0 2px 0 ${K.ink}22`,
+                    textAlign: "center",
+                    whiteSpace: "nowrap",
+                    pointerEvents: "none"
+                  }}>
+                    {theme.name}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      ) : (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:16}}>
+          {regions.map((region, idx) => {
+            const theme = REGION_THEMES[region] || REGION_THEMES.foundation;
+            const lvs = getRegionLevels(region);
+            const done = lvs.filter(l => p.completed[l.id]).length;
+            const total = lvs.length;
+            const pct = total > 0 ? Math.round(done/total*100) : 0;
+            const IconComponent = REGION_ICONS[region] || FoundationIcon;
+            const ok = isRegionUnlocked(region);
+
+            return (
+              <div key={region} className="region-card" onClick={() => ok && onSelectRegion(region)}
+                style={{background:`linear-gradient(135deg,#fff 0%,#f5f5f5 100%)`,border:`4px solid ${K.ink}`,
+                  borderRadius:16,padding:12,cursor: ok ? "pointer" : "not-allowed",boxShadow:`0 5px 0 ${K.ink}22`,
+                  animation:`slideIn .4s ${idx*0.04}s both`,position:"relative",overflow:"hidden",
+                  filter: ok ? "none" : "grayscale(0.65)", opacity: ok ? 1 : 0.8}}>
+                <div style={{
+                  display:"flex",alignItems:"center",justifyContent:"center",height:80,
+                  background: ok ? `linear-gradient(135deg,${theme.bg1},${theme.bg3})` : "#B5A78F",
+                  borderRadius:10,border:`3px solid ${K.ink}`,marginBottom:10,padding:10,
+                  boxShadow:`inset 0 0 12px rgba(255,255,255,0.4)`
+                }}>
+                  {ok ? <IconComponent size={54} /> : <LockIcon />}
+                </div>
+                <div style={{fontSize:15,fontWeight:900,color:K.ink,textAlign:"center",letterSpacing:0.5}}>{theme.name}</div>
+                <div style={{fontSize:10,fontWeight:700,color:K.ink,opacity:.5,textAlign:"center",marginTop:1}}>{theme.sub}</div>
+                <div style={{marginTop:8,height:8,background:"#fff",borderRadius:99,border:`2px solid ${K.ink}`,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${pct}%`,background:theme.accent,borderRadius:99,transition:"width .5s"}}/>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:11,fontWeight:900,color:K.ink,marginTop:6,opacity:.85}}>
+                  <span>{done === total && total > 0 ? "★ CLEAR!" : `${done}/${total} 關`}</span>
+                  <span>{pct}%</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 修復小屋 */}
+      {repairLv && p.weak.length > 0 && (
+        <div style={{marginTop:16}} onClick={onRepair}>
+          <Panel bg={`linear-gradient(135deg,#E8F5E9,#C8E6C9)`} style={{cursor:"pointer",textAlign:"center", border:`4px solid ${K.ink}`, boxShadow:`0 5px 0 ${K.ink}22`}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12}}>
+              <div style={{animation:"bob 2s infinite"}}><FixFairy size={48}/></div>
+              <div>
+                <div style={{fontSize:16,fontWeight:900,color:K.greenD}}>修復小屋</div>
+                <div style={{fontSize:12,fontWeight:900,color:K.ink,opacity:.75,marginTop:2}}>
+                  已發現 {p.weak.length} 個知識裂痕，立即點擊補強！
+                </div>
+              </div>
+            </div>
+          </Panel>
+        </div>
+      )}
+
+      <div style={{textAlign:"center",marginTop:16,fontSize:11,fontWeight:900,color:K.ink,opacity:.5}}>
+        <StarIcon size={14}/> {Object.keys(p.completed).filter(k=>k!=="repair").length}/{LEVELS.filter(l=>l.kind!=='repair').length} 關　·　自動存檔　·　知識來源：Obsidian 技術筆記
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   9. 區域地圖
+   ================================================================ */
+function RegionMapScreen({region, p, onEnter, onBack}) {
+  const theme = REGION_THEMES[region] || REGION_THEMES.foundation;
+  const lvs = getRegionLevels(region);
+  const done = id => !!p.completed[id];
+  const unlocked = lv => !lv.req || done(lv.req);
+
+  // 自動排列座標
+  const positionedLvs = useMemo(() => {
+    return lvs.map((lv, i) => ({
+      ...lv,
+      _x: lv.x || Math.round(12 + (i % 4) * 22),
+      _y: lv.y || Math.round(18 + Math.floor(i / 4) * 24 + (i % 2) * 10),
+    }));
+  }, [lvs]);
+
+  const doneCount = lvs.filter(l => done(l.id)).length;
+  const IconComponent = REGION_ICONS[region] || FoundationIcon;
+
+  return (
+    <div style={{animation:"bounceIn .5s"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,margin:"12px 0 10px"}}>
+        <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{padding:"8px 14px",fontSize:13,display:"inline-flex",alignItems:"center",justifyContent:"center"}}><BackIcon size={14}/></NBtn>
+        <span style={{display:"inline-flex",alignItems:"center",gap:8,background:theme.accent,color:"#fff",border:`4px solid ${K.ink}`,borderRadius:99,
+          padding:"5px 18px 5px 10px",fontSize:15,fontWeight:900,boxShadow:`0 4px 0 ${K.ink}40`,textShadow:"0 2px 0 rgba(0,0,0,.22)"}}>
+          <div style={{background:"#fff",borderRadius:"50%",border:`2.5px solid ${K.ink}`,padding:3,width:26,height:26,display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <IconComponent size={20} />
+          </div>
+          {theme.name}
+        </span>
+        <Badge color={K.green}>{doneCount}/{lvs.length} 關</Badge>
+      </div>
+
+      <Panel bg={`linear-gradient(180deg, ${theme.bg1} 0%, ${theme.bg2} 100%)`}
+        style={{minHeight:Math.max(320, Math.ceil(lvs.length/4)*120),padding:0,overflow:"hidden",position:"relative"}}>
+
+        {/* Parallax rolling hills background */}
+        <svg style={{position:"absolute", bottom:0, left:0, width:"100%", height:"65%", zIndex:1, pointerEvents:"none"}} viewBox="0 0 100 100" preserveAspectRatio="none">
+          {/* Far Hills */}
+          <path d="M 0,100 L 0,45 C 20,32 35,58 50,45 C 65,32 80,52 100,40 L 100,100 Z" fill={theme.bg3} opacity="0.65"/>
+          {/* Near Hills */}
+          <path d="M 0,100 L 0,58 C 25,48 45,68 70,52 C 85,42 95,58 100,48 L 100,100 Z" fill={theme.bg4}/>
+        </svg>
+
+        {/* Floating clouds inside region */}
+        <div style={{position:"absolute", inset:0, zIndex:1, pointerEvents:"none", overflow:"hidden"}}>
+          <svg width="40" height="20" viewBox="0 0 60 30" style={{position:"absolute", top:"8%", left:"12%", opacity:0.35}}>
+            <path d="M 10,20 C 10,14 16,10 22,12 C 25,8 35,8 38,12 C 44,10 50,14 50,20 C 52,24 48,28 42,28 L 18,28 C 12,28 8,24 10,20 Z" fill="#FFF"/>
+          </svg>
+          <svg width="30" height="15" viewBox="0 0 60 30" style={{position:"absolute", top:"18%", left:"78%", opacity:0.25}}>
+            <path d="M 10,20 C 10,14 16,10 22,12 C 25,8 35,8 38,12 C 44,10 50,14 50,20 C 52,24 48,28 42,28 L 18,28 C 12,28 8,24 10,20 Z" fill="#FFF"/>
+          </svg>
+        </div>
+
+        {/* 路徑連線 */}
+        <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",zIndex:2}} viewBox="0 0 100 100" preserveAspectRatio="none">
+          {positionedLvs.map((lv,i) => {
+            const nx = positionedLvs[i+1];
+            if(!nx) return null;
+            
+            const dx = nx._x - lv._x;
+            const dy = nx._y - lv._y;
+            let cx1, cy1, cx2, cy2;
+            if (Math.abs(dx) > Math.abs(dy)) {
+              // Mostly horizontal
+              cx1 = lv._x + dx * 0.4;
+              cy1 = lv._y + (dx > 0 ? -4 : 4);
+              cx2 = nx._x - dx * 0.4;
+              cy2 = nx._y + (dx > 0 ? 4 : -4);
+            } else {
+              // Mostly vertical
+              cx1 = lv._x + (dy > 0 ? 4 : -4);
+              cy1 = lv._y + dy * 0.4;
+              cx2 = nx._x + (dy > 0 ? -4 : 4);
+              cy2 = nx._y - dy * 0.4;
+            }
+            const d = `M ${lv._x} ${lv._y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${nx._x} ${nx._y}`;
+            const act = done(lv.id);
+            return <g key={i}>
+              <path d={d} fill="none" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity=".92"/>
+              <path d={d} fill="none" stroke={act?K.yellow:"#C9BCA4"} strokeWidth="3.4" strokeDasharray="1 9" strokeLinecap="round"
+                vectorEffect="non-scaling-stroke" style={{animation:act?"pathDash 1s linear infinite":"none"}}/>
+            </g>;
+          })}
+        </svg>
+
+        {/* 關卡節點 */}
+        {positionedLvs.map(lv => {
+          const ok = unlocked(lv), fin = done(lv.id);
+          const BossC = BOSS_MAP[lv.boss?.key] || MistBoss;
+          return (
+            <div key={lv.id} onClick={() => ok && onEnter(lv)} style={{position:"absolute",left:`${lv._x}%`,top:`${lv._y}%`,
+              transform:"translate(-50%,-50%)",textAlign:"center",width:100,cursor:ok?"pointer":"not-allowed",zIndex:3}}>
+              <div style={{width:58,height:58,margin:"0 auto",borderRadius:"50%",
+                background:fin?K.yellow:ok?(lv.c||theme.accent):"#C9BCA4",border:`4.5px solid ${K.ink}`,
+                display:"flex",alignItems:"center",justifyContent:"center",
+                boxShadow:`0 5px 0 ${K.ink}44`,
+                animation:ok&&!fin?"pressHint 1.4s infinite":"none",
+                filter:ok?"none":"grayscale(.55)",overflow:"hidden"}}>
+                {fin
+                  ? <StarIcon size={30}/>
+                  : ok
+                    ? <div style={{transform:"scale(.72) translateY(3px)"}}><BossC size={52}/></div>
+                    : <svg width="22" height="22" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="3" fill="#8B7A66" stroke={K.ink} strokeWidth="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke={K.ink} strokeWidth="2.6"/></svg>}
+              </div>
+              <div style={{marginTop:5,display:"inline-block",background:"#fff",border:`3px solid ${K.ink}`,borderRadius:10,
+                padding:"2px 8px",fontSize:10,fontWeight:900,color:K.ink,boxShadow:`0 2px 0 ${K.ink}33`,
+                maxWidth:96,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                {lv.name}
+              </div>
+            </div>
+          );
+        })}
+      </Panel>
+    </div>
+  );
+}
+
+/* ================================================================
+   10. 情報階段
+   ================================================================ */
+function IntelPhase({levelId,boss,onStart,onBack}) {
+  const cards = INTEL[levelId] || [];
+  const [i,setI] = useState(0);
+  const [seen,setSeen] = useState(new Set([0]));
+  const all = seen.size >= cards.length;
+  const c = cards[i];
+
+  if (!c) return (
+    <div style={{animation:"bounceIn .4s",textAlign:"center",padding:40}}>
+      <Panel><div style={{fontSize:16,fontWeight:900,color:K.ink}}>此關卡的學習內容正在準備中⋯</div>
+        <div style={{marginTop:14}}><NBtn color={K.red} onClick={onStart}>直接開戰！</NBtn></div>
+        <div style={{marginTop:10}}><NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack}>← 返回</NBtn></div>
+      </Panel>
+    </div>
+  );
+
+  return (
+    <div style={{animation:"bounceIn .4s"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,margin:"12px 0"}}>
+        <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{padding:"8px 14px",fontSize:13}}><BackIcon size={14}/></NBtn>
+        <Badge color={K.green}><BookIcon size={14}/> 修煉時間</Badge>
+        <span style={{fontSize:13,fontWeight:900,color:K.ink}}>挑戰 {boss?.n || "Boss"} 前的必修課</span>
+      </div>
+      <Panel key={i} bg={K.paper} style={{animation:"bounceIn .35s"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+          <Badge color={K.blue}>第 {i+1}/{cards.length} 課</Badge>
+        </div>
+        <div style={{fontSize:19,fontWeight:900,color:K.ink,marginBottom:10}}>{c.t}</div>
+        <div style={{fontSize:13.5,fontWeight:700,color:"#5C4A36",lineHeight:1.95,marginBottom:12}}>{c.intro}</div>
+        <div style={{background:"#fff",border:`3px solid ${K.ink}`,borderRadius:16,padding:"12px 16px",marginBottom:12}}>
+          {c.points.map((pt,j)=>(
+            <div key={j} style={{display:"flex",gap:8,fontSize:13,fontWeight:800,color:K.ink,lineHeight:1.8,marginBottom:j<c.points.length-1?7:0}}>
+              <span style={{color:K.greenD,flexShrink:0}}>◆</span><span>{pt}</span>
+            </div>
+          ))}
+        </div>
+        {c.f && <div style={{display:"inline-block",background:"#fff",border:`3px solid ${K.greenD}`,borderRadius:14,
+          padding:"7px 16px",fontSize:14,fontWeight:900,color:K.greenD,boxShadow:`0 3px 0 ${K.greenD}44`,marginBottom:10}}>
+          {c.f}
+        </div>}
+        {c.note && <div style={{background:"#FFF1D6",border:`3px dashed ${K.orangeD}`,borderRadius:14,padding:"9px 14px",
+          fontSize:12,fontWeight:800,color:"#8A5A1E",lineHeight:1.8}}>
+          {c.note}
+        </div>}
+      </Panel>
+      <div style={{display:"flex",justifyContent:"center",gap:7,margin:"14px 0"}}>
+        {cards.map((_,j)=>(
+          <div key={j} onClick={()=>{setI(j);setSeen(s=>new Set([...s,j]));}}
+            style={{width:seen.has(j)?26:13,height:13,borderRadius:99,border:`3px solid ${K.ink}`,
+              background:j===i?K.yellow:seen.has(j)?K.green:"#fff",cursor:"pointer",transition:"all .25s"}}/>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:10,justifyContent:"space-between"}}>
+        <NBtn color="#C9BCA4" shadow="#A39580" disabled={i===0} onClick={()=>setI(i-1)}>← 上一課</NBtn>
+        {i<cards.length-1
+          ?<NBtn color={K.green} onClick={()=>{setI(i+1);setSeen(s=>new Set([...s,i+1]));}}>下一課 →</NBtn>
+          :<NBtn color={K.red} disabled={!all} onClick={onStart} big><SwordIcon size={18}/> 開戰！</NBtn>}
+      </div>
+      <div style={{textAlign:"center",fontSize:12,fontWeight:900,color:K.ink,opacity:.6,marginTop:10}}>
+        題目難度 <Diff n={1}/> → <Diff n={3}/> 遞增，全部出自課程內容
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   11. 戰鬥
+   ================================================================ */
+function Battle({level,p,onWin,onBack,repairTags}) {
+  const isCalc = level.kind === "calc";
+  const isRepair = level.kind === "repair";
+  const isComparison = level.kind === "comparison";
+  const isVendor = level.kind === "vendor";
+
+  // 取題目池
+  const pool = useMemo(() => {
+    if (isRepair) {
+      // 修復模式：找所有包含弱點 tag 的題目
+      const allQ = [];
+      for (const key of Object.keys(QUIZ)) {
+        for (const q of (QUIZ[key]||[])) {
+          if (repairTags.includes(q.tag)) allQ.push(q);
+        }
+      }
+      return allQ.length > 0 ? allQ.sort(() => Math.random() - 0.5) : [{d:1,q:"暫無題目",opts:["A","B","C","D"],ans:0,tag:"",ex:""}];
+    }
+    if (isCalc && typeof genCalc === 'function') return [];
+    
+    // 隨機抽題：依難度分組並在組內隨機打亂，以保持難度遞增的體驗
+    const qs = (QUIZ[level.id]||[]).slice();
+    if (qs.length === 0) {
+      return [{d:1,q:"此關卡的題目正在準備中",opts:["跳過此題","選項B","選項C","選項D"],ans:0,tag:"demo",ex:"題目尚未生成"}];
+    }
+    
+    const byDiff = {};
+    for (const item of qs) {
+      if (!byDiff[item.d]) byDiff[item.d] = [];
+      byDiff[item.d].push(item);
+    }
+    
+    const sorted = [];
+    const diffs = Object.keys(byDiff).sort((a,b) => Number(a) - Number(b));
+    for (const d of diffs) {
+      const group = byDiff[d].sort(() => Math.random() - 0.5);
+      sorted.push(...group);
+    }
+    return sorted;
+  }, [level, isRepair, isCalc, repairTags]);
+
+  const [calcStage,setCalcStage] = useState(0);
+  const [prob,setProb] = useState(isCalc && typeof genCalc === 'function' ? genCalc(0) : null);
+  const [idx,setIdx] = useState(0);
+  const [picked,setPicked] = useState(null);
+  const [input,setInput] = useState("");
+  const [show,setShow] = useState(false);
+  const [ok,setOk] = useState(false);
+  const [bossHp,setBossHp] = useState(100);
+  const [heat,setHeat] = useState(20);
+  const [energy,setEnergy] = useState(p.energy);
+  const [combo,setCombo] = useState(0);
+  const [maxCombo,setMaxCombo] = useState(0);
+  const [miss,setMiss] = useState([]);
+  const [hit,setHit] = useState(false);
+  const [dmg,setDmg] = useState(null);
+  const [removed,setRemoved] = useState([]);
+  const [hint,setHint] = useState(false);
+  const [tries,setTries] = useState(0);
+  const total = isCalc ? 3 : pool.length;
+  const q = pool[idx];
+  const rage = bossHp <= 40;
+  const BossC = BOSS_MAP[level.boss?.key] || MistBoss;
+  const curD = isCalc ? (prob?.d||1) : (q?.d||1);
+
+  const fire = (correct,tag) => {
+    setShow(true); setOk(correct);
+    if (correct) {
+      const base = isCalc ? 34 : Math.ceil(100/total);
+      const d = base + combo*3 + (curD-1)*4;
+      setBossHp(h=>Math.max(0,h-d));
+      setCombo(c=>{const n=c+1;setMaxCombo(m=>Math.max(m,n));return n;});
+      setEnergy(e=>Math.min(99,e+15)); setHeat(h=>Math.max(0,h-12));
+      setHit(true); 
+      setDmg({
+        v: isVendor ? `+${d}%` : `-${d}${combo>=2?`  x${combo+1}!`:""}`,
+        c: isVendor ? K.greenD : K.blueD
+      });
+      setTimeout(()=>{setHit(false);setDmg(null);},900);
+    } else {
+      setCombo(0); setHeat(h=>Math.min(100,h+(rage?18:14)));
+      if (tag&&!miss.includes(tag)) setMiss(m=>[...m,tag]);
+      setDmg({v: isVendor ? "退回審查" : "好燙！",c:K.redD});
+      setTimeout(()=>setDmg(null),900);
+    }
+  };
+
+  const checkCalc = () => {
+    const v = parseFloat(input); if (isNaN(v) || !prob) return;
+    const good = Math.abs(v-prob.answer)/prob.answer <= 0.05;
+    if (!good) setTries(t=>t+1);
+    fire(good, "CDU計算");
+  };
+
+  const next = () => {
+    setPicked(null); setShow(false); setRemoved([]); setHint(false); setInput("");
+    if (isCalc) {
+      if (ok) {
+        if (calcStage >= 2) { finish(); return; }
+        const ns = calcStage+1; setCalcStage(ns);
+        if (typeof genCalc === 'function') setProb(genCalc(ns));
+      }
+    } else if (idx+1>=total||bossHp<=0) finish();
+    else setIdx(idx+1);
+  };
+  const finish = () => {
+    const grade = heat>=100 ? "B" : miss.length===0&&tries===0 ? "S" : "A";
+    onWin({grade,maxCombo,miss,energyLeft:energy});
+  };
+
+  const skillFreeze = () => {
+    if (energy<30||show||isCalc||!q) return;
+    const w = q.opts.map((_,i)=>i).filter(i=>i!==q.ans&&!removed.includes(i));
+    if (!w.length) return;
+    setRemoved(r=>[...r,w[Math.floor(Math.random()*w.length)]]); setEnergy(e=>e-30);
+  };
+  const skillCFD = () => { if (energy<40||show) return; setHint(true); setEnergy(e=>e-40); };
+
+  return (
+    <div style={{animation:"bounceIn .4s"}}>
+      <Panel bg={isVendor ? "#E8EAF6" : isComparison ? (rage ? "#F3E5F5" : "#EDE7F6") : rage?"#FFE0DB":"#FFEDE8"} shake={hit} style={{padding:"14px 16px",position:"relative",
+        borderColor:isVendor ? K.navyD : isComparison ? K.purpleD : rage?K.redD:K.ink,transition:"all .4s"}}>
+        {dmg&&<div style={{position:"absolute",top:-6,right:24,fontSize:24,fontWeight:900,color:dmg.c,
+          textShadow:"2px 2px 0 #fff",animation:"dmgFly 1s forwards",zIndex:10}}>{dmg.v}</div>}
+        {rage && !isVendor && !isComparison && <div style={{position:"absolute",top:-14,left:"50%",transform:"translateX(-50%)"}}>
+          <Badge color={K.redD}><FlameIcon size={13}/> 激怒模式！失誤懲罰增加</Badge></div>}
+        {isVendor && <div style={{position:"absolute",top:-14,left:"50%",transform:"translateX(-50%)"}}>
+          <Badge color={K.navyD}>採購評估委員會</Badge></div>}
+        {isComparison && <div style={{position:"absolute",top:-14,left:"50%",transform:"translateX(-50%)"}}>
+          <Badge color={K.purpleD}>技術對決擂台</Badge></div>}
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{animation:isVendor ? "float 3s infinite" : rage?"wobble .5s infinite":"bobBig 2.4s infinite"}}><BossC size={rage?92:84} rage={rage}/></div>
+          <div style={{flex:1}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <Badge color={isVendor ? K.navyD : isComparison ? K.purple : rage?K.redD:K.red}>
+                {isVendor ? "審查委員" : isComparison ? "技術對照組" : (level.boss?.n || "Boss")}
+              </Badge>
+              <span style={{fontSize:11,fontWeight:900,color:K.ink}}>
+                {isVendor ? `認可度 ${100 - bossHp}%` : `HP ${Math.max(0, bossHp)}`}
+              </span>
+            </div>
+            <div style={{height:16,background:"#fff",border:`3px solid ${K.ink}`,borderRadius:99,marginTop:6,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${isVendor ? (100 - bossHp) : bossHp}%`,transition:"width .55s cubic-bezier(.2,.9,.3,1.3)",
+                background:isVendor ? `linear-gradient(90deg,${K.green},${K.teal})` : `linear-gradient(90deg,${K.red},${K.orange})`,borderRadius:99}}/>
+            </div>
+            <div style={{display:"flex",gap:10,alignItems:"center",marginTop:8}}>
+              <FlameIcon size={14}/>
+              <div style={{flex:1,height:11,background:"#fff",border:`3px solid ${K.ink}`,borderRadius:99,overflow:"hidden"}}>
+                <div style={{height:"100%",width:`${heat}%`,transition:"width .5s",background:K.orange,borderRadius:99}}/>
+              </div>
+              <Badge color={K.blue}><SnowIcon size={13}/>{energy}</Badge>
+              {combo>=2&&<span style={{fontSize:16,fontWeight:900,color:K.yellowD,animation:"pop .35s",textShadow:"2px 2px 0 #fff"}}><StarIcon size={16}/>x{combo}</span>}
+            </div>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel bg={isVendor ? "#F5F6F9" : isComparison ? "#FDFBFF" : K.cream} style={{marginTop:12}}>
+        {isCalc && prob ? (
+          <>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <Badge color={K.orange}>計算試煉 {calcStage+1}/3 — {prob.label}</Badge>
+              <Diff n={prob.d}/>
+            </div>
+            <div style={{background:K.paper,border:`3px solid ${K.ink}`,borderRadius:14,padding:"12px 16px",
+              fontWeight:800,color:K.ink,fontSize:14,lineHeight:2}}>{prob.ask}</div>
+            <div style={{display:"flex",gap:10,marginTop:12}}>
+              <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!show&&checkCalc()}
+                placeholder={`輸入 ${prob.unit||'數值'}（誤差 ±5%）`} inputMode="decimal"
+                style={{flex:1,background:"#fff",border:`4px solid ${K.ink}`,borderRadius:16,padding:"12px 16px",
+                  fontSize:17,fontWeight:900,color:K.ink,outline:"none"}}/>
+              {!show&&<NBtn color={K.red} onClick={checkCalc}>發射!</NBtn>}
+            </div>
+            {hint&&<div style={{marginTop:10,fontSize:13,fontWeight:900,color:K.purpleD}}>提示：{prob.steps?.[0]}</div>}
+          </>
+        ) : q ? (
+          <>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <Badge color={isVendor ? K.navyD : isComparison ? K.purpleD : K.purple}>
+                {isVendor ? "採購卷宗" : isComparison ? "對決項目" : `第 ${idx+1}/${total} 題`}
+              </Badge>
+              <Diff n={curD}/>
+            </div>
+            <div style={{fontSize:16,fontWeight:900,color:K.ink,lineHeight:1.7,marginBottom:12}}>{q.q}</div>
+            <div style={{display:"grid",gap:9}}>
+              {q.opts.map((o,i)=>{
+                if (removed.includes(i)) return (
+                  <div key={i} style={{border:`3px dashed #C9BCA4`,borderRadius:16,padding:"11px 14px",color:"#B5A78F",
+                    fontSize:13,fontWeight:900,textDecoration:"line-through"}}>已被過濾</div>);
+                const isAns=i===q.ans, isPick=picked===i;
+                let bd=K.ink, bg="#fff";
+                if (show&&isAns) {bd=K.greenD;bg="#E2FFE9";}
+                else if (show&&isPick&&!isAns) {bd=K.redD;bg="#FFE3E3";}
+                else if (isPick) {bd=isVendor ? K.navy : isComparison ? K.purpleD : K.blueD;bg=isVendor ? "#E8EAF6" : isComparison ? "#F3E5F5" : "#E3F3FF";}
+                
+                const btnLabels = ["Y", "X", "A", "B"];
+                const btnColors = [K.green, K.blue, K.red, K.yellow];
+                const btnShadows = [K.greenD, K.blueD, K.redD, K.yellowD];
+                
+                return (
+                  <div key={i} className="opt" onClick={()=>!show&&setPicked(i)}
+                    style={{display:"flex",alignItems:"center",border:`4px solid ${bd}`,background:bg,borderRadius:16,padding:"10px 14px",
+                      color:K.ink,fontSize:14.5,fontWeight:900,cursor:show?"default":"pointer",
+                      boxShadow:isPick&&!show?`0 4px 0 ${bd}`:"0 3px 0 rgba(0,0,0,.1)",transition:"all .12s"}}>
+                    <span style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 26,
+                      height: 26,
+                      borderRadius: "50%",
+                      background: btnColors[i] || K.dim,
+                      border: `3px solid ${K.ink}`,
+                      color: "#fff",
+                      fontSize: 12,
+                      fontWeight: 900,
+                      textShadow: "0 1.5px 0 rgba(0,0,0,0.3)",
+                      boxShadow: `0 2.5px 0 ${btnShadows[i] || K.ink}`,
+                      marginRight: 10,
+                      flexShrink: 0
+                    }}>
+                      {btnLabels[i] || "?"}
+                    </span>
+                    <span style={{flex:1}}>{o}</span>
+                  </div>);
+              })}
+            </div>
+            {hint&&!show&&<div style={{marginTop:10,fontSize:12,fontWeight:900,color:K.purpleD}}>提示：回想之前的課程與筆記！</div>}
+          </>
+        ) : null}
+
+        {show&&(
+          <div style={{marginTop:12,background:ok?"#E2FFE9":"#FFF0E3",border:`4px solid ${ok?K.greenD:K.orangeD}`,
+            borderRadius:16,padding:"12px 16px",fontSize:13,fontWeight:900,color:K.ink,lineHeight:1.85,animation:"bounceIn .35s"}}>
+            {ok 
+              ? (isVendor ? "審查通過！技術規格核實無誤。" : isComparison ? "分析正確！戰略判斷無懈可擊！" : "漂亮！會心一擊！")
+              : (isVendor ? "規格不符！請仔細比對廠商技術卡。" : isComparison ? "判斷失準！請重新研判技術差異。" : "答錯了～放心，不扣血！知識點先做記號，等等去修復小屋補強。")}
+            <br/>
+            <span style={{color:"#7A6248",fontWeight:700}}>
+              {isCalc&&prob?<>正解 ≈ {prob.answer.toFixed(1)} {prob.unit||''}。{prob.steps?.join("；")}</>:(q?.ex||"")}
+            </span>
+          </div>
+        )}
+
+        {!show ? (
+          <div style={{display:"flex",gap:8,marginTop:14}}>
+            {!isCalc&&<NBtn color={isVendor ? K.navy : isComparison ? K.purple : K.blue} disabled={energy<30} onClick={skillFreeze} style={{flex:1,fontSize:11,padding:"10px 4px"}}>
+              {isVendor ? "規格過濾" : isComparison ? "指標篩選" : "液氮急凍"}<br/>-30 <SnowIcon size={12}/>
+            </NBtn>}
+            <NBtn color={isVendor ? K.purple : isComparison ? K.orange : K.purple} disabled={energy<40||hint} onClick={skillCFD} style={{flex:1,fontSize:11,padding:"10px 4px"}}>
+              {isVendor ? "審查提示" : isComparison ? "對比分析" : "CFD 提示"}<br/>-40 <SnowIcon size={12}/>
+            </NBtn>
+            {!isCalc&&<NBtn color={K.red} disabled={picked===null} onClick={()=>fire(picked===q.ans,q?.tag)} style={{flex:1.3}}>
+              {isVendor ? "核准決標!" : isComparison ? "確認判斷!" : "出招!"}
+            </NBtn>}
+          </div>
+        ) : (
+          <div style={{marginTop:14,textAlign:"right"}}>
+            <NBtn color={K.green} onClick={next}>
+              {isCalc?(ok?(calcStage>=2?"結算 →":"下一試煉 →"):"再算一次!"):(idx+1>=total||bossHp<=0?"結算 →":"下一題 →")}
+            </NBtn>
+          </div>
+        )}
+      </Panel>
+      <div style={{textAlign:"center",marginTop:12}}>
+        <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{fontSize:11,padding:"7px 18px"}}>← 先撤退</NBtn>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   12. 結算
+   ================================================================ */
+function ResultScreen({level,result,onDone}) {
+  const card = CARDS[level.id];
+  const gc = {S:K.yellow,A:K.blue,B:K.orange}[result.grade];
+  const gcd = {S:K.yellowD,A:K.blueD,B:K.orangeD}[result.grade];
+  return (
+    <div style={{textAlign:"center",margin:"28px auto",maxWidth:420,animation:"bounceIn .5s"}}>
+      <div style={{display:"flex",justifyContent:"center",animation:"bobBig 2s infinite"}}><DropHero size={72}/></div>
+      <div style={{display:"inline-flex",width:96,height:96,borderRadius:"50%",background:gc,border:`6px solid ${K.ink}`,
+        boxShadow:`0 7px 0 ${gcd}`,margin:"8px 0",animation:"starSpin .8s",alignItems:"center",justifyContent:"center"}}>
+        <span style={{fontSize:48,fontWeight:900,color:"#fff",textShadow:`3px 3px 0 ${gcd}`}}>{result.grade}</span>
+      </div>
+      <div style={{fontSize:17,fontWeight:900,color:K.ink}}>{level.boss?.n || "Boss"} 被打敗啦！</div>
+      <div style={{fontSize:13,fontWeight:900,color:"#7A6248",margin:"6px 0 14px"}}>
+        最高連擊 x{result.maxCombo}　{result.miss.length>0?`裂痕：${result.miss.join("・")}`:"零失誤 PERFECT！"}
+      </div>
+      {card&&level.kind!=="repair"&&(()=>{
+        const Icon = ICON_MAP[card.icon] || BookIcon;
+        return (
+          <div style={{display:"inline-block",animation:"pop .6s .2s both"}}>
+            <Panel bg="#fff" style={{width:220,textAlign:"left"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <Icon size={34}/>
+                <Badge color={card.c}>{card.r}</Badge>
+              </div>
+              <div style={{fontWeight:900,color:K.ink,fontSize:15,margin:"8px 0 6px"}}>{card.name}</div>
+              <div style={{background:K.paper,border:`3px solid ${K.ink}`,borderRadius:12,padding:"6px 10px",fontSize:12,fontWeight:900,color:K.ink}}>{card.f}</div>
+            </Panel>
+          </div>
+        );
+      })()}
+      {result.grade!=="S"&&<div style={{fontSize:12,fontWeight:900,color:"#7A6248",marginTop:12}}>零失誤可以拿 S！隨時可以重新挑戰～</div>}
+      <div style={{marginTop:18}}><NBtn color={K.green} big onClick={onDone}>拿獎勵回地圖！ <CoinIcon size={18}/>+20</NBtn></div>
+    </div>
+  );
+}
+
+/* ================================================================
+   12.5 Joy-Con 手把元件
+   ================================================================ */
+const JoyConLeft = () => (
+  <div style={{
+    width: 58,
+    background: "#00C3E3",
+    borderRight: `4px solid ${K.ink}`,
+    borderTopLeftRadius: 32,
+    borderBottomLeftRadius: 32,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "24px 0",
+    boxShadow: "inset -5px 0 0 rgba(0,0,0,0.15)",
+    position: "relative",
+    zIndex: 3,
+    flexShrink: 0,
+    height: "100%"
+  }}>
+    {/* Minus button */}
+    <div 
+      title="Minus"
+      style={{
+        width: 12, 
+        height: 4, 
+        background: K.ink, 
+        borderRadius: 2, 
+        cursor: "pointer"
+      }}
+      className="joycon-btn"
+    />
+    
+    {/* Analog Stick */}
+    <div 
+      title="Analog Stick"
+      style={{
+        width: 34,
+        height: 34,
+        borderRadius: "50%",
+        background: "#444",
+        border: `3.5px solid ${K.ink}`,
+        boxShadow: "0 3px 0 rgba(0,0,0,0.25), inset 0 2px 3px rgba(255,255,255,0.25)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer"
+      }}
+      className="joycon-stick"
+    >
+      <div style={{width: 20, height: 20, borderRadius: "50%", border: `1.5px dashed #666`}}/>
+    </div>
+    
+    {/* D-Pad Buttons */}
+    <div style={{position: "relative", width: 38, height: 38}}>
+      {/* Up */}
+      <div style={{position: "absolute", top: 0, left: 13, width: 12, height: 12, borderRadius: "50%", background: K.ink, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}} className="joycon-btn">
+        <span style={{color: "#fff", fontSize: 7, transform: "scale(0.8) translateY(-0.5px)"}}>▲</span>
+      </div>
+      {/* Left */}
+      <div style={{position: "absolute", top: 13, left: 0, width: 12, height: 12, borderRadius: "50%", background: K.ink, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}} className="joycon-btn">
+        <span style={{color: "#fff", fontSize: 7, transform: "scale(0.8) translateX(-0.5px)"}}>◀</span>
+      </div>
+      {/* Right */}
+      <div style={{position: "absolute", top: 13, right: 0, width: 12, height: 12, borderRadius: "50%", background: K.ink, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}} className="joycon-btn">
+        <span style={{color: "#fff", fontSize: 7, transform: "scale(0.8) translateX(0.5px)"}}>▶</span>
+      </div>
+      {/* Down */}
+      <div style={{position: "absolute", bottom: 0, left: 13, width: 12, height: 12, borderRadius: "50%", background: K.ink, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}} className="joycon-btn">
+        <span style={{color: "#fff", fontSize: 7, transform: "scale(0.8) translateY(0.5px)"}}>▼</span>
+      </div>
+    </div>
+    
+    {/* Capture Button */}
+    <div 
+      title="Capture"
+      style={{
+        width: 12, 
+        height: 12, 
+        background: K.ink, 
+        border: "2.3px solid #555", 
+        borderRadius: 2, 
+        cursor: "pointer"
+      }}
+      className="joycon-btn"
+    />
+  </div>
+);
+
+const JoyConRight = ({onActionA}) => (
+  <div style={{
+    width: 58,
+    background: "#FF3E5F",
+    borderLeft: `4px solid ${K.ink}`,
+    borderTopRightRadius: 32,
+    borderBottomRightRadius: 32,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "24px 0",
+    boxShadow: "inset 5px 0 0 rgba(0,0,0,0.15)",
+    position: "relative",
+    zIndex: 3,
+    flexShrink: 0,
+    height: "100%"
+  }}>
+    {/* Plus button */}
+    <div style={{position: "relative", width: 12, height: 12, cursor: "pointer"}} className="joycon-btn" title="Plus">
+      <div style={{position: "absolute", top: 4.5, left: 0, width: 12, height: 3, background: K.ink, borderRadius: 1.5}}/>
+      <div style={{position: "absolute", top: 0, left: 4.5, width: 3, height: 12, background: K.ink, borderRadius: 1.5}}/>
+    </div>
+    
+    {/* ABXY Buttons */}
+    <div style={{position: "relative", width: 38, height: 38}}>
+      {/* X */}
+      <div style={{position: "absolute", top: 0, left: 13, width: 12, height: 12, borderRadius: "50%", background: K.ink, color: "#fff", fontSize: 7, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer"}} className="joycon-btn">X</div>
+      {/* Y */}
+      <div style={{position: "absolute", top: 13, left: 0, width: 12, height: 12, borderRadius: "50%", background: K.ink, color: "#fff", fontSize: 7, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer"}} className="joycon-btn">Y</div>
+      {/* A */}
+      <div 
+        onClick={onActionA}
+        style={{position: "absolute", top: 13, right: 0, width: 12, height: 12, borderRadius: "50%", background: K.ink, color: "#fff", fontSize: 7, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `1.2px solid rgba(255,255,255,0.2)`}} 
+        className="joycon-btn"
+        title="Press A to START"
+      >A</div>
+      {/* B */}
+      <div style={{position: "absolute", bottom: 0, left: 13, width: 12, height: 12, borderRadius: "50%", background: K.ink, color: "#fff", fontSize: 7, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer"}} className="joycon-btn">B</div>
+    </div>
+    
+    {/* Analog Stick */}
+    <div 
+      title="Analog Stick"
+      style={{
+        width: 34,
+        height: 34,
+        borderRadius: "50%",
+        background: "#444",
+        border: `3.5px solid ${K.ink}`,
+        boxShadow: "0 3px 0 rgba(0,0,0,0.25), inset 0 2px 3px rgba(255,255,255,0.25)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer"
+      }}
+      className="joycon-stick"
+    >
+      <div style={{width: 20, height: 20, borderRadius: "50%", border: `1.5px dashed #666`}}/>
+    </div>
+    
+    {/* Home Button */}
+    <div 
+      title="Home"
+      style={{
+        width: 15,
+        height: 15,
+        borderRadius: "50%",
+        background: K.ink,
+        border: "2px solid #555",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 1.5px 0 rgba(0,0,0,0.2)",
+        cursor: "pointer"
+      }}
+      className="joycon-btn"
+    >
+      <div style={{width: 5, height: 5, borderRadius: "50%", background: "#888"}}/>
+    </div>
+  </div>
+);
+
+/* ================================================================
+   13. 標題畫面
+   ================================================================ */
+function TitleScreen({onStart}) {
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "16px",
+      boxSizing: "border-box"
+    }}>
+      <div style={{
+        display: "flex",
+        width: "100%",
+        maxWidth: "640px",
+        height: "380px",
+        background: "#1E1E1E",
+        border: `5px solid ${K.ink}`,
+        borderRadius: 34,
+        boxShadow: `0 8px 0 ${K.ink}44`,
+        overflow: "hidden",
+        position: "relative",
+        zIndex: 10
+      }}>
+        {/* Left Joy-Con */}
+        <JoyConLeft />
+        
+        {/* Switch Screen Area */}
+        <div style={{
+          flex: 1,
+          background: "linear-gradient(180deg, #FFF5D6 0%, #FFD59A 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "16px 12px",
+          position: "relative",
+          overflow: "hidden"
+        }}>
+          <div style={{animation:"bobBig 2.4s infinite", transformOrigin: "center"}}><DropHero size={72}/></div>
+          
+          <div style={{textAlign:"center", margin:"4px 0 2px"}}>
+            <div style={{display:"inline-block", transform:"rotate(-2deg)"}}>
+              <div style={{
+                fontSize: "clamp(26px, 7vw, 40px)",
+                fontWeight: 900,
+                color: "#fff",
+                letterSpacing: 2,
+                lineHeight: 1.1,
+                textShadow: `4px 4px 0 ${K.ink}, -2px -2px 0 ${K.ink}, 2px -2px 0 ${K.ink}, -2px 2px 0 ${K.ink}, 0 6px 0 rgba(0,0,0,.16)`
+              }}>
+                AIDC<br/>ENGINEER
+              </div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: K.yellow,
+            border: `3px solid ${K.ink}`,
+            borderRadius: 99,
+            padding: "5px 16px",
+            fontSize: 12,
+            fontWeight: 900,
+            color: K.ink,
+            boxShadow: `0 3px 0 ${K.yellowD}`,
+            transform: "rotate(1.5deg)"
+          }}>
+            冷卻宇宙的守護者
+          </div>
+          
+          <div style={{margin: "16px 0 6px", animation: "pressHint 1.4s infinite"}}>
+            <NBtn color={K.red} big onClick={onStart} style={{fontSize: 18, padding: "12px 36px", display: "inline-flex", alignItems: "center", gap: 8}}>
+              <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
+                background: "#fff",
+                color: K.red,
+                border: `2.5px solid ${K.ink}`,
+                fontSize: 12,
+                fontWeight: 900,
+                boxShadow: `0 1.5px 0 rgba(0,0,0,0.2)`
+              }}>A</span>
+              START!
+            </NBtn>
+          </div>
+          
+          <div style={{fontSize: 10, fontWeight: 900, color: K.ink, opacity: 0.6, marginTop: 2}}>
+            知識來源：你的 Obsidian 筆記（{LEVELS.filter(l=>l.kind!=='repair').length} 關）・自動存檔
+          </div>
+        </div>
+        
+        {/* Right Joy-Con */}
+        <JoyConRight onActionA={onStart}/>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   14. App 主程式
+   ================================================================ */
+function App() {
+  const [title,setTitle] = useState(true);
+  const [screen,setScreen] = useState("world");     // world | region | level
+  const [phase,setPhase] = useState("intel");        // intel | battle | result
+  const [region,setRegion] = useState(null);
+  const [lv,setLv] = useState(null);
+  const [result,setResult] = useState(null);
+  const [p,setP] = useState({...DEF});
+  const [loaded,setLoaded] = useState(false);
+  const [viewMode, setViewMode] = useState("map");
+
+  useEffect(()=>{ setP(loadSave()); setLoaded(true); },[]);
+  useEffect(()=>{ if (loaded) persistSave(p); },[p,loaded]);
+
+  const selectRegion = r => { setRegion(r); setScreen("region"); };
+  const enterLevel = l => { setLv(l); setPhase(l.kind==="repair"?"battle":"intel"); setScreen("level"); };
+  const enterRepair = () => {
+    const repLv = getRepairLevel();
+    if (repLv) enterLevel(repLv);
+  };
+  const win = r => {
+    setResult(r); setPhase("result");
+    setP(prev=>{
+      const completed = {...prev.completed,[lv.id]:{grade:r.grade}};
+      const cards = lv.kind!=="repair"&&!prev.cards.includes(lv.id) ? [...prev.cards,lv.id] : prev.cards;
+      let weak = [...new Set([...prev.weak,...r.miss])];
+      if (lv.kind==="repair") weak = weak.filter(w=>r.miss.includes(w));
+      return {...prev,xp:prev.xp+(r.grade==="S"?80:r.grade==="A"?60:40),coins:prev.coins+20,
+        energy:r.energyLeft,completed,cards,weak};
+    });
+  };
+  const backToRegion = () => { setScreen("region"); setLv(null); setPhase("intel"); };
+  const backToWorld = () => { setScreen("world"); setRegion(null); };
+
+  return (
+    <div style={{minHeight:"100vh",background:`linear-gradient(180deg,${K.sky1},${K.sky2})`,position:"relative",overflow:"hidden"}}>
+      <Style/><Clouds/>
+      {title
+        ? <TitleScreen onStart={()=>setTitle(false)}/>
+        : <div style={{
+            position:"relative",
+            zIndex:2,
+            maxWidth: (screen === "world" && viewMode === "map") || screen === "region" ? 1200 : 560,
+            margin:"0 auto",
+            padding:"14px 14px 60px",
+            transition:"max-width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)"
+          }}>
+            <Hud p={p} showBack={screen!=="world"} onBack={screen==="level"?backToRegion:backToWorld}/>
+            <div style={{height:12}}/>
+            {screen==="world"&&<WorldSelectScreen p={p} onSelectRegion={selectRegion} onRepair={enterRepair} viewMode={viewMode} setViewMode={setViewMode}/>}
+            {screen==="region"&&<RegionMapScreen region={region} p={p} onEnter={enterLevel} onBack={backToWorld}/>}
+            {screen==="level"&&phase==="intel"&&<IntelPhase levelId={lv.id} boss={lv.boss} onStart={()=>setPhase("battle")} onBack={backToRegion}/>}
+            {screen==="level"&&phase==="battle"&&<Battle level={lv} p={p} onWin={win} onBack={backToRegion} repairTags={p.weak}/>}
+            {screen==="level"&&phase==="result"&&<ResultScreen level={lv} result={result} onDone={backToRegion}/>}
+          </div>}
+    </div>
+  );
+}
+
+/* ================================================================
+   15. 掛載
+   ================================================================ */
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+
+  </script>
+</body>
+</html>

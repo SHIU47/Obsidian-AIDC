@@ -1,0 +1,1774 @@
+{
+  "edges": [
+    {
+      "from": "cmp_a377b8",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_a377b8",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_a377b8",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_703516",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_2300ee",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_2300ee",
+      "to": "wue_bae0",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_2300ee",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_888193",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_888193",
+      "to": "tier_d1c3",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_888193",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_888193",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_9a1717",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_9a1717",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_9a1717",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f88cb1",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f88cb1",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f88cb1",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_b72a5e",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_b72a5e",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_f9f290",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_3537c5",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_3537c5",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_3537c5",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_447980",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_447980",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_447980",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cmp_447980",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "m02",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m01",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m02",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m02",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m02",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m02",
+      "to": "m01",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m02",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m02",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "m02",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m03",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m04",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m05",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "busbar_78f2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m06",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "m01",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "m02",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m07",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "m08",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crac_ec62",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crac_ec62",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crac_ec62",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crac_ec62",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crac_ec62",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "crah_1f3a",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hac_cac_f93c",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hac_cac_f93c",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hac_cac_f93c",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hac_cac_f93c",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hac_cac_f93c",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "in_row_coo_1ab5",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "in_row_coo_1ab5",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "in_row_coo_1ab5",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "in_row_coo_1ab5",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "in_row_coo_1ab5",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "rdhx_99bb",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "rdhx_99bb",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "rdhx_99bb",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "rdhx_99bb",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "rdhx_99bb",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "rdhx_99bb",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_7815",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_7815",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_7815",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_7815",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_7815",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tcs_6b84",
+      "to": "gb300black_eaf8",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tcs_6b84",
+      "to": "aidc_31be",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_6cfd",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_6cfd",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_54b2",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_54b2",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dc53",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dc53",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dc53",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_5db2",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_5db2",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cdu_5db2",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_fb8a",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_fb8a",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a2e2",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "chiller_pl_7b4c",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "free_cooli_69db",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a546",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a546",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a546",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a546",
+      "to": "wue_bae0",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a546",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_cc16",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_cc16",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_cc16",
+      "to": "lmtd_c250",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_cc16",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_c1ea",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_c1ea",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_c1ea",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_86e5",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_86e5",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_86e5",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_86e5",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_86e5",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "800vdc_ff62",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "800vdc_ff62",
+      "to": "aidc_ce6b",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_ce6b",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_ce6b",
+      "to": "800vdc_ff62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "busbar_78f2",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "busbar_78f2",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "busbar_78f2",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pdu_151d",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pdu_151d",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pdu_151d",
+      "to": "busbar_78f2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pdu_151d",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ups_fece",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ups_fece",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ups_fece",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a0fc",
+      "to": "tier_d1c3",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_a0fc",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_b65d",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_b65d",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_2a5a",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_2a5a",
+      "to": "busbar_78f2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_tco_02f5",
+      "to": "tier_d1c3",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_tco_02f5",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_tco_02f5",
+      "to": "aidc_31be",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "aidc_ce6b",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "800vdc_ff62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "gb300black_eaf8",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_d5ba",
+      "to": "tier_d1c3",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ashrae_tc__34ac",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ashrae_tc__34ac",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ashrae_tc__34ac",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ashrae_tc__34ac",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ashrae_tc__34ac",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ashrae_tc__34ac",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "lmtd_c250",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "lmtd_c250",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "lmtd_c250",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "lmtd_c250",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "lmtd_c250",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "lmtd_c250",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pue_8664",
+      "to": "wue_bae0",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pue_8664",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pue_8664",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pue_8664",
+      "to": "m02",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pue_8664",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "pue_8664",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tier_d1c3",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tier_d1c3",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tier_d1c3",
+      "to": "m01",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tier_d1c3",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "wue_bae0",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "wue_bae0",
+      "to": "m02",
+      "reason": "wikilink"
+    },
+    {
+      "from": "wue_bae0",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "wue_bae0",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_fmea_15e4",
+      "to": "aidc_31be",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_fmea_15e4",
+      "to": "800vdc_ff62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_fmea_15e4",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_fmea_15e4",
+      "to": "tcs_6b84",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_31be",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_31be",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_31be",
+      "to": "aidc_d5ba",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_31be",
+      "to": "tcs_6b84",
+      "reason": "wikilink"
+    },
+    {
+      "from": "bmsdcim_50b7",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "bmsdcim_50b7",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "bmsdcim_50b7",
+      "to": "aidc_31be",
+      "reason": "wikilink"
+    },
+    {
+      "from": "bmsdcim_50b7",
+      "to": "aidc_fmea_15e4",
+      "reason": "wikilink"
+    },
+    {
+      "from": "bmsdcim_50b7",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cfd_0d58",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cfd_0d58",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cfd_0d58",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "dcim_a3db",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "dcim_a3db",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "dcim_a3db",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "dcim_a3db",
+      "to": "pue_8664",
+      "reason": "wikilink"
+    },
+    {
+      "from": "dcim_a3db",
+      "to": "ashrae_tc__34ac",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_c66d",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_c66d",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_3e75",
+      "to": "tier_d1c3",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dbde",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dbde",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dbde",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_dbde",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb200_nvl7_e5b7",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb200_nvl7_e5b7",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb200_nvl7_e5b7",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb200_nvl7_e5b7",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb200_nvl7_e5b7",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb200_nvl7_e5b7",
+      "to": "m01",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb300black_eaf8",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb300black_eaf8",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "gb300black_eaf8",
+      "to": "nvidia_gpu_ff75",
+      "reason": "wikilink"
+    },
+    {
+      "from": "vera_rubin_e6de",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "vera_rubin_e6de",
+      "to": "busbar_78f2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ai_a8a7",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ai_a8a7",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ai_a8a7",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cold_plate_fd98",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cold_plate_fd98",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cold_plate_fd98",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "cold_plate_fd98",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hbm_dc1c",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "hbm_dc1c",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "mclmccp_0dd9",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "mclmccp_0dd9",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "nvidia_gpu_ff75",
+      "to": "vera_rubin_e6de",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tim_75fb",
+      "to": "gb200_nvl7_e5b7",
+      "reason": "wikilink"
+    },
+    {
+      "from": "tim_75fb",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "c_9378",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_asetek_dba6",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_asetek_dba6",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_asetek_dba6",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_carrier_66e1",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_carrier_66e1",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_cooler_mas_d063",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_cooler_mas_d063",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_cooler_mas_d063",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_coolit_e52b",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_coolit_e52b",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_coolit_e52b",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_coolit_e52b",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_daikin_354d",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_daikin_354d",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_daikin_354d",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_delta_3fd7",
+      "to": "busbar_78f2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_delta_3fd7",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_delta_3fd7",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_delta_3fd7",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_foxconn_f951",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_foxconn_f951",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_foxconn_f951",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_foxconn_f951",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_rittal_57fd",
+      "to": "rdhx_99bb",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_rittal_57fd",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_rittal_57fd",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_rittal_57fd",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_schneider_dabb",
+      "to": "busbar_78f2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_schneider_dabb",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_schneider_dabb",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_schneider_dabb",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_stulz_c0f2",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_stulz_c0f2",
+      "to": "crac_ec62",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_stulz_c0f2",
+      "to": "in_row_coo_1ab5",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_stulz_c0f2",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_stulz_c0f2",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_trane_f156",
+      "to": "chiller_pl_7b4c",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_trane_f156",
+      "to": "free_cooli_69db",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_trane_f156",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_trane_f156",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vertiv_b165",
+      "to": "c_dbde",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vertiv_b165",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vertiv_b165",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vertiv_b165",
+      "to": "crah_1f3a",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vertiv_b165",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vendor_dcae",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vendor_96da",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vendor_097d",
+      "to": "cdu_5db2",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vendor_097d",
+      "to": "cdu_7815",
+      "reason": "wikilink"
+    },
+    {
+      "from": "ent_vendor_097d",
+      "to": "m08",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m01",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m02",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m03",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m04",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m05",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m06",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m07",
+      "reason": "wikilink"
+    },
+    {
+      "from": "aidc_hvac__0e77",
+      "to": "m08",
+      "reason": "wikilink"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "aidc-engineer-game",
+  "version": "1.0.0",
+  "description": "AIDC Engineer — 冷卻草原大冒險",
+  "scripts": {
+    "sync": "node pipeline/generate_quizzes.js && node pipeline/build.mjs",
+    "serve": "npx serve ."
+  },
+  "keywords": [],
+  "author": "Shiu",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
+    "gray-matter": "^4.0.3"
+  }
+}
