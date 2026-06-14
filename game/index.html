@@ -809,7 +809,7 @@ function WorldSelectScreen({p, onSelectRegion, onRepair, viewMode, setViewMode})
       </div>
 
       {viewMode === "map" ? (
-        <Panel bg="#8FE3FF" style={{position:"relative", width:"100%", padding:0, border:`4px solid ${K.ink}`, borderRadius:22, boxShadow:`0 8px 0 ${K.ink}22`, overflow:"hidden"}}>
+        <Panel bg="#8FE3FF" style={{position:"relative", width:"100%", padding:0, border:`4px solid ${K.ink}`, borderRadius:22, boxShadow:`0 8px 0 ${K.ink}22`, overflowX:"auto", overflowY:"hidden"}}>
           {/* 漂浮雲朵 (動態漂移) */}
           <div style={{position:"absolute", inset:0, zIndex:3, pointerEvents:"none", overflow:"hidden"}}>
             <svg width="60" height="30" viewBox="0 0 60 30" style={{position:"absolute", top:"8%", animation:"cloudMove 35s linear infinite", opacity:0.8}}>
@@ -1274,7 +1274,8 @@ function RegionMapScreen({region, p, onEnter, onBack}) {
       </div>
 
       <Panel bg={`linear-gradient(180deg, ${theme.bg1} 0%, ${theme.bg2} 100%)`}
-        style={{minHeight:Math.max(320, Math.ceil(lvs.length/4)*120),padding:0,overflow:"hidden",position:"relative"}}>
+        style={{minHeight:Math.max(320, Math.ceil(lvs.length/4)*120),padding:0,overflowX:"auto",overflowY:"hidden",position:"relative"}}>
+        <div style={{position:"relative", width:"100%", minWidth:540, minHeight:Math.max(320, Math.ceil(lvs.length/4)*120)}}>
 
         {/* Parallax rolling hills background */}
         <svg style={{position:"absolute", bottom:0, left:0, width:"100%", height:"65%", zIndex:1, pointerEvents:"none"}} viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -1351,8 +1352,8 @@ function RegionMapScreen({region, p, onEnter, onBack}) {
                 {lv.name}
               </div>
             </div>
-          );
         })}
+        </div>
       </Panel>
     </div>
   );
