@@ -1322,6 +1322,7 @@ function RegionMapScreen({region, p, onEnter, onBack}) {
                 {lv.name}
               </div>
             </div>
+          );
         })}
         </div>
       </Panel>
