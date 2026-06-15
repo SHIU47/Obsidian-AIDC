@@ -88,6 +88,8 @@ const Style = () => (
     .md-ul{margin:8px 0;padding-left:20px;}
     .md-li{font-size:13px;font-weight:800;color:#3B2B20;line-height:1.7;margin-bottom:6px;list-style-type:square;}
     .md-code{background:#EDE7F6;color:#8B54E0;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;font-weight:800;border:1.5px solid #3B2B20;}
+    .md-pre-block{background:#F4F6F8;border:3px solid #3B2B20;border-radius:12px;padding:12px;margin:12px 0;overflow-x:auto;box-shadow:0 3px 0 rgba(0,0,0,0.15);}
+    .md-code-block{font-family:monospace;font-size:12px;font-weight:800;color:#3B2B20;line-height:1.5;white-space:pre;display:block;}
     .md-formula-inline{background:#E1F5FE;color:#1D7FD6;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;font-weight:800;border:1.5px solid #3B2B20;}
     .md-formula-block{background:#FFFDE7;border:3px solid #FFC93C;border-radius:12px;padding:10px 14px;margin:12px 0;font-family:monospace;font-size:13.5px;font-weight:900;color:#E0A416;text-align:center;overflow-x:auto;box-shadow:0 3px 0 rgba(0,0,0,0.15);}
     .md-table-container{width:100%;overflow-x:auto;margin:16px 0;border:3px solid #3B2B20;border-radius:12px;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,0.15);}
@@ -178,17 +180,117 @@ function playSfx(type) {
   }
 }
 
+function translateLatexToUnicode(str) {
+  if (!str) return '';
+  let res = str;
+  
+  // Parse \frac first
+  let idx;
+  while ((idx = res.indexOf('\\frac{')) !== -1) {
+    let depth = 1;
+    let i = idx + 6;
+    for (; i < res.length; i++) {
+      if (res[i] === '{') depth++;
+      else if (res[i] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    if (i >= res.length) break;
+    const top = res.substring(idx + 6, i);
+    
+    if (res[i+1] !== '{') break;
+    
+    depth = 1;
+    let j = i + 2;
+    for (; j < res.length; j++) {
+      if (res[j] === '{') depth++;
+      else if (res[j] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    if (j >= res.length) break;
+    const bottom = res.substring(i + 2, j);
+    
+    const needTopBraces = top.includes('+') || top.includes('-') || top.includes('\\times') || top.includes('\\cdot');
+    const needBottomBraces = bottom.includes('+') || bottom.includes('-') || bottom.includes('\\times') || bottom.includes('\\cdot');
+    const t = needTopBraces ? `(${top})` : top;
+    const b = needBottomBraces ? `(${bottom})` : bottom;
+    
+    res = res.substring(0, idx) + `${t} / ${b}` + res.substring(j + 1);
+  }
+  
+  // Basic symbols
+  res = res.replace(/\\times/g, '×');
+  res = res.replace(/\\cdot/g, '·');
+  res = res.replace(/\\Delta/g, 'Δ');
+  res = res.replace(/\\varepsilon/g, 'ε');
+  res = res.replace(/\\dot\{([a-zA-Z])\}/g, '$1̇');
+  res = res.replace(/\\dot\s+([a-zA-Z])/g, '$1̇');
+  res = res.replace(/\\text\{([^{}]+)\}/g, '$1');
+  res = res.replace(/\\mathrm\{([^{}]+)\}/g, '$1');
+  res = res.replace(/\\le/g, '≤');
+  res = res.replace(/\\ge/g, '≥');
+  res = res.replace(/\\\^\\circ/g, '°');
+  res = res.replace(/\^\\circ/g, '°');
+  res = res.replace(/\\circ/g, '°');
+  
+  // Subscripts & Superscripts
+  res = res.replace(/_\{([^{}]+)\}/g, '_$1');
+  res = res.replace(/\^\{([^{}]+)\}/g, '^($1)');
+  
+  // Clean up subscripts of 1 and 2
+  res = res.replace(/_1/g, '₁');
+  res = res.replace(/_2/g, '₂');
+  res = res.replace(/\^2/g, '²');
+  
+  // Strip remaining LaTeX backslashes
+  res = res.replace(/\\(?! |$)/g, '');
+  
+  // Cleanup spaces near Greek letters
+  res = res.replace(/Δ\s+([a-zA-Z0-9])/g, 'Δ$1');
+  res = res.replace(/ε\s+([a-zA-Z0-9])/g, 'ε$1');
+  
+  return res.trim();
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function renderMarkdown(md) {
   if (!md) return '';
   let html = md.replace(/\r/g, '');
+  
+  // Extract code blocks
+  const codeBlocks = [];
+  html = html.replace(/```([\s\S]+?)```/g, (match, code) => {
+    const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+    codeBlocks.push(code.trim());
+    return placeholder;
+  });
+
   html = html.replace(/^#\s+(.+)$/gm, '<h1 class="md-h1">$1</h1>');
   html = html.replace(/^##\s+(.+)$/gm, '<h2 class="md-h2">$1</h2>');
   html = html.replace(/^###\s+(.+)$/gm, '<h3 class="md-h3">$1</h3>');
-  html = html.replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/^>\s*(.+)$/gm, '<blockquote class="md-quote">$1</blockquote>');
-  html = html.replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, '<div class="md-formula-block">$1</div>');
-  html = html.replace(/\\$([^$\\n]+)\\$/g, '<code class="md-formula-inline">$1</code>');
-  html = html.replace(/`([^`\\n]+)`/g, '<code class="md-code">$1</code>');
+  
+  // Format math blocks & inline math
+  html = html.replace(/\$\$([\s\S]+?)\$\$/g, (match, formula) => {
+    return `<div class="md-formula-block">${translateLatexToUnicode(formula)}</div>`;
+  });
+  html = html.replace(/\$([^$\n]+)\$/g, (match, formula) => {
+    return `<code class="md-formula-inline">${translateLatexToUnicode(formula)}</code>`;
+  });
+  
+  html = html.replace(/`([^`\n]+)`/g, '<code class="md-code">$1</code>');
   
   html = html.split('\n').map(line => {
     if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
@@ -226,11 +328,17 @@ function renderMarkdown(md) {
   
   html = html.split('\n').map(line => {
     const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('<') && !trimmed.endsWith('>')) {
+    if (trimmed && !trimmed.startsWith('<') && !trimmed.endsWith('>') && !trimmed.startsWith('__CODE_BLOCK_')) {
       return `<p class="md-p">${trimmed}</p>`;
     }
     return line;
   }).join('\n');
+
+  // Restore code blocks
+  codeBlocks.forEach((code, idx) => {
+    html = html.replace(`__CODE_BLOCK_${idx}__`, `<pre class="md-pre-block"><code class="md-code-block">${escapeHtml(code)}</code></pre>`);
+  });
+
   return html;
 }
 
@@ -2093,11 +2201,15 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
   
   const startExam = (type) => {
     setExamType(type);
-    const numQ = type === "practice" ? 10 : 20;
+    const numQ = type === "practice" ? 20 : 50;
     const allQ = [];
+    const seenQText = new Set();
     for (const levelId of Object.keys(QUIZ)) {
       for (const q of (QUIZ[levelId] || [])) {
-        allQ.push({ ...q, levelId });
+        if (!seenQText.has(q.q)) {
+          seenQText.add(q.q);
+          allQ.push({ ...q, levelId });
+        }
       }
     }
     if (allQ.length === 0) {
@@ -2123,6 +2235,7 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
     setPhase("test");
     playSfx('click');
   };
+
 
   const handleAnswer = () => {
     if (picked === null) return;
@@ -2191,11 +2304,11 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
             {/* Quick Practice card */}
             <Panel bg="#FFF" style={{border: `3px solid ${K.ink}`, borderRadius: 16, display: "flex", flexDirection: "column", gap: 10}}>
               <div style={{display: "flex", justifyContents: "space-between", alignItems: "center", width:"100%"}}>
-                <span style={{fontSize: 16, fontWeight: 900, color: K.blueD}}>📝 模擬練習考 (10 題)</span>
+                <span style={{fontSize: 16, fontWeight: 900, color: K.blueD}}>📝 模擬練習考 (20 題)</span>
                 <Badge color={K.blue}>難度：遞增</Badge>
               </div>
               <div style={{fontSize: 12.5, fontWeight: 800, color: "#5C4A36", lineHeight: 1.6}}>
-                隨機從全部關卡、超過 500 道工程學科題目中抽取 10 題，題型包含概念、設計及物理計算。適合快速複習與練習！
+                隨機從全部關卡、超過 500 道工程學科題目中抽取 20 題，題型包含概念、設計及物理計算。適合快速複習與練習！
               </div>
               <div style={{alignSelf: "flex-end", marginTop: 4}}>
                 <NBtn color={K.blue} onClick={() => startExam("practice")}>開始模擬練習</NBtn>
@@ -2205,11 +2318,11 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
             {/* Certification Exam card */}
             <Panel bg="#FFF" style={{border: `3px solid ${K.yellowD}`, borderRadius: 16, display: "flex", flexDirection: "column", gap: 10}}>
               <div style={{display: "flex", justifyContents: "space-between", alignItems: "center", width:"100%"}}>
-                <span style={{fontSize: 16, fontWeight: 900, color: K.yellowD}}>🎓 高級冷卻工程師證照測驗 (20 題)</span>
+                <span style={{fontSize: 16, fontWeight: 900, color: K.yellowD}}>🎓 高級冷卻工程師證照測驗 (50 題)</span>
                 <Badge color={K.yellow}>官方認證</Badge>
               </div>
               <div style={{fontSize: 12.5, fontWeight: 800, color: "#5C4A36", lineHeight: 1.6}}>
-                正式的技術檢定考！隨機抽取 20 題。**答對 16 題 (80%) 以上**即可獲得由 AIDC 委員會頒發的「高級冷卻工程師」專屬證書。
+                正式的技術檢定考！隨機抽取 50 題。**答對 40 題 (80%) 以上**即可獲得由 AIDC 委員會頒發的「高級冷卻工程師」專屬證書。
               </div>
               <div style={{alignSelf: "flex-end", marginTop: 4, display: "flex", alignItems: "center", gap: 10}}>
                 <div style={{display: "flex", alignItems: "center", gap: 4}}>
@@ -2238,7 +2351,7 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
               {examType === "cert" ? "證照測驗" : "模擬練習"} {idx+1}/{questions.length}
             </Badge>
             <span style={{fontSize:13,fontWeight:900,color:K.ink}}>
-              目前答對 {correctAnswers} 題 (通過標準: {examType === "cert" ? "16" : "8"} 題)
+              目前答對 {correctAnswers} 題 (通過標準: {examType === "cert" ? "40" : "12"} 題)
             </span>
           </div>
           <NBtn color="#C9BCA4" shadow="#A39580" onClick={() => { playSfx('click'); setPhase("select"); }} style={{padding:"5px 10px",fontSize:11}}>中斷交卷</NBtn>
@@ -2378,7 +2491,7 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
             passedCert ? (
               <span style={{color: K.greenD}}>🎉 恭喜通過！獲得高級冷卻工程師認證！</span>
             ) : (
-              <span style={{color: K.redD}}>😭 未通過！加油，只差一點點了！ (通過門檻為 16 題)</span>
+              <span style={{color: K.redD}}>😭 未通過！加油，只差一點點了！ (通過門檻為 40 題)</span>
             )
           ) : (
             correctAnswers >= questions.length * 0.6 ? "表現不錯，繼續保持！" : "還有不少弱點喔，多看筆記複習！"
