@@ -969,7 +969,7 @@ const MuteIcon = ({muted}) => (
   </svg>
 );
 
-function Hud({p, onBack, showBack, teachingMode, setTeachingMode, muted, setMuted}) {
+function Hud({p, onBack, showBack, teachingMode, setTeachingMode, muted, setMuted, onRecharge}) {
   const totalCompleted = Object.keys(p.completed).filter(k=>k!=="repair").length;
   const totalLevels = LEVELS.filter(l=>l.kind!=='repair').length;
   const [timeStr, setTimeStr] = useState("");
@@ -1060,7 +1060,28 @@ function Hud({p, onBack, showBack, teachingMode, setTeachingMode, muted, setMute
             <StarIcon size={14}/> <span>{totalCompleted}/{totalLevels}</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:1.5,fontSize:12,fontWeight:900,color:K.ink}}>
-            <BatteryIcon percent={p.energy} size={24}/> <span>{p.energy}%</span>
+            <BatteryIcon percent={p.energy} size={24}/> 
+            <span>{p.energy}%</span>
+            {p.energy < 100 && onRecharge && (
+              <button 
+                onClick={() => { playSfx('click'); onRecharge(); }} 
+                title="花費 20 金幣補充電力 +50%"
+                style={{
+                  background: K.green,
+                  border: `1.5px solid ${K.ink}`,
+                  borderRadius: 4,
+                  padding: "0px 4.5px",
+                  fontSize: 10,
+                  fontWeight: 900,
+                  color: "#FFF",
+                  cursor: "pointer",
+                  marginLeft: 3,
+                  boxShadow: `0 1px 0 rgba(0,0,0,0.15)`
+                }}
+              >
+                +
+              </button>
+            )}
           </div>
           <div style={{fontSize:11,fontWeight:900,color:K.ink,opacity:0.85,marginLeft:2}}>{timeStr}</div>
         </div>
@@ -2976,6 +2997,25 @@ function App() {
     });
   };
 
+  const handleRecharge = () => {
+    if (p.energy >= 100) {
+      alert("機房備用電池已滿 (100%)，無需充電！");
+      return;
+    }
+    if (p.coins < 20) {
+      alert("您的金幣不足！充電需要 20 金幣。");
+      return;
+    }
+    if (window.confirm(`確認花費 20 金幣，為機房備用電池補充電力 +50% 嗎？\n（目前金幣：${p.coins}，目前電力：${p.energy}%）`)) {
+      playSfx('correct');
+      setP(prev => ({
+        ...prev,
+        coins: prev.coins - 20,
+        energy: Math.min(100, prev.energy + 50)
+      }));
+    }
+  };
+
   const backToRegion = () => { playSfx('click'); setScreen("region"); setLv(null); setPhase("intel"); };
   const backToWorld = () => { playSfx('click'); setScreen("world"); setRegion(null); };
 
@@ -2992,7 +3032,7 @@ function App() {
             padding:"14px 14px 60px",
             transition:"max-width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)"
           }}>
-            <Hud p={p} showBack={screen!=="world"} onBack={screen==="level"?backToRegion:(screen==="exam"?backToWorld:backToWorld)} teachingMode={teachingMode} setTeachingMode={setTeachingMode} muted={muted} setMuted={setMuted}/>
+            <Hud p={p} showBack={screen!=="world"} onBack={screen==="level"?backToRegion:(screen==="exam"?backToWorld:backToWorld)} teachingMode={teachingMode} setTeachingMode={setTeachingMode} muted={muted} setMuted={setMuted} onRecharge={handleRecharge}/>
             <div style={{height:12}}/>
             {screen==="world"&&<WorldSelectScreen p={p} onSelectRegion={selectRegion} onRepair={enterRepair} onEnterExam={enterExam} viewMode={viewMode} setViewMode={setViewMode} teachingMode={teachingMode}/>}
             {screen==="region"&&<RegionMapScreen region={region} p={p} onEnter={enterLevel} onBack={backToWorld} teachingMode={teachingMode}/>}
