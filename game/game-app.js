@@ -868,20 +868,23 @@ const Clouds = () => (
 /* ================================================================
    5. 存檔引擎（localStorage 版）
    ================================================================ */
-const DEF = {v:6,xp:0,energy:50,coins:0,completed:{},cards:[],weak:[]};
+const DEF = {v:6,name:"東旭",xp:0,energy:50,coins:0,completed:{},cards:[],weak:[]};
 
 function loadSave() {
   try {
     const r = localStorage.getItem("aidc-v6");
     if (r) {
       const s = JSON.parse(r);
-      if (s.v === 6) return s;
+      if (s.v === 6) {
+        if (!s.name) s.name = "東旭";
+        return s;
+      }
     }
     // v5 遷移
     const r5 = localStorage.getItem("aidc-v5");
     if (r5) {
       const s5 = JSON.parse(r5);
-      return { ...s5, v:6 };
+      return { ...DEF, ...s5, v:6 };
     }
     return {...DEF};
   } catch { return {...DEF}; }
@@ -981,7 +984,7 @@ function Hud({p, onBack, showBack, teachingMode, setTeachingMode, muted, setMute
         </div>
         <div style={{flexShrink:0}}>
           <div style={{fontSize:13,fontWeight:900,color:K.ink,display:"flex",alignItems:"center",gap:4}}>
-            東旭 <Badge color={K.purple}>Lv.{1+totalCompleted}</Badge>
+            {p.name || "東旭"} <Badge color={K.purple}>Lv.{1+totalCompleted}</Badge>
           </div>
           <div style={{height:8,width:90,background:"#EDE2CC",borderRadius:99,marginTop:3,border:`2.5px solid ${K.ink}`,overflow:"hidden"}}>
             <div style={{height:"100%",width:`${Math.min(100,p.xp/(totalLevels*2))}%`,background:`linear-gradient(90deg,${K.green},${K.yellow})`,transition:"width .7s",borderRadius:99}}/>
@@ -2187,7 +2190,7 @@ function shuffleArray(arr) {
   return newArr;
 }
 
-function ExamCenter({ p, onBack, onAddXpCoins }) {
+function ExamCenter({ p, onBack, onAddXpCoins, onUpdateName }) {
   const [phase, setPhase] = useState("select"); 
   const [examType, setExamType] = useState("practice"); 
   const [questions, setQuestions] = useState([]);
@@ -2197,7 +2200,11 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [wrongQuestions, setWrongQuestions] = useState([]);
-  const [studentName, setStudentName] = useState("東旭");
+  const [studentName, setStudentName] = useState(p.name || "東旭");
+
+  useEffect(() => {
+    if (p.name) setStudentName(p.name);
+  }, [p.name]);
   
   const startExam = (type) => {
     setExamType(type);
@@ -2329,7 +2336,10 @@ function ExamCenter({ p, onBack, onAddXpCoins }) {
                   <span style={{fontSize: 11, fontWeight: 900, color: K.ink}}>考生姓名:</span>
                   <input 
                     value={studentName} 
-                    onChange={e => setStudentName(e.target.value)}
+                    onChange={e => {
+                      setStudentName(e.target.value);
+                      if (onUpdateName) onUpdateName(e.target.value);
+                    }}
                     style={{width: 80, border: `2px solid ${K.ink}`, borderRadius: 6, padding: "2px 6px", fontSize: 12, fontWeight: 900, outline: "none"}}
                   />
                 </div>
@@ -2739,10 +2749,16 @@ const JoyConRight = ({onActionA}) => (
 /* ================================================================
    13. 標題畫面
    ================================================================ */
-function TitleScreen({onStart}) {
+function TitleScreen({onStart, defaultName}) {
+  const [name, setName] = useState(defaultName || "東旭");
+  
   const handleStart = () => {
     playSfx('click');
-    onStart();
+    if (!name.trim()) {
+      alert("請輸入玩家姓名！");
+      return;
+    }
+    onStart(name.trim());
   };
   
   return (
@@ -2811,6 +2827,36 @@ function TitleScreen({onStart}) {
             transform: "rotate(1.5deg)"
           }}>
             冷卻宇宙的守護者
+          </div>
+
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            marginTop: 18,
+            marginBottom: -2,
+            zIndex: 5
+          }}>
+            <span style={{fontSize: 12, fontWeight: 900, color: K.ink}}>玩家姓名:</span>
+            <input 
+              value={name} 
+              onChange={e => setName(e.target.value)}
+              placeholder="請輸入姓名"
+              maxLength={12}
+              style={{
+                width: 110,
+                border: `3px solid ${K.ink}`,
+                borderRadius: 8,
+                padding: "4px 8px",
+                fontSize: 13,
+                fontWeight: 900,
+                color: K.ink,
+                outline: "none",
+                background: "#FFF",
+                textAlign: "center",
+                boxShadow: `0 3px 0 rgba(0,0,0,0.15)`
+              }}
+            />
           </div>
           
           <div style={{margin: "20px 0 10px", animation: "pressHint 1.4s infinite"}}>
@@ -2907,7 +2953,7 @@ function App() {
     <div style={{minHeight:"100vh",background:`linear-gradient(180deg,${K.sky1},${K.sky2})`,position:"relative",overflow:"hidden"}}>
       <Style/><Clouds/>
       {title
-        ? <TitleScreen onStart={()=>setTitle(false)}/>
+        ? <TitleScreen onStart={(name)=>{ setP(prev=>({...prev, name})); setTitle(false); }} defaultName={p.name || "東旭"}/>
         : <div style={{
             position:"relative",
             zIndex:2,
@@ -2923,7 +2969,7 @@ function App() {
             {screen==="level"&&phase==="intel"&&<IntelPhase levelId={lv.id} boss={lv.boss} onStart={()=>setPhase("battle")} onBack={backToRegion}/>}
             {screen==="level"&&phase==="battle"&&<Battle level={lv} p={p} onWin={win} onBack={backToRegion} repairTags={p.weak}/>}
             {screen==="level"&&phase==="result"&&<ResultScreen level={lv} result={result} onDone={backToRegion}/>}
-            {screen==="exam"&&<ExamCenter p={p} onBack={backToWorld} onAddXpCoins={addXpCoins}/>}
+            {screen==="exam"&&<ExamCenter p={p} onBack={backToWorld} onAddXpCoins={addXpCoins} onUpdateName={(name)=>setP(prev=>({...prev, name}))}/>}
           </div>}
     </div>
   );
