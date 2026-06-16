@@ -55,7 +55,7 @@
   - [[CFD 模擬]]（新增液冷 CFD 特殊邊界條件：CDU 廢熱、快接壓降等）
   - [[UPS]]（新增模組化 UPS、STS 靜態轉換開關、Eco-Mode 效率 vs 穩定性分析）
 - **新建比較頁面（wiki/comparisons/）— 2 頁：**
-  - [[Dry Cooler vs. 冷卻塔]]（顯熱 vs 潛熱根本差異、WUE=0 vs 高耗水、全面對比決策框架）
+  - [[Dry Cooler vs. 密閉式冷卻水塔]]（顯熱 vs 潛熱根本差異、WUE=0 vs 高耗水、全面對比決策框架）
   - [[N+1 vs 2N vs N+2 備援架構]]（三種備援模式定義、成本 1.1×→2.0× 分析、各子系統典型選擇）
 - **新建廠商實體頁面（wiki/entities/）— 3 頁：**
   - [[Carrier]]（開利，AquaForce Vision PUREtec R-1234ze GWP=7，全球備件網絡最廣）
@@ -92,7 +92,7 @@
 
 - **新建比較頁面（wiki/comparisons/）：**
   - [[單相 vs 雙相浸沒式液冷]]（顯熱與潛熱物理機制、PFAS/GWP 環保合規、密封壓力容器）
-  - [[開式冷卻塔 vs 閉式冷卻塔]]（蒸發散熱與間接換熱效能、Legionella 防控、Free Cooling 影響）
+  - [[開放式冷卻塔 vs 閉式冷卻塔]]（蒸發散熱與間接換熱效能、Legionella 防控、Free Cooling 影響）
   - [[離心式 vs 螺桿式冷凍機]]（動能與容積壓縮機、IPLV、喘振防護與磁浮無油能效增益）
   - [[微通道冷板 vs 鰭片式冷板]]（微通道與宏觀鰭片流阻壓降、極限晶片熱阻、製造工藝對比）
   - [[(In-Row) vs (RDHX)]]（局部氣流循環與全捕獲、老舊機房液冷升級可行性）

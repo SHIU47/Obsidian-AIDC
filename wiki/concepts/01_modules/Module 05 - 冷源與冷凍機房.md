@@ -44,7 +44,7 @@ quiz_score: 94
 
 ## 冷卻塔設計
 
-**AIDC 主用[[開式冷卻塔 vs 閉式冷卻塔|開放式冷卻塔]]，而非密閉式**（熱交換效能佳，詳見 [[開式冷卻塔 vs 閉式冷卻塔]]）
+**AIDC 主用[[開放式冷卻塔 vs 閉式冷卻塔|開放式冷卻塔]]，而非密閉式**（熱交換效能佳，詳見 [[開放式冷卻塔 vs 閉式冷卻塔]]）
 
 - 設計接近溫度（Approach to Wet Bulb）：3~5°C
 - **冷卻塔出水溫度下限 = 當地濕球溫度 + 接近溫度（3~5°C）**
@@ -105,7 +105,7 @@ $$LMTD = \frac{\Delta T_1 - \Delta T_2}{\ln(\Delta T_1 / \Delta T_2)}$$
 - 設備：[[Chiller Plant]]、[[Free Cooling]]、[[LMTD 計算]]
 - 相關：[[PUE 計算]]、[[GB200 NVL72 冷卻需求]]
 - 廠商：[[Trane]]、Carrier、[[Daikin]]、Johnson Controls（York）→ [[Module 08 - 廠商生態系統]]
-- 技術比較：[[離心式 vs 螺桿式冷凍機]]、[[開式冷卻塔 vs 閉式冷卻塔]]
+- 技術比較：[[離心式 vs 螺桿式冷凍機]]、[[開放式冷卻塔 vs 閉式冷卻塔]]
 
 ## Sources
 

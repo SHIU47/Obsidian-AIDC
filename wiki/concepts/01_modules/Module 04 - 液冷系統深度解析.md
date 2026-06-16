@@ -121,7 +121,7 @@ Chiller → 冷卻塔 → 一次側水泵
 - 下一模組：[[Module 05 - 冷源與冷凍機房]]
 - 設備：[[CDU 架構與選型]]、[[液冷系統 - CDU 架構]]、[[Cold Plate]]、[[快速接頭]]、[[儲冷罐]]、[[TIM 導熱介面材料]]、[[MCL與MCCP液冷技術]]
 - GPU 規格與機架：[[GB200 NVL72 冷卻需求]]、[[Vera Rubin 機櫃物理與電力架構]]
-- 相關：[[Free Cooling]]、[[Chiller Plant]]、[[LMTD 計算]]、[[浸沒式液冷]]、[[空冷 vs 液冷]]、[[單相 vs 雙相直接液冷]]、[[HBM與晶片級光通訊熱管理]]
+- 相關：[[Free Cooling]]、[[Chiller Plant]]、[[LMTD 計算]]、[[浸沒式液冷]]、[[空冷 vs 液冷]]、[[單相 vs 雙相直接液冷]]、[[HBM與晶片級光通訊熱管理]]、[[高溫冷卻液與溫水冷卻技術]]
 - 廠商：[[Module 08 - 廠商生態系統]]、[[Vertiv]]、[[CoolIT]]
 
 ## Sources

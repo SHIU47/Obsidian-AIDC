@@ -19,16 +19,17 @@ updated: 2026-06-06
 *   **權威地位**：全球資料中心進氣端溫濕度控制的唯一聖經。
 *   **關鍵內容**：
     *   **Class A1 ~ A4 溫濕度範圍定義**：明確規範伺服器進氣端溫度（推薦 $18^\circ\text{C} \sim 27^\circ\text{C}$，容許 $15^\circ\text{C} \sim 32^\circ\text{C}$ / $35^\circ\text{C}$ / $40^\circ\text{C}$ / $45^\circ\text{C}$）。
-    *   **液冷標準變更（Liquid Cooling Classes W1 ~ W5 / W+）**：
-        *   **W1/W2/W3**：要求進水溫度較低，需冰機輔助。
-        *   **W4/W5**：進水溫度分別為 $40^\circ\text{C}$ 與 $45^\circ\text{C}$。這是實現 **100% Chiller-Free (免冰機自然冷卻)** 的底層標準依據。例如 Vera Rubin 平台採用 $45^\circ\text{C}$ 回水即是符合 **W5** 標準。
+    *   **液冷標準變更（Liquid Cooling Classes，舊制 W1~W5，2022 年第五版已更名為 W17/W27/W32/W40/W45/W+，名稱直接對應進水溫度上限）**：
+        *   **W17（舊 W1，$\le 17^\circ\text{C}$）/ W27（舊 W2，$\le 27^\circ\text{C}$）**：典型仍需 Chiller。
+        *   **W32（舊 W3，$\le 32^\circ\text{C}$）/ W40（第五版新增，$\le 40^\circ\text{C}$）**：多數地點可不用 Chiller，但受當地氣候限制（如台灣夏季濕球/乾球溫度仍可能不足）。
+        *   **W45（舊 W4，$\le 45^\circ\text{C}$）/ W+（舊 W5，$> 45^\circ\text{C}$ 無固定上限）**：典型可不用 Chiller，追求最大能效。**Vera Rubin 平台 $45^\circ\text{C}$ 供水 / $65^\circ\text{C}$ 回水即符合 W45 標準**；GB300（Blackwell Ultra）冷板設計基準供水 $40^\circ\text{C}$、允許上限 $45^\circ\text{C}$，落在 **W40/W45** 區間，是業界第一個導入溫水冷卻的量產機架平台。完整解析見 [[高溫冷卻液與溫水冷卻技術]]。
 *   **相關頁面**：[[ASHRAE TC 9.9 Data Center 溫濕度標準]]、[[GB200 NVL72 冷卻需求]]、[[Vera Rubin 機櫃物理與電力架構]]
 
 ### ASHRAE Guideline 12-2020 (Managing the Risk of Legionellosis Associated with Building Water Systems)
 *   **權威地位**：控制冷卻水塔與蒸發散熱系統中**退伍軍人菌（Legionella）**滋生風險的核心指南。
 *   **關鍵內容**：
     *   規範了冷卻水塔的水質採樣頻率（至少每季一次）、化學殺菌劑投藥程序（維持游離氯 $0.5 \sim 1.0 \text{ ppm}$），以及水霧擴散物理阻隔器的設計規格。
-*   **相關頁面**：[[冷卻水塔]]、[[開式冷卻塔 vs 閉式冷卻塔]]
+*   **相關頁面**：[[冷卻水塔]]、[[開放式冷卻塔 vs 閉式冷卻塔]]
 
 ---
 

@@ -59,7 +59,7 @@ updated: 2026-06-06
 | 冷卻塔 + Waterside Economizer | 需達到 ≤ 設計供水溫度 | ❌（GB200 ≤17°C 需求）| 高 |
 | **乾冷器（Dry Cooler）**| 環境 DBT + 接近溫度 ≤ 45°C | ✅（Vera Rubin 可行）| **= 0** |
 
-詳細說明見 [[乾冷器]]、[[Dry Cooler vs. 冷卻塔]]。
+詳細說明見 [[乾冷器]]、[[Dry Cooler vs. 密閉式冷卻水塔]]。
 
 ## Economizer Mode 控制邏輯
 
@@ -88,7 +88,8 @@ updated: 2026-06-06
 
 - 相關：[[Chiller Plant]]、[[PUE 計算]]、[[LMTD 計算]]
 - 乾冷器詳解：[[乾冷器]]（Vera Rubin 45°C 溫水方案核心）
-- 比較：[[Dry Cooler vs. 冷卻塔]]
+- 高溫冷卻液完整技術解析：[[高溫冷卻液與溫水冷卻技術]]
+- 比較：[[Dry Cooler vs. 密閉式冷卻水塔]]
 - 應用：[[Module 05 - 冷源與冷凍機房]]
 - 設計：[[Module 07 - 設計計算實務]]
 - 供水溫度限制：[[GB200 NVL72 冷卻需求]]、[[Vera Rubin 機櫃物理與電力架構]]

@@ -85,6 +85,7 @@ Vera Rubin 機櫃內部空間寸土寸金，傳統的「電纜糾纏」已被高
 
 ## 4. Cross-References
 
+*   45°C 溫水冷卻技術完整解析（ASHRAE W5、化學/材料/晶片端衝擊）：[[高溫冷卻液與溫水冷卻技術]]
 *   末端冷卻板技術：[[Cold Plate]]、[[MCL與MCCP液冷技術]] (MCCP / MCL 詳細剖析)
 *   前沿熱敏感控制：[[HBM與晶片級光通訊熱管理]] (HBM4 與矽光子 CPO 溫控約束)
 *   配電前端介面：[[PDU與電力引線]] (RPP, Power Whips, Tap-off)
