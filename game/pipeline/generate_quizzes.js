@@ -5,7 +5,47 @@ import crypto from 'crypto';
 import matter from 'gray-matter';
 
 const WIKI_DIR = 'C:\\Users\\user\\Obsidian\\Engineering-Wiki\\wiki';
-const CACHE_OUT = 'C:\\Users\\user\\Obsidian\\game\\pipeline\\quizbank_cache.json';
+const QUIZZES_DIR = 'C:\\Users\\user\\Obsidian\\game\\pipeline\\quizzes';
+
+function getFolderName(source) {
+  const norm = source.replace(/\\/g, '/');
+  if (norm.includes('concepts/')) {
+    const parts = norm.split('/');
+    // e.g., "concepts/02_air_cooling/CRAC.md" -> "02_air_cooling"
+    return parts[1] || 'unknown';
+  } else {
+    const parts = norm.split('/');
+    // e.g., "comparisons/CRAC vs CRAH.md" -> "comparisons"
+    return parts[0] || 'unknown';
+  }
+}
+
+function loadAllQuizzes() {
+  const cache = {};
+  if (!fs.existsSync(QUIZZES_DIR)) {
+    return cache;
+  }
+  
+  function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(fullPath);
+      } else if (entry.name.endsWith('.json')) {
+        const levelId = path.basename(entry.name, '.json');
+        try {
+          const content = fs.readFileSync(fullPath, 'utf8');
+          cache[levelId] = JSON.parse(content);
+        } catch (e) {
+          console.warn(`Error reading/parsing ${fullPath}: ${e.message}`);
+        }
+      }
+    }
+  }
+  
+  walk(QUIZZES_DIR);
+  return cache;
+}
 
 // Global Fallback Distractors (Professional AIDC options)
 const GLOBAL_FALLBACK_DISTRACTORS = [
@@ -36,6 +76,10 @@ function cleanMarkdown(str) {
   s = s.replace(/\\pm(?![a-zA-Z])/g, '±').replace(/\\to(?![a-zA-Z])/g, '→');
   s = s.replace(/\\rightarrow(?![a-zA-Z])/g, '→').replace(/\\mu(?![a-zA-Z])/g, 'μ');
   s = s.replace(/\\sim(?![a-zA-Z])/g, '~');
+  s = s.replace(/\\div(?![a-zA-Z])/g, '÷');
+  s = s.replace(/\\rho(?![a-zA-Z])/g, 'ρ');
+  s = s.replace(/\\\^\\circ/g, '°').replace(/\^\\circ/g, '°').replace(/\\circ/g, '°');
+  s = s.replace(/\\dot\{m\}/g, 'ṁ').replace(/\\dot\s+m/g, 'ṁ').replace(/\\dot\{V\}/g, 'V̇');
   s = s.replace(/\\text\{([^}]+)\}/g, '$1');
   s = s.replace(/\\[a-zA-Z]+\{([^}]+)\}/g, '$1'); // \cmd{text} -> text
   s = s.replace(/\\[a-zA-Z]+/g, '');              // leftover \cmd -> ''
@@ -46,7 +90,8 @@ function cleanMarkdown(str) {
   s = s.replace(/[{}_^\\]/g, '');
   // Markdown formatting
   s = s.replace(/\*\*+/g, '');
-  s = s.replace(/[*_#`>\-\+]/g, '');
+  s = s.replace(/[*_#`>]/g, '');
+  s = s.replace(/^[\-\+\*\s]+/, '');
   s = s.replace(/[\s\r\n]+/g, ' ').trim();
   return s;
 }
@@ -62,6 +107,77 @@ function shuffle(array) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
+}
+
+function falsifyStatement(str) {
+  const distractors = [];
+  
+  // 1. Swapping antonyms and keywords safely
+  const swaps = [
+    [/越低越好/g, "越高越好"],
+    [/越高越好/g, "越低越好"],
+    [/越低/g, "越高"],
+    [/越高/g, "越低"],
+    [/必須/g, "不需要"],
+    [/不需要/g, "必須"],
+    [/降低/g, "提高"],
+    [/提高/g, "降低"],
+    [/空冷/g, "液冷"],
+    [/液冷/g, "空冷"],
+    [/白區/g, "灰區"],
+    [/灰區/g, "白區"],
+    [/PUE/g, "COP"],
+    [/COP/g, "PUE"],
+    [/N\+1/g, "N+2"],
+    [/2N/g, "N+1"],
+    [/最高/g, "最低"],
+    [/最低/g, "最高"],
+    [/進氣口/g, "排氣口"],
+    [/排氣口/g, "進氣口"]
+  ];
+
+  let altered = str;
+  let didSwap = false;
+  for (const [pattern, replacement] of swaps) {
+    const temp = altered.replace(pattern, replacement);
+    if (temp !== altered) {
+      altered = temp;
+      didSwap = true;
+    }
+  }
+  if (didSwap && altered !== str) {
+    distractors.push(altered);
+  }
+
+  // 2. Swapping numbers
+  const numRegex = /(\d+(\.\d+)?)/g;
+  const matches = [...str.matchAll(numRegex)];
+  if (matches.length > 0) {
+    const scales = [1.35, 0.65, 1.8];
+    for (const scale of scales) {
+      let newStr = str;
+      let replaced = false;
+      for (const m of matches) {
+        const num = parseFloat(m[0]);
+        if (num === 0 || num === 1) continue; // Skip 0 and 1
+        
+        let newNum;
+        if (Number.isInteger(num)) {
+          newNum = Math.round(num * scale);
+          if (newNum === num) newNum += 1;
+        } else {
+          newNum = parseFloat((num * scale).toFixed(num.toString().split('.')[1].length));
+        }
+        newStr = newStr.replace(m[0], newNum.toString());
+        replaced = true;
+      }
+      if (replaced && newStr !== str && !distractors.includes(newStr)) {
+        distractors.push(newStr);
+      }
+    }
+  }
+
+  return distractors;
 }
 
 // Category fallback question bank (Module-specific & Category-specific)
@@ -409,19 +525,49 @@ function parseMarkdown(filepath) {
   return { title, sections, md_hash, tags: fm.tags || [], moduleNum: fm.module || null };
 }
 
-// Extract table data
+// Extract table data with context
 function parseTable(tableText) {
-  const lines = tableText.split('\n').map(l => l.trim()).filter(l => l.includes('|'));
-  if (lines.length < 3) return null;
-  const headers = lines[0].split('|').map(c => c.trim()).filter((c, idx) => idx > 0 && idx < lines[0].split('|').length - 1);
+  const lines = tableText.split('\n').map(l => l.trim());
+  let tableStartIndex = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('|')) {
+      tableStartIndex = i;
+      break;
+    }
+  }
+  if (tableStartIndex === -1) return null;
+
+  // Look for the last bold text before the table
+  let context = '';
+  for (let i = tableStartIndex - 1; i >= 0; i--) {
+    const boldMatch = lines[i].match(/\*\*([^*]+)\*\*/);
+    if (boldMatch) {
+      context = boldMatch[1].replace(/[:：\s]+$/, '').trim();
+      break;
+    }
+  }
+
+  // If no bold context found, check if there's any simple text before the table
+  if (!context) {
+    for (let i = tableStartIndex - 1; i >= 0; i--) {
+      if (lines[i] && !lines[i].startsWith('#') && lines[i].length > 4 && !lines[i].includes('|')) {
+        context = lines[i].replace(/[:：\s]+$/, '').trim();
+        break;
+      }
+    }
+  }
+
+  const tableLines = lines.slice(tableStartIndex).filter(l => l.startsWith('|'));
+  if (tableLines.length < 3) return null;
+  const headers = tableLines[0].split('|').map(c => c.trim()).filter((c, idx) => idx > 0 && idx < tableLines[0].split('|').length - 1);
   const rows = [];
-  for (let i = 2; i < lines.length; i++) {
-    const rowCells = lines[i].split('|').map(c => c.trim()).filter((c, idx) => idx > 0 && idx < lines[i].split('|').length - 1);
-    if (rowCells.length > 0 && !lines[i].includes('---')) {
+  for (let i = 2; i < tableLines.length; i++) {
+    const rowCells = tableLines[i].split('|').map(c => c.trim()).filter((c, idx) => idx > 0 && idx < tableLines[i].split('|').length - 1);
+    if (rowCells.length > 0 && !tableLines[i].includes('---')) {
       rows.push(rowCells);
     }
   }
-  return { headers, rows };
+  return { headers, rows, context };
 }
 
 // Distractor shifting helper for numbers and ranges
@@ -576,16 +722,9 @@ function makeId(relPath) {
 function main() {
   console.log(`Scanning wiki dir: ${WIKI_DIR}`);
 
-  // Load existing cache to preserve reviewed items
-  let cache = {};
-  try {
-    if (fs.existsSync(CACHE_OUT)) {
-      cache = JSON.parse(fs.readFileSync(CACHE_OUT, 'utf8'));
-      console.log(`Loaded existing cache with ${Object.keys(cache).length} entries`);
-    }
-  } catch (err) {
-    console.log(`Failed to load existing cache: ${err.message}`);
-  }
+  // Load existing cache from split files to preserve reviewed items
+  const cache = loadAllQuizzes();
+  console.log(`Loaded existing cache with ${Object.keys(cache).length} entries`);
 
   const files = [];
   if (fs.existsSync(WIKI_DIR)) {
@@ -821,7 +960,9 @@ function main() {
     }
 
     // B. Generate Quiz Questions
-    const questions = [];
+    const tableQuestions = [];
+    const conceptualQuestions = [];
+    const termQuestions = [];
     const pool = globalCategoryPool[category] || { summaries: [], terms: [], facts: [] };
 
     // 1. Table questions (Difficulty 2 & 3)
@@ -837,7 +978,6 @@ function main() {
     }
 
     for (const table of tables) {
-      if (questions.length >= 6) break;
       const headers = table.headers;
       const rows = table.rows;
 
@@ -849,7 +989,6 @@ function main() {
 
         if (colIdx !== -1) {
           for (let rIdx = 0; rIdx < Math.min(rows.length, 2); rIdx++) {
-            if (questions.length >= 6) break;
             const correctVal = cleanMarkdown(rows[rIdx][colIdx]);
             if (!correctVal || correctVal.length < 5 || correctVal.length > 100 || ['—', '-', 'N/A', 'n/a', '無', '不適用'].includes(correctVal.trim())) continue;
 
@@ -879,11 +1018,14 @@ function main() {
             shuffle(opts);
             const ansIdx = opts.indexOf(correctVal);
 
-            questions.push({
-              id: `q${questions.length + 1}`,
+            const qContext = table.context 
+              ? `在「${table.context}」的比較中` 
+              : `在 AIDC 實務規劃中`;
+
+            tableQuestions.push({
               type: 'choice',
               d: 2,
-              q: `在 AIDC 實務規劃中，下列關於「${title}」技術方案的「優點/優勢」，何者敘述正確？`,
+              q: `${qContext}，下列關於「${title}」技術方案的「優點/優勢」，何者敘述正確？`,
               opts,
               ans: ansIdx,
               tag: '技術優勢',
@@ -894,11 +1036,9 @@ function main() {
       } else {
         // General spec table
         for (let colIdx = 1; colIdx < headers.length; colIdx++) {
-          if (questions.length >= 6) break;
           const attrName = headers[colIdx];
 
           for (let rIdx = 0; rIdx < Math.min(rows.length, 3); rIdx++) {
-            if (questions.length >= 6) break;
             const row = rows[rIdx];
             const subject = cleanMarkdown(row[0]);
             const correctVal = cleanMarkdown(row[colIdx]);
@@ -929,11 +1069,14 @@ function main() {
               shuffle(opts);
               const ansIdx = opts.indexOf(correctVal);
 
-              questions.push({
-                id: `q${questions.length + 1}`,
+              const qContext = table.context 
+                ? `在「${table.context}」的設計情境中` 
+                : `在「${title}」的技術設計中`;
+
+              tableQuestions.push({
                 type: 'choice',
                 d: 3,
-                q: `根據 AIDC 設計參數，關於「${title}」規格指標中，「${resolvedSubject}」的「${attrName}」數值何者正確？`,
+                q: `${qContext}，關於「${resolvedSubject}」的「${attrName}」數值何者正確？`,
                 opts,
                 ans: ansIdx,
                 tag: attrName.slice(0, 10),
@@ -965,11 +1108,14 @@ function main() {
               shuffle(opts);
               const ansIdx = opts.indexOf(correctVal);
 
-              questions.push({
-                id: `q${questions.length + 1}`,
+              const qContext = table.context 
+                ? `在「${table.context}」的設計情境中` 
+                : `在「${title}」的技術設計中`;
+
+              tableQuestions.push({
                 type: 'choice',
                 d: 2,
-                q: `根據 AIDC 技術筆記，關於「${title}」中「${resolvedSubject}」的「${attrName}」規格描述，下列何者正確？`,
+                q: `${qContext}，關於「${resolvedSubject}」的「${attrName}」規格描述，下列何者正確？`,
                 opts,
                 ans: ansIdx,
                 tag: attrName.slice(0, 10),
@@ -988,8 +1134,12 @@ function main() {
       if (isSummarySec) {
         fileTakeaways = sec.text.split('\n')
           .map(l => l.trim())
-          .filter(l => l.startsWith('-') || l.startsWith('*') || l.startsWith('+') || /^\d+\./.test(l))
-          .map(l => cleanMarkdown(l))
+          .filter(l => l.startsWith('- ') || l.startsWith('* ') || l.startsWith('+ ') || /^\d+[\.\s、]+/.test(l))
+          .map(l => {
+            let s = cleanMarkdown(l);
+            s = s.replace(/^\d+[\.\s、]+/, '').replace(/^[\-\*\+\s]+/, '');
+            return s.trim();
+          })
           .filter(l => l.length > 15 && l.length < 150);
       }
     }
@@ -997,19 +1147,26 @@ function main() {
     if (fileTakeaways.length === 0) {
       fileTakeaways = sections.flatMap(sec => sec.text.split('\n'))
         .map(l => l.trim())
-        .filter(l => l.startsWith('-') || l.startsWith('*') || l.startsWith('+'))
-        .map(l => cleanMarkdown(l))
+        .filter(l => l.startsWith('- ') || l.startsWith('* ') || l.startsWith('+ '))
+        .map(l => {
+          let s = cleanMarkdown(l);
+          s = s.replace(/^\d+[\.\s、]+/, '').replace(/^[\-\*\+\s]+/, '');
+          return s.trim();
+        })
         .filter(l => l.length > 20 && l.length < 150)
-        .slice(0, 3);
+        .slice(0, 5);
     }
 
     for (const takeaway of fileTakeaways) {
-      if (questions.length >= 6) break;
-
-      let distractors = pool.summaries
-        .filter(s => s.fileTitle !== title)
-        .map(s => s.text)
-        .filter(t => t && t !== takeaway && t.length > 15 && t.length < 150);
+      let distractors = falsifyStatement(takeaway);
+      
+      if (distractors.length < 3) {
+        const otherSummaries = pool.summaries
+          .filter(s => s.fileTitle !== title)
+          .map(s => s.text)
+          .filter(t => t && t !== takeaway && t.length > 15 && t.length < 150);
+        distractors = distractors.concat(otherSummaries);
+      }
 
       distractors = Array.from(new Set(distractors));
       if (distractors.length < 3) {
@@ -1025,10 +1182,9 @@ function main() {
       shuffle(opts);
       const ansIdx = opts.indexOf(takeaway);
 
-      questions.push({
-        id: `q${questions.length + 1}`,
+      conceptualQuestions.push({
         type: 'choice',
-        d: questions.length < 2 ? 1 : 2,
+        d: 1,
         q: `根據 AIDC 設計規範，下列關於「${title}」的主導定位、設計細節或工作特性，何者敘述完全正確？`,
         opts,
         ans: ansIdx,
@@ -1045,7 +1201,8 @@ function main() {
         const boldMatch = line.trim().match(/^\s*([-*+\d.]*)\s*\*\*([^*]+)\*\*\s*[:：\-ー\s]*(.*)/);
         if (boldMatch) {
           const term = boldMatch[2].trim();
-          const desc = cleanMarkdown(boldMatch[3].trim());
+          let desc = cleanMarkdown(boldMatch[3].trim());
+          desc = desc.replace(/^[，,。．；;\s\(\（]+/, '').trim();
           if (term.length > 1 && term.length < 40 && desc.length > 15 && desc.length < 180) {
             fileTerms.push({ term, desc });
           }
@@ -1054,8 +1211,6 @@ function main() {
     }
 
     for (const bt of fileTerms) {
-      if (questions.length >= 6) break;
-
       let distractors = pool.terms
         .filter(t => t.fileTitle !== title || t.term !== bt.term)
         .map(t => t.desc)
@@ -1075,8 +1230,7 @@ function main() {
       shuffle(opts);
       const ansIdx = opts.indexOf(bt.desc);
 
-      questions.push({
-        id: `q${questions.length + 1}`,
+      termQuestions.push({
         type: 'choice',
         d: 2,
         q: `在關於「${title}」的技術分析中，關於「${bt.term}」的定義、特點或工程角色，下列何者正確？`,
@@ -1087,38 +1241,50 @@ function main() {
       });
     }
 
-    // 4. Fallback questions from the pool if still not enough (exact 6)
-    const categoryFallbacks = FALLBACK_BANK[category] || FALLBACK_BANK['m01'];
-    for (const f of categoryFallbacks) {
-      if (questions.length >= 6) break;
+    // Select a balanced mix of 6 questions
+    const selectedQuestions = [];
+    shuffle(tableQuestions);
+    shuffle(conceptualQuestions);
+    shuffle(termQuestions);
 
-      const opts = [...f.opts];
-      const correctVal = opts[f.ans];
-      shuffle(opts);
-      const ansIdx = opts.indexOf(correctVal);
+    let tableIndex = 0;
+    let conceptIndex = 0;
+    let termIndex = 0;
 
-      questions.push({
-        id: `q${questions.length + 1}`,
-        type: 'choice',
-        d: questions.length < 2 ? 1 : (questions.length < 4 ? 2 : 3),
-        q: f.q.replace(/{title}/g, title),
-        opts: opts,
-        ans: ansIdx,
-        tag: f.tag,
-        ex: f.ex
-      });
+    // Phase 1: Try to pick 2 conceptual, 2 term, 2 table
+    while (selectedQuestions.length < 2 && conceptIndex < conceptualQuestions.length) {
+      selectedQuestions.push(conceptualQuestions[conceptIndex++]);
+    }
+    while (selectedQuestions.length < 4 && termIndex < termQuestions.length) {
+      selectedQuestions.push(termQuestions[termIndex++]);
+    }
+    while (selectedQuestions.length < 6 && tableIndex < tableQuestions.length) {
+      selectedQuestions.push(tableQuestions[tableIndex++]);
     }
 
-    // Guarantee exactly 6 questions
-    while (questions.length < 6) {
-      const f = FALLBACK_BANK['m01'][questions.length % FALLBACK_BANK['m01'].length];
+    // Phase 2: Fill remaining up to 6 from any pool
+    while (selectedQuestions.length < 6 && conceptIndex < conceptualQuestions.length) {
+      selectedQuestions.push(conceptualQuestions[conceptIndex++]);
+    }
+    while (selectedQuestions.length < 6 && termIndex < termQuestions.length) {
+      selectedQuestions.push(termQuestions[termIndex++]);
+    }
+    while (selectedQuestions.length < 6 && tableIndex < tableQuestions.length) {
+      selectedQuestions.push(tableQuestions[tableIndex++]);
+    }
+
+    // Phase 3: Fallbacks if still not enough (exact 6)
+    let fallbackIndex = 0;
+    const categoryFallbacks = FALLBACK_BANK[category] || FALLBACK_BANK['m01'];
+    while (selectedQuestions.length < 6) {
+      const f = categoryFallbacks[fallbackIndex % categoryFallbacks.length];
+      fallbackIndex++;
       const opts = [...f.opts];
       const correctVal = opts[f.ans];
       shuffle(opts);
       const ansIdx = opts.indexOf(correctVal);
 
-      questions.push({
-        id: `q${questions.length + 1}`,
+      selectedQuestions.push({
         type: 'choice',
         d: 2,
         q: f.q.replace(/{title}/g, title),
@@ -1129,8 +1295,8 @@ function main() {
       });
     }
 
-    // Set correct difficulty distribution
-    questions.forEach((q, idx) => {
+    // Set correct difficulty distribution and IDs
+    selectedQuestions.forEach((q, idx) => {
       q.id = `q${idx + 1}`;
       q.d = idx < 2 ? 1 : (idx < 4 ? 2 : 3);
     });
@@ -1140,20 +1306,23 @@ function main() {
       md_hash: md_hash,
       reviewed: false,
       intel: intelCards,
-      questions: questions
+      questions: selectedQuestions
     };
+
+    // Write individual level JSON file
+    const folderName = getFolderName(relPath);
+    const targetDir = path.join(QUIZZES_DIR, folderName);
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+    const targetFile = path.join(targetDir, `${levelId}.json`);
+    fs.writeFileSync(targetFile, JSON.stringify(cache[levelId], null, 2), 'utf8');
+
     processedCount++;
   }
 
-  // Ensure directory exists
-  const outDir = path.dirname(CACHE_OUT);
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true });
-  }
-
-  fs.writeFileSync(CACHE_OUT, JSON.stringify(cache, null, 2), 'utf8');
   console.log(`Success! Compiled ${processedCount} levels (${protectedCount} protected, ${processedCount - protectedCount} updated).`);
-  console.log(`Cache written to ${CACHE_OUT}`);
+  console.log(`Quizzes saved individually under ${QUIZZES_DIR}`);
 }
 
 main();

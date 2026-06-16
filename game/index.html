@@ -26,8 +26,18 @@
   <!-- Babel Standalone：讓 JSX 在瀏覽器直接轉譯 -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+  <script>
+    Babel.registerPreset("custom-react", {
+      presets: [
+        [Babel.availablePresets["react"], { 
+          runtime: "classic"
+        }]
+      ]
+    });
+  </script>
+
   <!-- 遊戲主程式（內嵌以避開本地 CORS 限制） -->
-  <script type="text/babel">
+  <script type="text/babel" data-presets="custom-react">
 // game-app.js — AIDC ENGINEER v6
 // 完整版：9 大區域 + 比較戰場 + 廠商城市 + 86 關
 // 基於 v5 prototype，擴展為多區域世界地圖
@@ -256,6 +266,11 @@ function translateLatexToUnicode(str) {
   res = res.replace(/\\cdot/g, '·');
   res = res.replace(/\\Delta/g, 'Δ');
   res = res.replace(/\\varepsilon/g, 'ε');
+  res = res.replace(/\\div/g, '÷');
+  res = res.replace(/\\rho/g, 'ρ');
+  res = res.replace(/\\dot\{m\}/g, 'ṁ');
+  res = res.replace(/\\dot\s+m/g, 'ṁ');
+  res = res.replace(/\\dot\{V\}/g, 'V̇');
   res = res.replace(/\\dot\{([a-zA-Z])\}/g, '$1̇');
   res = res.replace(/\\dot\s+([a-zA-Z])/g, '$1̇');
   res = res.replace(/\\text\{([^{}]+)\}/g, '$1');

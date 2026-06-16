@@ -226,6 +226,11 @@ function translateLatexToUnicode(str) {
   res = res.replace(/\\cdot/g, '·');
   res = res.replace(/\\Delta/g, 'Δ');
   res = res.replace(/\\varepsilon/g, 'ε');
+  res = res.replace(/\\div/g, '÷');
+  res = res.replace(/\\rho/g, 'ρ');
+  res = res.replace(/\\dot\{m\}/g, 'ṁ');
+  res = res.replace(/\\dot\s+m/g, 'ṁ');
+  res = res.replace(/\\dot\{V\}/g, 'V̇');
   res = res.replace(/\\dot\{([a-zA-Z])\}/g, '$1̇');
   res = res.replace(/\\dot\s+([a-zA-Z])/g, '$1̇');
   res = res.replace(/\\text\{([^{}]+)\}/g, '$1');

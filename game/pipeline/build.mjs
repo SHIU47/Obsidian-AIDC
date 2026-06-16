@@ -128,8 +128,16 @@ function inferRequirements(levels) {
 // ---- 將 quizbank_cache + levels 合併成 game-data.js 的資料 ----
 function buildGameData(levels, cache, oldData, protectedIds) {
   const INTEL = oldData?.INTEL ? { ...oldData.INTEL } : {};
-  const QUIZ  = oldData?.QUIZ  ? { ...oldData.QUIZ  } : {};
+  // Only preserve QUIZ for protected (human-curated) levels; pipeline levels always get rebuilt from cache
+  const QUIZ  = {};
+  if (oldData?.QUIZ) {
+    const protectedArr = oldData?.LEVELS?.filter(lv => !lv.md_hash).map(lv => lv.id) || [];
+    for (const id of protectedArr) {
+      if (oldData.QUIZ[id]) QUIZ[id] = oldData.QUIZ[id];
+    }
+  }
   const CARDS = oldData?.CARDS ? { ...oldData.CARDS } : {};
+
   const WIKI  = {};
   const LEVELS_OUT = [];
 
@@ -193,7 +201,7 @@ function writeGameData({ INTEL, QUIZ, LEVELS, CARDS, WIKI }, genCalcSrc) {
   const ts = new Date().toISOString();
   const out = `// game-data.js
 // 由 pipeline/build.mjs 於 ${ts} 自動生成
-// 手動修改的關卡請在 quizbank_cache.json 中設定 "reviewed": true
+// 手動修改的關卡請在 game/pipeline/quizzes/<region>/<levelId>.json 中設定 "reviewed": true
 
 const INTEL = ${JSON.stringify(INTEL, null, 2)};
 
@@ -294,12 +302,29 @@ async function main() {
 
   // 4. 排座標 + 相依性 + 寫 game-data.js
   console.log('\n[4/4] 組合 game-data.js...');
-  const cachePath = path.join(__dirname, 'quizbank_cache.json');
-  let cache = {};
-  try {
-    cache = JSON.parse(fs.readFileSync(cachePath, 'utf8').replace(/^﻿/,''));
-  } catch {
-    console.log('  quizbank_cache.json 不存在，使用空快取');
+  const quizzesDir = path.join(__dirname, 'quizzes');
+  const cache = {};
+  if (fs.existsSync(quizzesDir)) {
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(fullPath);
+        } else if (entry.name.endsWith('.json')) {
+          const levelId = path.basename(entry.name, '.json');
+          try {
+            const content = fs.readFileSync(fullPath, 'utf8').replace(/^﻿/,'');
+            cache[levelId] = JSON.parse(content);
+          } catch (e) {
+            console.warn(`  讀取/解析 ${entry.name} 失敗: ${e.message}`);
+          }
+        }
+      }
+    };
+    walk(quizzesDir);
+    console.log(`  載入 ${Object.keys(cache).length} 個分割關卡題目`);
+  } else {
+    console.log('  quizzes/ 目錄不存在，使用空快取');
   }
 
   inferRequirements(levels);
@@ -354,8 +379,18 @@ async function main() {
   <!-- Babel Standalone：讓 JSX 在瀏覽器直接轉譯 -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+  <script>
+    Babel.registerPreset("custom-react", {
+      presets: [
+        [Babel.availablePresets["react"], { 
+          runtime: "classic"
+        }]
+      ]
+    });
+  </script>
+
   <!-- 遊戲主程式（內嵌以避開本地 CORS 限制） -->
-  <script type="text/babel">
+  <script type="text/babel" data-presets="custom-react">
 ${gameAppCode}
   </script>
 </body>
