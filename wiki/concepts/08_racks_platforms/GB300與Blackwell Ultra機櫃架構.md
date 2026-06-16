@@ -19,6 +19,15 @@ updated: 2026-06-06
 *   **額定電力密度**：單櫃設計電力需求達到 **$130 \text{ kW} \sim 140 \text{ kW}$**（GB200 NVL72 典型值為 $120 \text{ kW}$），對白區的發熱散熱與配電提出了極限要求。
 *   **配電架構**：採用一體化直流母線槽（DC Busbar），將電力架（Power Shelf）輸出的 54VDC 電流直接分配至各個伺服器節點（Tray）。
 
+### 溫水冷卻的起點：GB300 已開始支援 40~45°C 供水
+
+GB300 是 NVIDIA 機架平台**第一個明確支援溫水冷卻（Warm Water Cooling）的世代**，並非沿用 GB200 的 $\le 17^\circ\text{C}$ 低溫供水設計：
+
+*   冷板熱阻設計基準點為**供水 $40^\circ\text{C}$**（$3.5\text{ L/min}$ 流量下，結到冷卻液熱阻 $\le 0.030^\circ\text{C/W}$）。
+*   實際部署允許上限可達 **$45^\circ\text{C}$（113°F）**。
+*   不同廠商的機架實作仍有差異：例如 Supermicro 8 節點機架方案採 $40^\circ\text{C}$ 溫水，雙密度 16 節點方案則因熱通量更高而退回 $35^\circ\text{C}$；部分混合氣冷/液冷配置（OSFP 模組、儲存、PDB 走氣冷）仍可見 $20 \sim 25^\circ\text{C}$ 的水-乙二醇方案。
+*   **與 Vera Rubin 的關係**：GB300 是「低溫冷水 → 高溫溫水」世代交替**真正的起點**，但尚未像 Vera Rubin 一樣做到官方標準化的 $45^\circ\text{C}$ 供水 / $65^\circ\text{C}$ 回水與 100% Chiller-Free 訴求，可視為過渡世代（部分機架仍可選擇較低溫供水）。詳細應用脈絡見 [[高溫冷卻液與溫水冷卻技術]]。
+
 ---
 
 ## 2. 盲插連接器（Blind-Mate Connectors）與「浮動公差」
@@ -86,3 +95,9 @@ $$\text{Secondary Supply Water Temp } (T_{s2}) \ge \text{White Space Dew Point }
 *   晶片演進散熱：[[NVIDIA GPU 晶片演進與散熱限值]]
 *   快接與 UQD：[[快速接頭]]
 *   電力引線與 Busbar：[[PDU與電力引線]]
+*   溫水冷卻技術完整解析：[[高溫冷卻液與溫水冷卻技術]]
+
+## Sources
+
+*   GB300 冷板熱阻與供水溫度規格（40°C 設計基準 / 45°C 允許上限）：[GB300 Liquid Cooling Requirements 2026 - ToneCooling](https://tonecooling.com/gb300-liquid-cooling-requirements-2026/)、[NVIDIA GB300 NVL72 Liquid Cold Plate: Thermal Design - ToneCooling](https://tonecooling.com/nvidia-gb300-nvl72-liquid-cold-plate/)
+*   廠商實作差異（Supermicro 40°C/35°C 方案）：[Lenovo NVIDIA GB300 NVL72 Rack Scale AI Product Guide](https://lenovopress.lenovo.com/lp2357-lenovo-nvidia-gb300-nvl72-rack-scale-ai)
