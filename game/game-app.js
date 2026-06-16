@@ -78,8 +78,284 @@ const Style = () => (
     .joycon-stick{transition:transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1.15);}
     .joycon-stick:hover{transform:scale(1.03) translate(1px, -1px);}
     .joycon-stick:active{transform:scale(0.95) translate(-2px, 2px);filter:brightness(0.9);}
+    
+    /* Markdown Styles */
+    .md-h1{font-size:22px;font-weight:900;color:#3B2B20;margin-top:20px;margin-bottom:12px;border-bottom:3.5px solid #3B2B20;padding-bottom:6px;}
+    .md-h2{font-size:18px;font-weight:900;color:#3B2B20;margin-top:16px;margin-bottom:10px;border-bottom:2.5px solid #3B2B20;padding-bottom:4px;}
+    .md-h3{font-size:15px;font-weight:900;color:#3B2B20;margin-top:12px;margin-bottom:8px;}
+    .md-p{font-size:13.5px;font-weight:700;color:#5C4A36;line-height:1.75;margin:8px 0;}
+    .md-quote{background:#FFF1D6;border-left:5px solid #FF9F43;padding:10px 14px;margin:12px 0;border-radius:8px;font-size:13px;font-weight:800;color:#8A5A1E;line-height:1.6;border:3px solid #3B2B20;}
+    .md-ul{margin:8px 0;padding-left:20px;}
+    .md-li{font-size:13px;font-weight:800;color:#3B2B20;line-height:1.7;margin-bottom:6px;list-style-type:square;}
+    .md-code{background:#EDE7F6;color:#8B54E0;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;font-weight:800;border:1.5px solid #3B2B20;}
+    .md-pre-block{background:#F4F6F8;border:3px solid #3B2B20;border-radius:12px;padding:12px;margin:12px 0;overflow-x:auto;box-shadow:0 3px 0 rgba(0,0,0,0.15);}
+    .md-code-block{font-family:monospace;font-size:12px;font-weight:800;color:#3B2B20;line-height:1.5;white-space:pre;display:block;}
+    .md-formula-inline{background:#E1F5FE;color:#1D7FD6;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;font-weight:800;border:1.5px solid #3B2B20;}
+    .md-formula-block{background:#FFFDE7;border:3px solid #FFC93C;border-radius:12px;padding:10px 14px;margin:12px 0;font-family:monospace;font-size:13.5px;font-weight:900;color:#E0A416;text-align:center;overflow-x:auto;box-shadow:0 3px 0 rgba(0,0,0,0.15);}
+    .md-table-container{width:100%;overflow-x:auto;margin:16px 0;border:3px solid #3B2B20;border-radius:12px;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,0.15);}
+    .md-table{width:100%;border-collapse:collapse;text-align:left;font-size:12.5px;}
+    .md-th{background:#F2F2F2;color:#3B2B20;font-weight:900;padding:10px 12px;border-bottom:3.5px solid #3B2B20;}
+    .md-td{padding:8px 12px;border-bottom:1.5px solid #ECEFF1;color:#5C4A36;font-weight:800;}
+    .md-table tr:nth-child(even) td{background:#FAFAFA;}
+    .md-table tr:last-child td{border-bottom:none;}
   `}</style>
 );
+
+/* ================================================================
+   1.5 音效與 Markdown 渲染器 (SFX & Markdown Renderer)
+   ================================================================ */
+let audioCtx = null;
+let audioVolume = 0.5;
+function playSfx(type) {
+  if (window.audioMuted) return;
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+      gain.gain.setValueAtTime(audioVolume * 0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } else if (type === 'correct') {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const oscNode = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscNode.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscNode.type = 'triangle';
+        oscNode.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gainNode.gain.setValueAtTime(audioVolume * 0.2, now + idx * 0.07);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.07 + 0.25);
+        oscNode.start(now + idx * 0.07);
+        oscNode.stop(now + idx * 0.07 + 0.25);
+      });
+    } else if (type === 'incorrect') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+      gain.gain.setValueAtTime(audioVolume * 0.25, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } else if (type === 'damage') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+      gain.gain.setValueAtTime(audioVolume * 0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'victory') {
+      const notes = [261.63, 392.00, 523.25, 659.25, 783.99];
+      notes.forEach((freq, idx) => {
+        const oscNode = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscNode.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscNode.type = 'sine';
+        oscNode.frequency.setValueAtTime(freq, now + idx * 0.06);
+        gainNode.gain.setValueAtTime(audioVolume * 0.18, now + idx * 0.06);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.4);
+        oscNode.start(now + idx * 0.06);
+        oscNode.stop(now + idx * 0.06 + 0.4);
+      });
+    }
+  } catch (err) {
+    console.warn('Audio Context failed:', err);
+  }
+}
+
+function translateLatexToUnicode(str) {
+  if (!str) return '';
+  let res = str;
+  
+  // Parse \frac first
+  let idx;
+  while ((idx = res.indexOf('\\frac{')) !== -1) {
+    let depth = 1;
+    let i = idx + 6;
+    for (; i < res.length; i++) {
+      if (res[i] === '{') depth++;
+      else if (res[i] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    if (i >= res.length) break;
+    const top = res.substring(idx + 6, i);
+    
+    if (res[i+1] !== '{') break;
+    
+    depth = 1;
+    let j = i + 2;
+    for (; j < res.length; j++) {
+      if (res[j] === '{') depth++;
+      else if (res[j] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    if (j >= res.length) break;
+    const bottom = res.substring(i + 2, j);
+    
+    const needTopBraces = top.includes('+') || top.includes('-') || top.includes('\\times') || top.includes('\\cdot');
+    const needBottomBraces = bottom.includes('+') || bottom.includes('-') || bottom.includes('\\times') || bottom.includes('\\cdot');
+    const t = needTopBraces ? `(${top})` : top;
+    const b = needBottomBraces ? `(${bottom})` : bottom;
+    
+    res = res.substring(0, idx) + `${t} / ${b}` + res.substring(j + 1);
+  }
+  
+  // Basic symbols
+  res = res.replace(/\\times/g, '×');
+  res = res.replace(/\\cdot/g, '·');
+  res = res.replace(/\\Delta/g, 'Δ');
+  res = res.replace(/\\varepsilon/g, 'ε');
+  res = res.replace(/\\dot\{([a-zA-Z])\}/g, '$1̇');
+  res = res.replace(/\\dot\s+([a-zA-Z])/g, '$1̇');
+  res = res.replace(/\\text\{([^{}]+)\}/g, '$1');
+  res = res.replace(/\\mathrm\{([^{}]+)\}/g, '$1');
+  res = res.replace(/\\le/g, '≤');
+  res = res.replace(/\\ge/g, '≥');
+  res = res.replace(/\\\^\\circ/g, '°');
+  res = res.replace(/\^\\circ/g, '°');
+  res = res.replace(/\\circ/g, '°');
+  
+  // Subscripts & Superscripts
+  res = res.replace(/_\{([^{}]+)\}/g, '_$1');
+  res = res.replace(/\^\{([^{}]+)\}/g, '^($1)');
+  
+  // Clean up subscripts of 1 and 2
+  res = res.replace(/_1/g, '₁');
+  res = res.replace(/_2/g, '₂');
+  res = res.replace(/\^2/g, '²');
+  
+  // Strip remaining LaTeX backslashes
+  res = res.replace(/\\(?! |$)/g, '');
+  
+  // Cleanup spaces near Greek letters
+  res = res.replace(/Δ\s+([a-zA-Z0-9])/g, 'Δ$1');
+  res = res.replace(/ε\s+([a-zA-Z0-9])/g, 'ε$1');
+  
+  return res.trim();
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderMarkdown(md) {
+  if (!md) return '';
+  let html = md.replace(/\r/g, '');
+  
+  // Extract code blocks
+  const codeBlocks = [];
+  html = html.replace(/```([\s\S]+?)```/g, (match, code) => {
+    const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+    codeBlocks.push(code.trim());
+    return placeholder;
+  });
+
+  html = html.replace(/^#\s+(.+)$/gm, '<h1 class="md-h1">$1</h1>');
+  html = html.replace(/^##\s+(.+)$/gm, '<h2 class="md-h2">$1</h2>');
+  html = html.replace(/^###\s+(.+)$/gm, '<h3 class="md-h3">$1</h3>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/^>\s*(.+)$/gm, '<blockquote class="md-quote">$1</blockquote>');
+  
+  // Format math blocks & inline math
+  html = html.replace(/\$\$([\s\S]+?)\$\$/g, (match, formula) => {
+    return `<div class="md-formula-block">${translateLatexToUnicode(formula)}</div>`;
+  });
+  html = html.replace(/\$([^$\n]+)\$/g, (match, formula) => {
+    return `<code class="md-formula-inline">${translateLatexToUnicode(formula)}</code>`;
+  });
+  
+  html = html.replace(/`([^`\n]+)`/g, '<code class="md-code">$1</code>');
+  
+  html = html.split('\n').map(line => {
+    if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+      return `<li class="md-li">${line.trim().substring(2)}</li>`;
+    }
+    return line;
+  }).join('\n');
+  html = html.replace(/(<li[\s\S]+?<\/li>)/g, '<ul class="md-ul">$1</ul>');
+  html = html.replace(/<\/ul>\s*<ul class="md-ul">/g, '');
+
+  const lines = html.split('\n');
+  let inTable = false;
+  let tableRows = [];
+  const processedLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('|')) {
+      if (!inTable) {
+        inTable = true;
+        tableRows = [];
+      }
+      tableRows.push(line);
+    } else {
+      if (inTable) {
+        inTable = false;
+        processedLines.push(formatTable(tableRows));
+      }
+      processedLines.push(lines[i]);
+    }
+  }
+  if (inTable) {
+    processedLines.push(formatTable(tableRows));
+  }
+  html = processedLines.join('\n');
+  
+  html = html.split('\n').map(line => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('<') && !trimmed.endsWith('>') && !trimmed.startsWith('__CODE_BLOCK_')) {
+      return `<p class="md-p">${trimmed}</p>`;
+    }
+    return line;
+  }).join('\n');
+
+  // Restore code blocks
+  codeBlocks.forEach((code, idx) => {
+    html = html.replace(`__CODE_BLOCK_${idx}__`, `<pre class="md-pre-block"><code class="md-code-block">${escapeHtml(code)}</code></pre>`);
+  });
+
+  return html;
+}
+
+function formatTable(rows) {
+  if (rows.length < 2) return '';
+  const parseRow = (r) => r.split('|').map(c => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+  const headers = parseRow(rows[0]);
+  const startIdx = rows[1].includes('---') ? 2 : 1;
+  const tbodyRows = [];
+  for (let i = startIdx; i < rows.length; i++) {
+    const cells = parseRow(rows[i]);
+    if (cells.length > 0) tbodyRows.push(cells);
+  }
+  const headerHtml = "<thead><tr>" + headers.map(h => "<th class='md-th'>" + h + "</th>").join('') + "</tr></thead>";
+  const bodyHtml = "<tbody>" + tbodyRows.map(cells => "<tr>" + cells.map(c => "<td class='md-td'>" + c + "</td>").join('') + "</tr>").join('') + "</tbody>";
+  return "<div class='md-table-container'><table class='md-table'>" + headerHtml + bodyHtml + "</table></div>";
+}
 
 /* ================================================================
    2. SVG 角色
@@ -592,20 +868,23 @@ const Clouds = () => (
 /* ================================================================
    5. 存檔引擎（localStorage 版）
    ================================================================ */
-const DEF = {v:6,xp:0,energy:50,coins:0,completed:{},cards:[],weak:[]};
+const DEF = {v:6,name:"東旭",xp:0,energy:50,coins:0,completed:{},cards:[],weak:[]};
 
 function loadSave() {
   try {
     const r = localStorage.getItem("aidc-v6");
     if (r) {
       const s = JSON.parse(r);
-      if (s.v === 6) return s;
+      if (s.v === 6) {
+        if (!s.name) s.name = "東旭";
+        return s;
+      }
     }
     // v5 遷移
     const r5 = localStorage.getItem("aidc-v5");
     if (r5) {
       const s5 = JSON.parse(r5);
-      return { ...s5, v:6 };
+      return { ...DEF, ...s5, v:6 };
     }
     return {...DEF};
   } catch { return {...DEF}; }
@@ -649,7 +928,18 @@ const BatteryIcon = ({percent, size=32}) => {
   );
 };
 
-function Hud({p, onBack, showBack}) {
+const MuteIcon = ({muted}) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={K.ink} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle"}}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    {muted ? (
+      <line x1="23" y1="9" x2="17" y2="15"/>
+    ) : (
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    )}
+  </svg>
+);
+
+function Hud({p, onBack, showBack, teachingMode, setTeachingMode, muted, setMuted, onRecharge}) {
   const totalCompleted = Object.keys(p.completed).filter(k=>k!=="repair").length;
   const totalLevels = LEVELS.filter(l=>l.kind!=='repair').length;
   const [timeStr, setTimeStr] = useState("");
@@ -673,7 +963,7 @@ function Hud({p, onBack, showBack}) {
     <Panel bg="#F2F2F2" style={{padding:"8px 14px", border:`3px solid ${K.ink}`, boxShadow:`0 4px 0 ${K.ink}15`}}>
       <div style={{display:"flex",alignItems:"center",gap:10}}>
         {showBack && (
-          <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{padding:"5px 9px",fontSize:12,minWidth:0}}>
+          <NBtn color="#C9BCA4" shadow="#A39580" onClick={() => { playSfx('click'); onBack(); }} style={{padding:"5px 9px",fontSize:12,minWidth:0}}>
             <BackIcon size={14}/>
           </NBtn>
         )}
@@ -694,24 +984,76 @@ function Hud({p, onBack, showBack}) {
         </div>
         <div style={{flexShrink:0}}>
           <div style={{fontSize:13,fontWeight:900,color:K.ink,display:"flex",alignItems:"center",gap:4}}>
-            東旭 <Badge color={K.purple}>Lv.{1+totalCompleted}</Badge>
+            {p.name || "東旭"} <Badge color={K.purple}>Lv.{1+totalCompleted}</Badge>
           </div>
           <div style={{height:8,width:90,background:"#EDE2CC",borderRadius:99,marginTop:3,border:`2.5px solid ${K.ink}`,overflow:"hidden"}}>
             <div style={{height:"100%",width:`${Math.min(100,p.xp/(totalLevels*2))}%`,background:`linear-gradient(90deg,${K.green},${K.yellow})`,transition:"width .7s",borderRadius:99}}/>
           </div>
         </div>
         <div style={{flex:1}}/>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{display:"flex",alignItems:"center",gap:3,fontSize:12,fontWeight:900,color:K.ink}}>
-            <CoinIcon size={16}/> <span>{p.coins}</span>
+        <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+          {/* Mute button */}
+          <button onClick={() => { setMuted(!muted); if(muted) { playSfx('click'); } }} style={{
+            background: "#FFF",
+            border: `2px solid ${K.ink}`,
+            borderRadius: 8,
+            padding: "3.5px 7px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: `0 2px 0 ${K.ink}15`
+          }}>
+            <MuteIcon muted={muted}/>
+          </button>
+          
+          {/* Teaching mode button */}
+          <div style={{display:"flex",alignItems:"center",gap:2,background:"#FFF",border:`2px solid ${K.ink}`,borderRadius:8,padding:"2px 5px",boxShadow:`0 2px 0 ${K.ink}15`}}>
+            <span style={{fontSize:9,fontWeight:900,color:K.ink}}>教學</span>
+            <button onClick={() => { playSfx('click'); setTeachingMode(!teachingMode); }} style={{
+              background: teachingMode ? K.green : K.dim,
+              border: "none",
+              borderRadius: 4,
+              padding: "1px 5px",
+              fontSize: 9,
+              fontWeight: 900,
+              color: "#fff",
+              cursor: "pointer"
+            }}>{teachingMode ? "開" : "關"}</button>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:3,fontSize:12,fontWeight:900,color:K.ink}}>
-            <StarIcon size={16}/> <span>{totalCompleted}/{totalLevels}</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <div style={{display:"flex",alignItems:"center",gap:2,fontSize:12,fontWeight:900,color:K.ink}}>
+            <CoinIcon size={14}/> <span>{p.coins}</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:2,fontSize:12,fontWeight:900,color:K.ink}}>
-            <BatteryIcon percent={p.energy} size={28}/> <span>{p.energy}%</span>
+            <StarIcon size={14}/> <span>{totalCompleted}/{totalLevels}</span>
           </div>
-          <div style={{fontSize:12,fontWeight:900,color:K.ink,opacity:0.85,marginLeft:4}}>{timeStr}</div>
+          <div style={{display:"flex",alignItems:"center",gap:1.5,fontSize:12,fontWeight:900,color:K.ink}}>
+            <BatteryIcon percent={p.energy} size={24}/> 
+            <span>{p.energy}%</span>
+            {p.energy < 100 && onRecharge && (
+              <button 
+                onClick={() => { playSfx('click'); onRecharge(); }} 
+                title="花費 20 金幣補充電力 +50%"
+                style={{
+                  background: K.green,
+                  border: `1.5px solid ${K.ink}`,
+                  borderRadius: 4,
+                  padding: "0px 4.5px",
+                  fontSize: 10,
+                  fontWeight: 900,
+                  color: "#FFF",
+                  cursor: "pointer",
+                  marginLeft: 3,
+                  boxShadow: `0 1px 0 rgba(0,0,0,0.15)`
+                }}
+              >
+                +
+              </button>
+            )}
+          </div>
+          <div style={{fontSize:11,fontWeight:900,color:K.ink,opacity:0.85,marginLeft:2}}>{timeStr}</div>
         </div>
       </div>
       {p.weak.length>0&&(
@@ -731,12 +1073,13 @@ const PATH_PLATE2 = "M 28,76 C 33,72 40,71 47,72 C 54,73 61,71 65,75 C 68,78 67,
 const PATH_PLATE3 = "M 46,26 C 49,16 55,10 62,11 C 66,12 68,18 67,25 C 66,31 65,37 63,43 C 61,49 56,54 50,51 C 45,48 44,38 46,26 Z";
 const PATH_PLATE4 = "M 75,24 C 81,18 87,13 94,20 C 97,25 96,32 94,39 C 92,46 88,54 85,62 C 82,70 78,78 74,81 C 71,83 73,77 73,71 C 74,63 74,54 74,45 C 74,36 72,30 75,24 Z";
 
-function WorldSelectScreen({p, onSelectRegion, onRepair, viewMode, setViewMode}) {
+function WorldSelectScreen({p, onSelectRegion, onRepair, onEnterExam, viewMode, setViewMode, teachingMode}) {
   const regions = getAllRegions();
   const repairLv = getRepairLevel();
   const [hoveredRegion, setHoveredRegion] = useState(null);
 
   const isRegionUnlocked = (r) => {
+    if (teachingMode) return true;
     if (r === 'foundation') return true;
     const idx = REGION_ORDER.indexOf(r);
     if (idx <= 0) return true;
@@ -756,7 +1099,7 @@ function WorldSelectScreen({p, onSelectRegion, onRepair, viewMode, setViewMode})
       }
     }
     return REGION_ORDER[REGION_ORDER.length - 1];
-  }, [p]);
+  }, [p, teachingMode]);
 
   const LockIcon = () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={K.ink} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle"}}>
@@ -1184,22 +1527,37 @@ function WorldSelectScreen({p, onSelectRegion, onRepair, viewMode, setViewMode})
         </div>
       )}
 
-      {/* 修復小屋 */}
-      {repairLv && p.weak.length > 0 && (
-        <div style={{marginTop:16}} onClick={onRepair}>
-          <Panel bg={`linear-gradient(135deg,#E8F5E9,#C8E6C9)`} style={{cursor:"pointer",textAlign:"center", border:`4px solid ${K.ink}`, boxShadow:`0 5px 0 ${K.ink}22`}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12}}>
-              <div style={{animation:"bob 2s infinite"}}><FixFairy size={48}/></div>
-              <div>
-                <div style={{fontSize:16,fontWeight:900,color:K.greenD}}>修復小屋</div>
-                <div style={{fontSize:12,fontWeight:900,color:K.ink,opacity:.75,marginTop:2}}>
-                  已發現 {p.weak.length} 個知識裂痕，立即點擊補強！
-                </div>
+      {/* 底部功能區：修復小屋 & 考檢中心 */}
+      <div style={{marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16}}>
+        {/* Repair Center */}
+        <div onClick={() => { if (p.weak.length > 0) { playSfx('click'); onRepair(); } }} style={{
+          cursor: p.weak.length > 0 ? "pointer" : "not-allowed",
+          opacity: p.weak.length > 0 ? 1 : 0.6
+        }}>
+          <Panel bg={`linear-gradient(135deg,#E8F5E9,#C8E6C9)`} style={{height: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, border:`3px solid ${K.ink}`}}>
+            <div style={{animation: p.weak.length > 0 ? "bob 2s infinite" : "none"}}><FixFairy size={38}/></div>
+            <div style={{textAlign: "left"}}>
+              <div style={{fontSize: 14, fontWeight: 900, color: K.greenD}}>知識修復小屋</div>
+              <div style={{fontSize: 10, fontWeight: 900, color: K.ink, opacity: 0.7, marginTop: 2}}>
+                {p.weak.length > 0 ? `有 ${p.weak.length} 個弱點待修復` : "目前無知識裂痕"}
               </div>
             </div>
           </Panel>
         </div>
-      )}
+
+        {/* Exam Center */}
+        <div onClick={() => { playSfx('click'); onEnterExam(); }} style={{cursor: "pointer"}}>
+          <Panel bg={`linear-gradient(135deg,#FFFDE7,#FFF9C4)`} style={{height: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, border:`3px solid ${K.ink}`, borderColor: K.yellowD}}>
+            <div style={{animation: "bob 2.5s infinite"}}><MedalIcon size={30}/></div>
+            <div style={{textAlign: "left"}}>
+              <div style={{fontSize: 14, fontWeight: 900, color: K.yellowD}}>AIDC 考檢中心</div>
+              <div style={{fontSize: 10, fontWeight: 900, color: K.ink, opacity: 0.7, marginTop: 2}}>
+                模擬練習與官方證照測驗
+              </div>
+            </div>
+          </Panel>
+        </div>
+      </div>
 
       <div style={{textAlign:"center",marginTop:16,fontSize:11,fontWeight:900,color:K.ink,opacity:.5}}>
         <StarIcon size={14}/> {Object.keys(p.completed).filter(k=>k!=="repair").length}/{LEVELS.filter(l=>l.kind!=='repair').length} 關　·　自動存檔　·　知識來源：Obsidian 技術筆記
@@ -1211,11 +1569,11 @@ function WorldSelectScreen({p, onSelectRegion, onRepair, viewMode, setViewMode})
 /* ================================================================
    9. 區域地圖
    ================================================================ */
-function RegionMapScreen({region, p, onEnter, onBack}) {
+function RegionMapScreen({region, p, onEnter, onBack, teachingMode}) {
   const theme = REGION_THEMES[region] || REGION_THEMES.foundation;
   const lvs = getRegionLevels(region);
   const done = id => !!p.completed[id];
-  const unlocked = lv => !lv.req || done(lv.req);
+  const unlocked = lv => teachingMode || !lv.req || done(lv.req);
 
   // 自動排列座標
   const positionedLvs = useMemo(() => {
@@ -1337,14 +1695,15 @@ function IntelPhase({levelId,boss,onStart,onBack}) {
   const cards = INTEL[levelId] || [];
   const [i,setI] = useState(0);
   const [seen,setSeen] = useState(new Set([0]));
+  const [showWiki, setShowWiki] = useState(false);
   const all = seen.size >= cards.length;
   const c = cards[i];
 
   if (!c) return (
     <div style={{animation:"bounceIn .4s",textAlign:"center",padding:40}}>
       <Panel><div style={{fontSize:16,fontWeight:900,color:K.ink}}>此關卡的學習內容正在準備中⋯</div>
-        <div style={{marginTop:14}}><NBtn color={K.red} onClick={onStart}>直接開戰！</NBtn></div>
-        <div style={{marginTop:10}}><NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack}>← 返回</NBtn></div>
+        <div style={{marginTop:14}}><NBtn color={K.red} onClick={() => { playSfx('click'); onStart(); }}>直接開戰！</NBtn></div>
+        <div style={{marginTop:10}}><NBtn color="#C9BCA4" shadow="#A39580" onClick={() => { playSfx('click'); onBack(); }}>← 返回</NBtn></div>
       </Panel>
     </div>
   );
@@ -1352,7 +1711,7 @@ function IntelPhase({levelId,boss,onStart,onBack}) {
   return (
     <div style={{animation:"bounceIn .4s"}}>
       <div style={{display:"flex",alignItems:"center",gap:10,margin:"12px 0"}}>
-        <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{padding:"8px 14px",fontSize:13}}><BackIcon size={14}/></NBtn>
+        <NBtn color="#C9BCA4" shadow="#A39580" onClick={() => { playSfx('click'); onBack(); }} style={{padding:"8px 14px",fontSize:13}}><BackIcon size={14}/></NBtn>
         <Badge color={K.green}><BookIcon size={14}/> 修煉時間</Badge>
         <span style={{fontSize:13,fontWeight:900,color:K.ink}}>挑戰 {boss?.n || "Boss"} 前的必修課</span>
       </div>
@@ -1380,17 +1739,94 @@ function IntelPhase({levelId,boss,onStart,onBack}) {
       </Panel>
       <div style={{display:"flex",justifyContent:"center",gap:7,margin:"14px 0"}}>
         {cards.map((_,j)=>(
-          <div key={j} onClick={()=>{setI(j);setSeen(s=>new Set([...s,j]));}}
+          <div key={j} onClick={()=>{ playSfx('click'); setI(j); setSeen(s=>new Set([...s,j])); }}
             style={{width:seen.has(j)?26:13,height:13,borderRadius:99,border:`3px solid ${K.ink}`,
               background:j===i?K.yellow:seen.has(j)?K.green:"#fff",cursor:"pointer",transition:"all .25s"}}/>
         ))}
       </div>
-      <div style={{display:"flex",gap:10,justifyContent:"space-between"}}>
-        <NBtn color="#C9BCA4" shadow="#A39580" disabled={i===0} onClick={()=>setI(i-1)}>← 上一課</NBtn>
+      <div style={{display:"flex",gap:10,justifyContent:"space-between",alignItems:"center"}}>
+        <NBtn color="#C9BCA4" shadow="#A39580" disabled={i===0} onClick={()=>{ playSfx('click'); setI(i-1); }}>← 上一課</NBtn>
+        
+        {WIKI[levelId] && (
+          <NBtn color={K.purple} shadow={K.purpleD} onClick={() => { playSfx('click'); setShowWiki(true); }} style={{display:"inline-flex",alignItems:"center",gap:4}}>
+            <BookIcon size={14}/> 詳細筆記
+          </NBtn>
+        )}
+        
         {i<cards.length-1
-          ?<NBtn color={K.green} onClick={()=>{setI(i+1);setSeen(s=>new Set([...s,i+1]));}}>下一課 →</NBtn>
-          :<NBtn color={K.red} disabled={!all} onClick={onStart} big><SwordIcon size={18}/> 開戰！</NBtn>}
+          ?<NBtn color={K.green} onClick={()=>{ playSfx('click'); setI(i+1); setSeen(s=>new Set([...s,i+1])); }}>下一課 →</NBtn>
+          :<NBtn color={K.red} disabled={!all} onClick={()=>{ playSfx('click'); onStart(); }} big><SwordIcon size={18}/> 開戰！</NBtn>}
       </div>
+      
+      {/* Markdown Note Modal */}
+      {showWiki && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.5)",
+          backdropFilter: "blur(6px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 999,
+          padding: 20
+        }} onClick={() => { playSfx('click'); setShowWiki(false); }}>
+          <div style={{
+            width: "100%",
+            maxWidth: 720,
+            maxHeight: "85vh",
+            background: "#FFFDF5",
+            border: `4px solid ${K.ink}`,
+            borderRadius: 24,
+            boxShadow: `0 10px 0 ${K.ink}44`,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              padding: "14px 20px",
+              background: K.purple,
+              borderBottom: `4px solid ${K.ink}`,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              color: "#fff"
+            }}>
+              <div style={{fontSize: 16, fontWeight: 900, textShadow: "0 2px 0 rgba(0,0,0,0.2)"}}>
+                📖 原始技術筆記：{c.t || ""}
+              </div>
+              <button 
+                onClick={() => { playSfx('click'); setShowWiki(false); }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#fff",
+                  fontSize: 22,
+                  cursor: "pointer",
+                  fontWeight: 900,
+                  textShadow: "0 2px 0 rgba(0,0,0,0.2)"
+                }}
+              >✕</button>
+            </div>
+            <div style={{
+              padding: "20px",
+              overflowY: "auto",
+              flex: 1
+            }} dangerouslySetInnerHTML={{ __html: renderMarkdown(WIKI[levelId]) }} />
+            <div style={{
+              padding: "12px 20px",
+              background: "#F5F5F5",
+              borderTop: `3px solid ${K.ink}`,
+              display: "flex",
+              justifyContent: "flex-end"
+            }}>
+              <NBtn color={K.green} onClick={() => { playSfx('click'); setShowWiki(false); }}>
+                我懂了！返回課程
+              </NBtn>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{textAlign:"center",fontSize:12,fontWeight:900,color:K.ink,opacity:.6,marginTop:10}}>
         題目難度 <Diff n={1}/> → <Diff n={3}/> 遞增，全部出自課程內容
       </div>
@@ -1469,6 +1905,8 @@ function Battle({level,p,onWin,onBack,repairTags}) {
   const fire = (correct,tag) => {
     setShow(true); setOk(correct);
     if (correct) {
+      playSfx('correct');
+      setTimeout(() => playSfx('damage'), 80);
       const base = isCalc ? 34 : Math.ceil(100/total);
       const d = base + combo*3 + (curD-1)*4;
       setBossHp(h=>Math.max(0,h-d));
@@ -1481,6 +1919,7 @@ function Battle({level,p,onWin,onBack,repairTags}) {
       });
       setTimeout(()=>{setHit(false);setDmg(null);},900);
     } else {
+      playSfx('incorrect');
       setCombo(0); setHeat(h=>Math.min(100,h+(rage?18:14)));
       if (tag&&!miss.includes(tag)) setMiss(m=>[...m,tag]);
       setDmg({v: isVendor ? "退回審查" : "好燙！",c:K.redD});
@@ -1679,6 +2118,11 @@ function ResultScreen({level,result,onDone}) {
   const card = CARDS[level.id];
   const gc = {S:K.yellow,A:K.blue,B:K.orange}[result.grade];
   const gcd = {S:K.yellowD,A:K.blueD,B:K.orangeD}[result.grade];
+  
+  useEffect(() => {
+    playSfx('victory');
+  }, []);
+
   return (
     <div style={{textAlign:"center",margin:"28px auto",maxWidth:420,animation:"bounceIn .5s"}}>
       <div style={{display:"flex",justifyContent:"center",animation:"bobBig 2s infinite"}}><DropHero size={72}/></div>
@@ -1706,7 +2150,446 @@ function ResultScreen({level,result,onDone}) {
         );
       })()}
       {result.grade!=="S"&&<div style={{fontSize:12,fontWeight:900,color:"#7A6248",marginTop:12}}>零失誤可以拿 S！隨時可以重新挑戰～</div>}
-      <div style={{marginTop:18}}><NBtn color={K.green} big onClick={onDone}>拿獎勵回地圖！ <CoinIcon size={18}/>+20</NBtn></div>
+      <div style={{marginTop:18}}><NBtn color={K.green} big onClick={() => { playSfx('click'); onDone(); }}>拿獎勵回地圖！ <CoinIcon size={18}/>+20</NBtn></div>
+    </div>
+  );
+}
+
+/* ================================================================
+   12.1 考檢中心 (Exam Center)
+   ================================================================ */
+const Confetti = () => {
+  const pieces = useMemo(() => {
+    const arr = [];
+    const colors = [K.red, K.yellow, K.blue, K.green, K.purple, K.orange];
+    for (let i = 0; i < 45; i++) {
+      arr.push({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 3,
+        duration: 2 + Math.random() * 2.5,
+        size: 5 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        spin: Math.random() * 360
+      });
+    }
+    return arr;
+  }, []);
+
+  return (
+    <div style={{position:"absolute", inset:0, pointerEvents:"none", overflow:"hidden", zIndex:99}}>
+      <style>{`
+        @keyframes fall {
+          0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
+      {pieces.map(p => (
+        <div key={p.id} style={{
+          position: "absolute",
+          left: `${p.left}%`,
+          top: -20,
+          width: p.size,
+          height: p.size,
+          background: p.color,
+          opacity: 0.8,
+          borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+          animation: `fall ${p.duration}s linear ${p.delay}s infinite`,
+          transform: `rotate(${p.spin}deg)`
+        }}/>
+      ))}
+    </div>
+  );
+};
+
+function shuffleArray(arr) {
+  const newArr = [...arr];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+}
+
+function ExamCenter({ p, onBack, onAddXpCoins, onUpdateName }) {
+  const [phase, setPhase] = useState("select"); 
+  const [examType, setExamType] = useState("practice"); 
+  const [questions, setQuestions] = useState([]);
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [wrongQuestions, setWrongQuestions] = useState([]);
+  const [studentName, setStudentName] = useState(p.name || "東旭");
+
+  useEffect(() => {
+    if (p.name) setStudentName(p.name);
+  }, [p.name]);
+  
+  const startExam = (type) => {
+    setExamType(type);
+    const numQ = type === "practice" ? 20 : 50;
+    const allQ = [];
+    const seenQText = new Set();
+    for (const levelId of Object.keys(QUIZ)) {
+      for (const q of (QUIZ[levelId] || [])) {
+        if (!seenQText.has(q.q)) {
+          seenQText.add(q.q);
+          allQ.push({ ...q, levelId });
+        }
+      }
+    }
+    if (allQ.length === 0) {
+      alert("題庫為空，請執行資料同步！");
+      return;
+    }
+    const selected = shuffleArray(allQ).slice(0, numQ).map(q => {
+      const originalCorrectText = q.opts[q.ans];
+      const shuffledOpts = shuffleArray(q.opts);
+      const newAnsIdx = shuffledOpts.indexOf(originalCorrectText);
+      return {
+        ...q,
+        opts: shuffledOpts,
+        ans: newAnsIdx
+      };
+    });
+    setQuestions(selected);
+    setIdx(0);
+    setPicked(null);
+    setShowExplanation(false);
+    setCorrectAnswers(0);
+    setWrongQuestions([]);
+    setPhase("test");
+    playSfx('click');
+  };
+
+
+  const handleAnswer = () => {
+    if (picked === null) return;
+    const currentQ = questions[idx];
+    const isCorrect = picked === currentQ.ans;
+    if (isCorrect) {
+      setCorrectAnswers(c => c + 1);
+      playSfx('correct');
+    } else {
+      playSfx('incorrect');
+      setWrongQuestions(w => [...w, { q: currentQ, pickedIdx: picked }]);
+    }
+    setShowExplanation(true);
+  };
+
+  const handleNext = () => {
+    setPicked(null);
+    setShowExplanation(false);
+    setShowHint(false);
+    if (idx + 1 >= questions.length) {
+      setPhase("result");
+      if (examType === "cert" && correctAnswers >= questions.length * 0.8) {
+        playSfx('victory');
+        onAddXpCoins(questions.length * 10, 50, wrongQuestions.map(w => w.q.tag));
+      } else {
+        playSfx('victory');
+        onAddXpCoins(questions.length * 5, 20, wrongQuestions.map(w => w.q.tag));
+      }
+    } else {
+      setIdx(i => i + 1);
+      playSfx('click');
+    }
+  };
+
+  const currentQ = questions[idx];
+  const passedCert = examType === "cert" && correctAnswers >= questions.length * 0.8;
+  const certDate = useMemo(() => {
+    const d = new Date();
+    return d.getFullYear() + " 年 " + (d.getMonth() + 1) + " 月 " + d.getDate() + " 日";
+  }, []);
+
+  const certHash = useMemo(() => {
+    const raw = studentName + "_" + correctAnswers + "_" + certDate;
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+      hash = (hash << 5) - hash + raw.charCodeAt(i);
+      hash |= 0;
+    }
+    return "AIDC-" + Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+  }, [studentName, correctAnswers, certDate]);
+
+  if (phase === "select") {
+    return (
+      <div style={{animation:"bounceIn .4s"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,margin:"12px 0"}}>
+          <NBtn color="#C9BCA4" shadow="#A39580" onClick={onBack} style={{padding:"8px 14px",fontSize:13}}><BackIcon size={14}/></NBtn>
+          <Badge color={K.yellow}><MedalIcon size={14}/> AIDC 考檢中心</Badge>
+        </div>
+        <Panel bg={K.cream} style={{padding: 24}}>
+          <div style={{fontSize: 22, fontWeight: 900, color: K.ink, textAlign: "center", marginBottom: 6}}>🏆 AIDC 冷卻技術檢定</div>
+          <div style={{fontSize: 13, fontWeight: 800, color: K.ink, opacity: 0.6, textAlign: "center", marginBottom: 20}}>
+            透過嚴謹的學科測試，考驗你對資料中心與 AI 液冷科技的掌握度。
+          </div>
+          
+          <div style={{display: "grid", gap: 16}}>
+            {/* Quick Practice card */}
+            <Panel bg="#FFF" style={{border: `3px solid ${K.ink}`, borderRadius: 16, display: "flex", flexDirection: "column", gap: 10}}>
+              <div style={{display: "flex", justifyContents: "space-between", alignItems: "center", width:"100%"}}>
+                <span style={{fontSize: 16, fontWeight: 900, color: K.blueD}}>📝 模擬練習考 (20 題)</span>
+                <Badge color={K.blue}>難度：遞增</Badge>
+              </div>
+              <div style={{fontSize: 12.5, fontWeight: 800, color: "#5C4A36", lineHeight: 1.6}}>
+                隨機從全部關卡、超過 500 道工程學科題目中抽取 20 題，題型包含概念、設計及物理計算。適合快速複習與練習！
+              </div>
+              <div style={{alignSelf: "flex-end", marginTop: 4}}>
+                <NBtn color={K.blue} onClick={() => startExam("practice")}>開始模擬練習</NBtn>
+              </div>
+            </Panel>
+
+            {/* Certification Exam card */}
+            <Panel bg="#FFF" style={{border: `3px solid ${K.yellowD}`, borderRadius: 16, display: "flex", flexDirection: "column", gap: 10}}>
+              <div style={{display: "flex", justifyContents: "space-between", alignItems: "center", width:"100%"}}>
+                <span style={{fontSize: 16, fontWeight: 900, color: K.yellowD}}>🎓 高級冷卻工程師證照測驗 (50 題)</span>
+                <Badge color={K.yellow}>官方認證</Badge>
+              </div>
+              <div style={{fontSize: 12.5, fontWeight: 800, color: "#5C4A36", lineHeight: 1.6}}>
+                正式的技術檢定考！隨機抽取 50 題。**答對 40 題 (80%) 以上**即可獲得由 AIDC 委員會頒發的「高級冷卻工程師」專屬證書。
+              </div>
+              <div style={{alignSelf: "flex-end", marginTop: 4, display: "flex", alignItems: "center", gap: 10}}>
+                <div style={{display: "flex", alignItems: "center", gap: 4}}>
+                  <span style={{fontSize: 11, fontWeight: 900, color: K.ink}}>考生姓名:</span>
+                  <input 
+                    value={studentName} 
+                    onChange={e => {
+                      setStudentName(e.target.value);
+                      if (onUpdateName) onUpdateName(e.target.value);
+                    }}
+                    style={{width: 80, border: `2px solid ${K.ink}`, borderRadius: 6, padding: "2px 6px", fontSize: 12, fontWeight: 900, outline: "none"}}
+                  />
+                </div>
+                <NBtn color={K.yellow} onClick={() => startExam("cert")}>開始證照挑戰</NBtn>
+              </div>
+            </Panel>
+          </div>
+        </Panel>
+      </div>
+    );
+  }
+
+  if (phase === "test") {
+    return (
+      <div style={{animation:"bounceIn .4s"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",margin:"12px 0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:6}}>
+            <Badge color={examType === "cert" ? K.yellowD : K.blueD}>
+              {examType === "cert" ? "證照測驗" : "模擬練習"} {idx+1}/{questions.length}
+            </Badge>
+            <span style={{fontSize:13,fontWeight:900,color:K.ink}}>
+              目前答對 {correctAnswers} 題 (通過標準: {examType === "cert" ? "40" : "12"} 題)
+            </span>
+          </div>
+          <NBtn color="#C9BCA4" shadow="#A39580" onClick={() => { playSfx('click'); setPhase("select"); }} style={{padding:"5px 10px",fontSize:11}}>中斷交卷</NBtn>
+        </div>
+
+        <Panel bg="#FFF" style={{border: `4px solid ${K.ink}`, borderRadius: 20}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <Badge color={K.purple}>問題分類：{currentQ.tag || "綜合"}</Badge>
+            <Diff n={currentQ.d}/>
+          </div>
+          <div style={{fontSize:16,fontWeight:900,color:K.ink,lineHeight:1.7,marginBottom:14}}>{currentQ.q}</div>
+          
+          <div style={{display:"grid",gap:10}}>
+            {currentQ.opts.map((o, i) => {
+              const isAns = i === currentQ.ans;
+              const isPick = picked === i;
+              let bd = K.ink, bg = "#fff";
+              if (showExplanation && isAns) { bd = K.greenD; bg = "#E2FFE9"; }
+              else if (showExplanation && isPick && !isAns) { bd = K.redD; bg = "#FFE3E3"; }
+              else if (isPick) { bd = K.blueD; bg = "#E3F3FF"; }
+
+              const btnLabels = ["Y", "X", "A", "B"];
+              const btnColors = [K.green, K.blue, K.red, K.yellow];
+              const btnShadows = [K.greenD, K.blueD, K.redD, K.yellowD];
+
+              return (
+                <div key={i} className="opt" onClick={() => !showExplanation && setPicked(i)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    border: `4px solid ${bd}`,
+                    background: bg,
+                    borderRadius: 16,
+                    padding: "10px 14px",
+                    color: K.ink,
+                    fontSize: 14,
+                    fontWeight: 900,
+                    cursor: showExplanation ? "default" : "pointer",
+                    boxShadow: isPick && !showExplanation ? `0 4px 0 ${bd}` : "0 3px 0 rgba(0,0,0,.1)",
+                    transition: "all 0.1s"
+                  }}
+                >
+                  <span style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: btnColors[i] || K.dim,
+                    border: `2.5px solid ${K.ink}`,
+                    color: "#fff",
+                    fontSize: 11,
+                    fontWeight: 900,
+                    marginRight: 10,
+                    flexShrink: 0
+                  }}>{btnLabels[i]}</span>
+                  <span style={{flex: 1}}>{o}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {showExplanation && (
+            <div style={{
+              marginTop: 14,
+              background: picked === currentQ.ans ? "#E2FFE9" : "#FFF0E3",
+              border: `3px solid ${picked === currentQ.ans ? K.greenD : K.orangeD}`,
+              borderRadius: 14,
+              padding: "10px 14px",
+              fontSize: 13,
+              fontWeight: 900,
+              color: K.ink,
+              lineHeight: 1.7,
+              animation: "bounceIn .3s"
+            }}>
+              <div>{picked === currentQ.ans ? "答對了！恭喜！" : "答錯囉！請詳閱以下解析："}</div>
+              <div style={{color: "#7A6248", fontWeight: 700, marginTop: 4}}>{currentQ.ex}</div>
+            </div>
+          )}
+
+          {!showExplanation ? (
+            <div style={{display: "flex", gap: 10, marginTop: 14}}>
+              <NBtn color={K.purple} disabled={showHint} onClick={() => { playSfx('click'); setShowHint(true); }} style={{flex: 1, fontSize: 12}}>顯示提示</NBtn>
+              <NBtn color={K.red} disabled={picked === null} onClick={handleAnswer} style={{flex: 2}}>確認交卷</NBtn>
+            </div>
+          ) : (
+            <div style={{marginTop: 14, textAlign: "right"}}>
+              <NBtn color={K.green} onClick={handleNext}>
+                {idx + 1 >= questions.length ? "交卷看報告 →" : "下一題 →"}
+              </NBtn>
+            </div>
+          )}
+        </Panel>
+        {showHint && !showExplanation && (
+          <div style={{marginTop: 10, background: K.paper, border: `2.5px dashed ${K.purpleD}`, borderRadius: 10, padding: "8px 12px", fontSize: 12, fontWeight: 900, color: K.purpleD, animation: "bounceIn 0.3s"}}>
+            💡 考點提示：此題考查的是關於「{currentQ.tag || "綜合技術"}」的核心規範或工程係數。
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{animation:"bounceIn .4s"}}>
+      {passedCert && <Confetti />}
+      <div style={{display:"flex",alignItems:"center",gap:10,margin:"12px 0"}}>
+        <Badge color={K.yellow}><MedalIcon size={14}/> 檢定結果報告</Badge>
+      </div>
+
+      <Panel bg={K.cream} style={{padding: 20, textAlign: "center"}}>
+        <div style={{fontSize: 20, fontWeight: 900, color: K.ink, marginBottom: 16}}>
+          {examType === "cert" ? "高級冷卻工程師檢定報告" : "模擬檢定練習報告"}
+        </div>
+        
+        <div style={{
+          display: "inline-flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 110,
+          height: 110,
+          borderRadius: "50%",
+          background: passedCert ? K.yellow : correctAnswers >= questions.length * 0.6 ? K.blue : K.red,
+          border: `5px solid ${K.ink}`,
+          boxShadow: `0 6px 0 ${K.ink}22`,
+          marginBottom: 16
+        }}>
+          <div style={{fontSize: 28, fontWeight: 900, color: "#FFF", textShadow: "0 2px 0 rgba(0,0,0,0.3)"}}>
+            {correctAnswers}/{questions.length}
+          </div>
+          <div style={{fontSize: 10, fontWeight: 900, color: "#FFF", opacity: 0.9}}>答對題數</div>
+        </div>
+
+        <div style={{fontSize: 16, fontWeight: 900, color: K.ink, marginBottom: 12}}>
+          {examType === "cert" ? (
+            passedCert ? (
+              <span style={{color: K.greenD}}>🎉 恭喜通過！獲得高級冷卻工程師認證！</span>
+            ) : (
+              <span style={{color: K.redD}}>😭 未通過！加油，只差一點點了！ (通過門檻為 40 題)</span>
+            )
+          ) : (
+            correctAnswers >= questions.length * 0.6 ? "表現不錯，繼續保持！" : "還有不少弱點喔，多看筆記複習！"
+          )}
+        </div>
+
+        <div style={{background: "#FFF", border: `3px solid ${K.ink}`, borderRadius: 16, padding: "12px 14px", margin: "16px 0", textAlign: "left"}}>
+          <div style={{fontSize: 13, fontWeight: 900, color: K.ink, borderBottom: `2px solid ${K.ink}`, paddingBottom: 4, marginBottom: 6}}>🏆 學習成效摘要：</div>
+          <div style={{fontSize: 12, fontWeight: 800, color: "#5C4A36", lineHeight: 1.8}}>
+            • 答對率：**{Math.round(correctAnswers / questions.length * 100)}%**<br/>
+            • 獲得獎勵：金幣 +{examType === "cert" && passedCert ? "50" : "20"}、經驗值 +{examType === "cert" && passedCert ? "200" : "100"}<br/>
+            {wrongQuestions.length > 0 && (
+              <span style={{color: K.orangeD}}>
+                • 弱點領域：**{[...new Set(wrongQuestions.map(w => w.q.tag))].join("、")}** (已記錄至系統，建議前往修復小屋補強)
+              </span>
+            )}
+          </div>
+        </div>
+
+        {passedCert && (
+          <div style={{
+            background: "linear-gradient(135deg, #FFFDF5 0%, #FFF5D6 100%)",
+            border: `6px double ${K.yellowD}`,
+            borderRadius: 16,
+            padding: "24px 20px",
+            margin: "20px 0 10px",
+            boxShadow: `0 8px 16px rgba(0,0,0,0.1)`,
+            position: "relative",
+            overflow: "hidden"
+          }}>
+            <div style={{
+              position: "absolute",
+              right: 15,
+              bottom: 15,
+              opacity: 0.08,
+              transform: "rotate(-15deg)"
+            }}>
+              <MedalIcon size={120}/>
+            </div>
+            
+            <div style={{fontSize: 20, fontWeight: 900, color: K.yellowD, letterSpacing: 2, marginBottom: 4}}>AIDC COOLING ENGINEER</div>
+            <div style={{fontSize: 14, fontWeight: 900, color: K.ink, borderBottom: `2.5px solid ${K.ink}`, display: "inline-block", paddingBottom: 3, marginBottom: 14}}>
+              高級冷卻基礎設施工程師證書
+            </div>
+            
+            <div style={{fontSize: 12.5, fontWeight: 800, color: "#5C4A36", lineHeight: 1.9, textAlign: "justify", textJustify: "inter-word"}}>
+              特此證明考生 **{studentName}** 在 AIDC 基礎設施技術學程中表現優異，通過電力配電、空氣換熱、液冷板冷卻、一次側冰水冷源、機櫃集成及晶片封裝熱阻等 9 大專業工程領域的綜合技術指標考驗，成績合格，特發此證。
+            </div>
+            
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 20}}>
+              <div style={{textAlign: "left", fontSize: 10, fontWeight: 900, color: K.ink, opacity: 0.6}}>
+                驗證代碼: {certHash}<br/>
+                核發日期: {certDate}
+              </div>
+              <div style={{textAlign: "right"}}>
+                <div style={{fontSize: 11, fontWeight: 900, color: K.ink}}>AIDC 考評委員會</div>
+                <div style={{fontSize: 9, fontWeight: 900, color: K.yellowD, marginTop: 2}}>FOXCONN TECHNOLOGY GROUP</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={{marginTop: 18, display: "flex", gap: 10, justifyContent: "center"}}>
+          <NBtn color={K.purple} onClick={() => { playSfx('click'); setPhase("select"); }}>返回考檢中心</NBtn>
+          <NBtn color={K.green} onClick={() => { playSfx('click'); onBack(); }}>回地圖</NBtn>
+        </div>
+      </Panel>
     </div>
   );
 }
@@ -1887,7 +2770,18 @@ const JoyConRight = ({onActionA}) => (
 /* ================================================================
    13. 標題畫面
    ================================================================ */
-function TitleScreen({onStart}) {
+function TitleScreen({onStart, defaultName}) {
+  const [name, setName] = useState(defaultName || "東旭");
+  
+  const handleStart = () => {
+    playSfx('click');
+    if (!name.trim()) {
+      alert("請輸入玩家姓名！");
+      return;
+    }
+    onStart(name.trim());
+  };
+  
   return (
     <div style={{
       minHeight: "100vh",
@@ -1900,12 +2794,12 @@ function TitleScreen({onStart}) {
       <div style={{
         display: "flex",
         width: "100%",
-        maxWidth: "640px",
-        height: "380px",
-        background: "#1E1E1E",
-        border: `5px solid ${K.ink}`,
-        borderRadius: 34,
-        boxShadow: `0 8px 0 ${K.ink}44`,
+        maxWidth: "760px",
+        height: "430px",
+        background: "#151515",
+        border: `6px solid ${K.ink}`,
+        borderRadius: 36,
+        boxShadow: `0 10px 0 ${K.ink}44`,
         overflow: "hidden",
         position: "relative",
         zIndex: 10
@@ -1916,21 +2810,21 @@ function TitleScreen({onStart}) {
         {/* Switch Screen Area */}
         <div style={{
           flex: 1,
-          background: "linear-gradient(180deg, #FFF5D6 0%, #FFD59A 100%)",
+          background: "linear-gradient(180deg, #FFF6E0 0%, #FEDAA2 100%)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "16px 12px",
+          padding: "16px 16px",
           position: "relative",
           overflow: "hidden"
         }}>
-          <div style={{animation:"bobBig 2.4s infinite", transformOrigin: "center"}}><DropHero size={72}/></div>
+          <div style={{animation:"bobBig 2.4s infinite", transformOrigin: "center"}}><DropHero size={84}/></div>
           
-          <div style={{textAlign:"center", margin:"4px 0 2px"}}>
+          <div style={{textAlign:"center", margin:"10px 0 4px"}}>
             <div style={{display:"inline-block", transform:"rotate(-2deg)"}}>
               <div style={{
-                fontSize: "clamp(26px, 7vw, 40px)",
+                fontSize: "clamp(30px, 8vw, 44px)",
                 fontWeight: 900,
                 color: "#fff",
                 letterSpacing: 2,
@@ -1946,8 +2840,8 @@ function TitleScreen({onStart}) {
             background: K.yellow,
             border: `3px solid ${K.ink}`,
             borderRadius: 99,
-            padding: "5px 16px",
-            fontSize: 12,
+            padding: "5px 20px",
+            fontSize: 13,
             fontWeight: 900,
             color: K.ink,
             boxShadow: `0 3px 0 ${K.yellowD}`,
@@ -1955,9 +2849,39 @@ function TitleScreen({onStart}) {
           }}>
             冷卻宇宙的守護者
           </div>
+
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            marginTop: 18,
+            marginBottom: -2,
+            zIndex: 5
+          }}>
+            <span style={{fontSize: 12, fontWeight: 900, color: K.ink}}>玩家姓名:</span>
+            <input 
+              value={name} 
+              onChange={e => setName(e.target.value)}
+              placeholder="請輸入姓名"
+              maxLength={12}
+              style={{
+                width: 110,
+                border: `3px solid ${K.ink}`,
+                borderRadius: 8,
+                padding: "4px 8px",
+                fontSize: 13,
+                fontWeight: 900,
+                color: K.ink,
+                outline: "none",
+                background: "#FFF",
+                textAlign: "center",
+                boxShadow: `0 3px 0 rgba(0,0,0,0.15)`
+              }}
+            />
+          </div>
           
-          <div style={{margin: "16px 0 6px", animation: "pressHint 1.4s infinite"}}>
-            <NBtn color={K.red} big onClick={onStart} style={{fontSize: 18, padding: "12px 36px", display: "inline-flex", alignItems: "center", gap: 8}}>
+          <div style={{margin: "20px 0 10px", animation: "pressHint 1.4s infinite"}}>
+            <NBtn color={K.red} big onClick={handleStart} style={{fontSize: 18, padding: "12px 42px", display: "inline-flex", alignItems: "center", gap: 8}}>
               <span style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1982,7 +2906,7 @@ function TitleScreen({onStart}) {
         </div>
         
         {/* Right Joy-Con */}
-        <JoyConRight onActionA={onStart}/>
+        <JoyConRight onActionA={handleStart}/>
       </div>
     </div>
   );
@@ -1993,7 +2917,7 @@ function TitleScreen({onStart}) {
    ================================================================ */
 function App() {
   const [title,setTitle] = useState(true);
-  const [screen,setScreen] = useState("world");     // world | region | level
+  const [screen,setScreen] = useState("world");     // world | region | level | exam
   const [phase,setPhase] = useState("intel");        // intel | battle | result
   const [region,setRegion] = useState(null);
   const [lv,setLv] = useState(null);
@@ -2001,16 +2925,24 @@ function App() {
   const [p,setP] = useState({...DEF});
   const [loaded,setLoaded] = useState(false);
   const [viewMode, setViewMode] = useState("map");
+  const [teachingMode, setTeachingMode] = useState(false);
+  const [muted, setMuted] = useState(false);
 
   useEffect(()=>{ setP(loadSave()); setLoaded(true); },[]);
   useEffect(()=>{ if (loaded) persistSave(p); },[p,loaded]);
+  
+  useEffect(() => {
+    window.audioMuted = muted;
+  }, [muted]);
 
-  const selectRegion = r => { setRegion(r); setScreen("region"); };
-  const enterLevel = l => { setLv(l); setPhase(l.kind==="repair"?"battle":"intel"); setScreen("level"); };
+  const selectRegion = r => { playSfx('click'); setRegion(r); setScreen("region"); };
+  const enterLevel = l => { playSfx('click'); setLv(l); setPhase(l.kind==="repair"?"battle":"intel"); setScreen("level"); };
   const enterRepair = () => {
     const repLv = getRepairLevel();
     if (repLv) enterLevel(repLv);
   };
+  const enterExam = () => { playSfx('click'); setScreen("exam"); };
+
   const win = r => {
     setResult(r); setPhase("result");
     setP(prev=>{
@@ -2022,14 +2954,46 @@ function App() {
         energy:r.energyLeft,completed,cards,weak};
     });
   };
-  const backToRegion = () => { setScreen("region"); setLv(null); setPhase("intel"); };
-  const backToWorld = () => { setScreen("world"); setRegion(null); };
+
+  const addXpCoins = (xp, coins, newWeakTags = []) => {
+    setP(prev => {
+      const weak = [...new Set([...prev.weak, ...newWeakTags])];
+      return {
+        ...prev,
+        xp: prev.xp + xp,
+        coins: prev.coins + coins,
+        weak
+      };
+    });
+  };
+
+  const handleRecharge = () => {
+    if (p.energy >= 100) {
+      alert("機房備用電池已滿 (100%)，無需充電！");
+      return;
+    }
+    if (p.coins < 20) {
+      alert("您的金幣不足！充電需要 20 金幣。");
+      return;
+    }
+    if (window.confirm(`確認花費 20 金幣，為機房備用電池補充電力 +50% 嗎？\n（目前金幣：${p.coins}，目前電力：${p.energy}%）`)) {
+      playSfx('correct');
+      setP(prev => ({
+        ...prev,
+        coins: prev.coins - 20,
+        energy: Math.min(100, prev.energy + 50)
+      }));
+    }
+  };
+
+  const backToRegion = () => { playSfx('click'); setScreen("region"); setLv(null); setPhase("intel"); };
+  const backToWorld = () => { playSfx('click'); setScreen("world"); setRegion(null); };
 
   return (
     <div style={{minHeight:"100vh",background:`linear-gradient(180deg,${K.sky1},${K.sky2})`,position:"relative",overflow:"hidden"}}>
       <Style/><Clouds/>
       {title
-        ? <TitleScreen onStart={()=>setTitle(false)}/>
+        ? <TitleScreen onStart={(name)=>{ setP(prev=>({...prev, name})); setTitle(false); }} defaultName={p.name || "東旭"}/>
         : <div style={{
             position:"relative",
             zIndex:2,
@@ -2038,13 +3002,14 @@ function App() {
             padding:"14px 14px 60px",
             transition:"max-width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)"
           }}>
-            <Hud p={p} showBack={screen!=="world"} onBack={screen==="level"?backToRegion:backToWorld}/>
+            <Hud p={p} showBack={screen!=="world"} onBack={screen==="level"?backToRegion:(screen==="exam"?backToWorld:backToWorld)} teachingMode={teachingMode} setTeachingMode={setTeachingMode} muted={muted} setMuted={setMuted} onRecharge={handleRecharge}/>
             <div style={{height:12}}/>
-            {screen==="world"&&<WorldSelectScreen p={p} onSelectRegion={selectRegion} onRepair={enterRepair} viewMode={viewMode} setViewMode={setViewMode}/>}
-            {screen==="region"&&<RegionMapScreen region={region} p={p} onEnter={enterLevel} onBack={backToWorld}/>}
+            {screen==="world"&&<WorldSelectScreen p={p} onSelectRegion={selectRegion} onRepair={enterRepair} onEnterExam={enterExam} viewMode={viewMode} setViewMode={setViewMode} teachingMode={teachingMode}/>}
+            {screen==="region"&&<RegionMapScreen region={region} p={p} onEnter={enterLevel} onBack={backToWorld} teachingMode={teachingMode}/>}
             {screen==="level"&&phase==="intel"&&<IntelPhase levelId={lv.id} boss={lv.boss} onStart={()=>setPhase("battle")} onBack={backToRegion}/>}
             {screen==="level"&&phase==="battle"&&<Battle level={lv} p={p} onWin={win} onBack={backToRegion} repairTags={p.weak}/>}
             {screen==="level"&&phase==="result"&&<ResultScreen level={lv} result={result} onDone={backToRegion}/>}
+            {screen==="exam"&&<ExamCenter p={p} onBack={backToWorld} onAddXpCoins={addXpCoins} onUpdateName={(name)=>setP(prev=>({...prev, name}))}/>}
           </div>}
     </div>
   );

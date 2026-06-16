@@ -130,6 +130,7 @@ function buildGameData(levels, cache, oldData, protectedIds) {
   const INTEL = oldData?.INTEL ? { ...oldData.INTEL } : {};
   const QUIZ  = oldData?.QUIZ  ? { ...oldData.QUIZ  } : {};
   const CARDS = oldData?.CARDS ? { ...oldData.CARDS } : {};
+  const WIKI  = {};
   const LEVELS_OUT = [];
 
   // 先加入 human-curated 的舊關卡
@@ -144,6 +145,9 @@ function buildGameData(levels, cache, oldData, protectedIds) {
           x: match ? match.x : lv.x,
           y: match ? match.y : lv.y
         });
+        if (match) {
+          WIKI[lv.id] = match._content || '';
+        }
       }
     }
   }
@@ -159,6 +163,7 @@ function buildGameData(levels, cache, oldData, protectedIds) {
     // 填入 INTEL + QUIZ
     INTEL[lv.id] = entry.intel || [];
     QUIZ[lv.id]  = entry.questions || [];
+    WIKI[lv.id]  = lv._content || '';
 
     // 產生通用 CARD
     if (!CARDS[lv.id]) {
@@ -180,11 +185,11 @@ function buildGameData(levels, cache, oldData, protectedIds) {
     boss:{n:'修補小精靈',key:'FixFairy'}, x:88, y:8, c:'#3DDC84', req:null };
   LEVELS_OUT.push(repair);
 
-  return { INTEL, QUIZ, LEVELS: LEVELS_OUT, CARDS };
+  return { INTEL, QUIZ, LEVELS: LEVELS_OUT, CARDS, WIKI };
 }
 
 // ---- 寫 game-data.js ----
-function writeGameData({ INTEL, QUIZ, LEVELS, CARDS }, genCalcSrc) {
+function writeGameData({ INTEL, QUIZ, LEVELS, CARDS, WIKI }, genCalcSrc) {
   const ts = new Date().toISOString();
   const out = `// game-data.js
 // 由 pipeline/build.mjs 於 ${ts} 自動生成
@@ -193,6 +198,8 @@ function writeGameData({ INTEL, QUIZ, LEVELS, CARDS }, genCalcSrc) {
 const INTEL = ${JSON.stringify(INTEL, null, 2)};
 
 const QUIZ = ${JSON.stringify(QUIZ, null, 2)};
+
+const WIKI = ${JSON.stringify(WIKI, null, 2)};
 
 ${genCalcSrc || DEFAULT_GEN_CALC}
 
