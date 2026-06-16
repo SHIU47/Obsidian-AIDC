@@ -5,7 +5,7 @@ created: 2026-05-20
 updated: 2026-05-20
 ---
 
-# 技術對比：開式冷卻塔 vs 閉式冷卻塔
+# 技術對比：開放式冷卻塔 vs 閉式冷卻塔
 
 在 AIDC HVAC 系統中，**冷卻水塔（Cooling Tower）** 是將整個資料中心（包括 IT 設備與動力系統）產生的熱量，最終排散至大氣環境中的最末端散熱裝置。依據冷卻水是否與外部大氣直接接觸，冷卻水塔分為 **開式冷卻塔（Open-Loop Cooling Tower）** 與 **閉式冷卻塔（Closed-Loop Cooling Tower，又稱密閉式冷卻塔或蒸發式冷凝器）**。
 
@@ -90,4 +90,5 @@ $$T_{\text{water, out}} = T_{wb} + \Delta T_{\text{approach}}$$
 
 *   系統基礎模組：[[Module 05 - 冷源與冷凍機房]]
 *   末端冷源設備：[[冷卻水塔]]、[[Chiller Plant]]、[[Free Cooling]]
+*   容易混淆的設備辨析（閉式冷卻塔 vs 乾冷器，外觀與結構差異）：[[Dry Cooler vs. 密閉式冷卻水塔]] 第 0 節
 *   代表性廠商實體：[[Trane]] (Chiller 聯動)、[[Daikin]] (能效搭配)、[[Schneider]] (電力防凍配套)
