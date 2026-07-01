@@ -4,7 +4,6 @@
   "description": "AIDC Engineer — 冷卻草原大冒險",
   "scripts": {
     "sync": "node pipeline/generate_quizzes.js && node pipeline/build.mjs",
-    "sync-notion": "node pipeline/sync_to_notion.js",
     "serve": "npx serve ."
   },
   "keywords": [],
@@ -13,8 +12,6 @@
   "type": "module",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
-    "@notionhq/client": "^2.3.0",
-    "@tryfabric/martian": "^1.2.4",
     "gray-matter": "^4.0.3"
   }
 }
