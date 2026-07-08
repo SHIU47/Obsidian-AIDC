@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10年天氣統計</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script src="weather-data.js"></script>
+
+    <style>
+        :root {
+            --font-main: 'Inter', sans-serif;
+            --font-heading: 'Space Grotesk', sans-serif;
+            /* dataviz palette (dark chart surface) */
+            --series-high: #e66767;
+            --series-low: #3987e5;
+            --series-precip: #199e70;
+            --series-trend: #3987e5;
+            --chart-surface: #1a1a19;
+            --text-primary: #ffffff;
+            --text-secondary: #c3c2b7;
+            --text-muted: #898781;
+            --gridline: #2c2c2a;
+            --axis: #383835;
+        }
+        html, body { height: 100%; }
+        body { margin: 0; font-family: var(--font-main); background: #05050a; overflow: hidden; color: #f8fafc; }
+        .heading { font-family: var(--font-heading); letter-spacing: -0.04em; }
+
+        .bg-mesh {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at 10% 0%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 100%, rgba(244, 63, 94, 0.08) 0%, transparent 50%),
+                        #05050a;
+        }
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .glass-panel {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.2) 100%);
+            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .globe-container canvas { outline: none; }
+        @keyframes customPing { 0% { transform: scale(1); opacity: 0.8; } 75%, 100% { transform: scale(3); opacity: 0; } }
+        .globe-marker-ping { animation: customPing 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite; }
+
+        .chart-muted-text { fill: var(--text-muted); font-size: 9px; font-family: var(--font-main); }
+        .chart-grid { stroke: var(--gridline); stroke-width: 1; }
+    </style>
+</head>
+<body>
+    <div class="bg-mesh"></div>
+
+    <div class="h-screen w-screen flex flex-col p-4 sm:p-6 gap-4">
+        <div class="shrink-0">
+            <h1 class="heading text-2xl sm:text-3xl font-black tracking-tight text-white">10年天氣統計</h1>
+            <p class="text-[11px] font-mono text-slate-400 uppercase tracking-[0.2em] mt-1">Open-Meteo Historical Archive · 點擊地球上的地點查看統計</p>
+        </div>
+
+        <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+            <div id="globePanel" class="flex-1 glass-panel rounded-[1.5rem] relative overflow-hidden min-h-[280px]">
+                <div id="globeViz" class="w-full h-full cursor-move globe-container"></div>
+            </div>
+
+            <div id="detailPanel" class="w-full lg:w-[440px] glass-panel rounded-[1.5rem] p-5 shrink-0 overflow-y-auto">
+                <!-- injected -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LOCATIONS = Object.values(WEATHER_DATA);
+        let myGlobe = null;
+        let selectedId = null;
+
+        function initGlobe() {
+            const container = document.getElementById('globeViz');
+            if (!container || typeof Globe === 'undefined') return;
+
+            myGlobe = Globe()(container)
+                .backgroundColor('rgba(0,0,0,0)')
+                .showAtmosphere(true).atmosphereColor('#bae6fd').atmosphereAltitude(0.2)
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+                .htmlElementsData(LOCATIONS)
+                .htmlElement(d => {
+                    const el = document.createElement('div');
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2 cursor-pointer group pointer-events-auto" style="transform: translate(-50%, -50%);">
+                            <div class="relative flex h-3 w-3 sm:h-4 sm:w-4">
+                                <span class="absolute inline-flex h-full w-full rounded-full bg-sky-400 globe-marker-ping"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 sm:h-4 sm:w-4 bg-sky-400 shadow-[0_0_8px_rgba(255,255,255,0.8)] border border-white/80"></span>
+                            </div>
+                            <div class="hidden group-hover:block px-2.5 py-1 bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-bold rounded-lg whitespace-nowrap border border-white/20 shadow-xl">
+                                ${d.name}
+                            </div>
+                        </div>
+                    `;
+                    el.onclick = () => selectLocation(d.id);
+                    return el;
+                })
+                .htmlAltitude(0.02);
+
+            myGlobe.controls().autoRotate = true;
+            myGlobe.controls().autoRotateSpeed = 0.8;
+            myGlobe.controls().enableZoom = true;
+
+            const resizeObserver = new ResizeObserver(entries => {
+                for (const entry of entries) {
+                    const { width, height } = entry.contentRect;
+                    if (width && height && myGlobe) { myGlobe.width(width); myGlobe.height(height); }
+                }
+            });
+            resizeObserver.observe(container);
+
+            let idleTimeout = null;
+            function resetIdleTimer() {
+                clearTimeout(idleTimeout);
+                idleTimeout = setTimeout(() => {
+                    if (myGlobe) { myGlobe.controls().autoRotate = true; myGlobe.controls().autoRotateSpeed = 0.8; }
+                }, 10000);
+            }
+            ['mousedown', 'wheel', 'touchstart'].forEach(evt =>
+                container.addEventListener(evt, resetIdleTimer, { passive: true })
+            );
+
+            // 預設選第一個地點
+            if (LOCATIONS.length) selectLocation(LOCATIONS[0].id);
+        }
+
+        function selectLocation(id) {
+            selectedId = id;
+            const loc = WEATHER_DATA[id];
+            if (!loc) return;
+            renderDetailPanel(loc);
+            if (myGlobe) {
+                myGlobe.controls().autoRotate = false;
+                myGlobe.pointOfView({ lat: loc.lat, lng: loc.lon, altitude: 1.4 }, 1000);
+            }
+        }
+
+        function svgEl(tag, attrs) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const k in attrs) el.setAttribute(k, attrs[k]);
+            return el;
+        }
+
+        // 月均溫範圍圖（浮動柱：avgLow ~ avgHigh，顏色依均溫冷暖漸層）
+        function renderMonthlyTempChart(monthly) {
+            const W = 380, H = 140, padL = 28, padR = 8, padT = 10, padB = 18;
+            const plotW = W - padL - padR, plotH = H - padT - padB;
+            const allTemps = monthly.flatMap(m => [m.avgHigh, m.avgLow]);
+            const tMin = Math.floor(Math.min(...allTemps) - 2);
+            const tMax = Math.ceil(Math.max(...allTemps) + 2);
+            const y = t => padT + plotH * (1 - (t - tMin) / (tMax - tMin));
+            const barW = plotW / 12 * 0.55;
+            const step = plotW / 12;
+
+            const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'w-full h-auto' });
+
+            // gridlines
+            for (let g = 0; g < 3; g++) {
+                const gt = tMin + (tMax - tMin) * (g / 2);
+                const gy = y(gt);
+                svg.appendChild(svgEl('line', { x1: padL, x2: W - padR, y1: gy, y2: gy, class: 'chart-grid' }));
+                const label = svgEl('text', { x: 4, y: gy + 3, class: 'chart-muted-text' });
+                label.textContent = `${Math.round(gt)}°`;
+                svg.appendChild(label);
+            }
+
+            monthly.forEach((m, i) => {
+                const cx = padL + step * i + step / 2;
+                const yHigh = y(m.avgHigh), yLow = y(m.avgLow);
+                const grad = svgEl('linearGradient', { id: `tgrad${i}`, x1: 0, y1: 0, x2: 0, y2: 1 });
+                grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': 'var(--series-high)' }));
+                grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': 'var(--series-low)' }));
+                svg.appendChild(grad);
+
+                const bar = svgEl('rect', {
+                    x: cx - barW / 2, y: yHigh, width: barW, height: Math.max(2, yLow - yHigh),
+                    rx: barW / 2, fill: `url(#tgrad${i})`, opacity: 0.9,
+                });
+                const title = svgEl('title', {});
+                title.textContent = `${m.month}月：${m.avgHigh}°C / ${m.avgLow}°C（均溫 ${m.avgMean}°C）`;
+                bar.appendChild(title);
+                svg.appendChild(bar);
+
+                const label = svgEl('text', { x: cx, y: H - 4, 'text-anchor': 'middle', class: 'chart-muted-text' });
+                label.textContent = m.month;
+                svg.appendChild(label);
+            });
+            return svg;
+        }
+
+        // 月降雨量長條圖
+        function renderMonthlyPrecipChart(monthly) {
+            const W = 380, H = 90, padL = 34, padR = 8, padT = 8, padB = 18;
+            const plotW = W - padL - padR, plotH = H - padT - padB;
+            const pMax = Math.max(...monthly.map(m => m.avgPrecip), 1);
+            const step = plotW / 12;
+            const barW = step * 0.55;
+
+            const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'w-full h-auto' });
+            const gy = padT + plotH;
+            svg.appendChild(svgEl('line', { x1: padL, x2: W - padR, y1: gy, y2: gy, class: 'chart-grid' }));
+            const maxLabel = svgEl('text', { x: 2, y: padT + 6, class: 'chart-muted-text' });
+            maxLabel.textContent = `${Math.round(pMax)}mm`;
+            svg.appendChild(maxLabel);
+
+            monthly.forEach((m, i) => {
+                const cx = padL + step * i + step / 2;
+                const h = plotH * (m.avgPrecip / pMax);
+                const bar = svgEl('rect', {
+                    x: cx - barW / 2, y: gy - h, width: barW, height: Math.max(1, h),
+                    rx: 2, fill: 'var(--series-precip)', opacity: 0.85,
+                });
+                const title = svgEl('title', {});
+                title.textContent = `${m.month}月平均降雨：${m.avgPrecip}mm`;
+                bar.appendChild(title);
+                svg.appendChild(bar);
+            });
+            return svg;
+        }
+
+        // 年均溫趨勢線
+        function renderYearlyTrendChart(yearly) {
+            const W = 380, H = 110, padL = 30, padR2 = 8, padT = 10, padB = 18;
+            const plotW = W - padL - padR2, plotH = H - padT - padB;
+            const temps = yearly.map(y => y.avgMean);
+            const tMin = Math.floor(Math.min(...temps) - 0.5);
+            const tMax = Math.ceil(Math.max(...temps) + 0.5);
+            const x = i => padL + plotW * (i / (yearly.length - 1));
+            const y = t => padT + plotH * (1 - (t - tMin) / (tMax - tMin || 1));
+
+            const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'w-full h-auto' });
+
+            const points = yearly.map((yr, i) => `${x(i)},${y(yr.avgMean)}`).join(' ');
+            svg.appendChild(svgEl('polyline', { points, fill: 'none', stroke: 'var(--series-trend)', 'stroke-width': 2 }));
+
+            yearly.forEach((yr, i) => {
+                const cx = x(i), cy = y(yr.avgMean);
+                const dot = svgEl('circle', { cx, cy, r: 3, fill: 'var(--series-trend)' });
+                const title = svgEl('title', {});
+                title.textContent = `${yr.year}：均溫 ${yr.avgMean}°C`;
+                dot.appendChild(title);
+                svg.appendChild(dot);
+
+                const label = svgEl('text', { x: cx, y: H - 4, 'text-anchor': 'middle', class: 'chart-muted-text' });
+                label.textContent = String(yr.year).slice(2);
+                svg.appendChild(label);
+            });
+            return svg;
+        }
+
+        function kpiCard(label, value, unit) {
+            const div = document.createElement('div');
+            div.className = 'glass-card rounded-xl p-3';
+            div.innerHTML = `
+                <p class="text-[9px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-1">${label}</p>
+                <p class="heading text-xl font-bold text-white">${value}<span class="text-xs text-slate-400 ml-0.5">${unit}</span></p>
+            `;
+            return div;
+        }
+
+        function renderDetailPanel(loc) {
+            const panel = document.getElementById('detailPanel');
+            panel.innerHTML = '';
+
+            const header = document.createElement('div');
+            header.innerHTML = `
+                <h2 class="heading text-2xl font-bold text-white">${loc.name}</h2>
+                <p class="text-[11px] font-mono text-slate-400 uppercase tracking-[0.15em] mt-1">${loc.lat.toFixed(2)}°N, ${loc.lon.toFixed(2)}°E · ${loc.range.startYear}–${loc.range.endYear}</p>
+            `;
+            panel.appendChild(header);
+
+            const kpiRow = document.createElement('div');
+            kpiRow.className = 'grid grid-cols-2 gap-2 mt-4';
+            kpiRow.appendChild(kpiCard('10年平均氣溫', loc.summary.overallAvgMean, '°C'));
+            kpiRow.appendChild(kpiCard('年均降雨量', loc.summary.overallAvgPrecip, 'mm'));
+            kpiRow.appendChild(kpiCard('最熱年份', loc.summary.hottestYear, ''));
+            kpiRow.appendChild(kpiCard('最冷年份', loc.summary.coldestYear, ''));
+            panel.appendChild(kpiRow);
+
+            const tempSection = document.createElement('div');
+            tempSection.className = 'mt-5';
+            tempSection.innerHTML = `<p class="text-[10px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-2">月均溫範圍（10年平均，高溫→低溫）</p>`;
+            tempSection.appendChild(renderMonthlyTempChart(loc.monthly));
+            panel.appendChild(tempSection);
+
+            const precipSection = document.createElement('div');
+            precipSection.className = 'mt-4';
+            precipSection.innerHTML = `<p class="text-[10px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-2">月均降雨量（10年平均）</p>`;
+            precipSection.appendChild(renderMonthlyPrecipChart(loc.monthly));
+            panel.appendChild(precipSection);
+
+            const trendSection = document.createElement('div');
+            trendSection.className = 'mt-4';
+            trendSection.innerHTML = `<p class="text-[10px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-2">年均溫趨勢（${loc.range.startYear}–${loc.range.endYear}）</p>`;
+            trendSection.appendChild(renderYearlyTrendChart(loc.yearly));
+            panel.appendChild(trendSection);
+        }
+
+        setTimeout(initGlobe, 100);
+    </script>
+</body>
+</html>

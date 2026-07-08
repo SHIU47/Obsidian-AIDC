@@ -1,0 +1,5 @@
+[
+  { "id": "taipei", "name": "台北", "lat": 25.0330, "lon": 121.5654 },
+  { "id": "taichung", "name": "台中", "lat": 24.1477, "lon": 120.6736 },
+  { "id": "kaohsiung", "name": "高雄", "lat": 22.6273, "lon": 120.3014 }
+]
