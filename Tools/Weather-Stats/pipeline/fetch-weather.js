@@ -1,12 +1,13 @@
 // 抓取各地點過去10個完整年度的歷史天氣資料（Open-Meteo Archive API，免費、不需 API key）
 // 執行：node fetch-weather.js
-// 輸出：../weather-data.js（給 index.html 用 <script> 直接載入，避免 file:// fetch 的 CORS 問題）
+// 輸出：直接注入 ../index.html 的 WEATHER_DATA 標記區塊（單一檔案，Obsidian HTML Viewer 才能載入）
 
 const fs = require('fs');
 const path = require('path');
 
 const LOCATIONS_FILE = path.join(__dirname, 'locations.json');
-const OUTPUT_FILE = path.join(__dirname, '..', 'weather-data.js');
+const INDEX_FILE = path.join(__dirname, '..', 'index.html');
+const NOTES_ROOT = path.join(__dirname, '..', '..', '..', '天氣統計'); // vault 根目錄下的筆記樹：天氣統計/洲/國家/城市.md
 
 const DAILY_VARS = [
   'temperature_2m_max',
@@ -111,7 +112,12 @@ function round1(n) {
 async function fetchLocation(loc) {
   const url = buildUrl(loc.lat, loc.lon);
   console.log(`抓取 ${loc.name} (${loc.id}) ...`);
-  const res = await fetch(url);
+  let res = await fetch(url);
+  if (res.status === 429) {
+    console.log('  達到每分鐘流量限制，等待 65 秒後重試...');
+    await new Promise((r) => setTimeout(r, 65000));
+    res = await fetch(url);
+  }
   if (!res.ok) {
     throw new Error(`${loc.name} 抓取失敗：HTTP ${res.status} ${await res.text()}`);
   }
@@ -120,11 +126,72 @@ async function fetchLocation(loc) {
   return {
     id: loc.id,
     name: loc.name,
+    continent: loc.continent,
+    country: loc.country,
     lat: loc.lat,
     lon: loc.lon,
     range: { startYear: START_YEAR, endYear: END_YEAR },
     ...stats,
   };
+}
+
+const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+
+function buildNote(d) {
+  const monthRows = d.monthly
+    .map((m) => `| ${MONTH_NAMES[m.month - 1]} | ${m.avgHigh} | ${m.avgLow} | ${m.avgMean} | ${m.avgPrecip} |`)
+    .join('\n');
+  const yearRows = d.yearly
+    .map((y) => `| ${y.year} | ${y.avgMean} | ${y.maxTemp} | ${y.minTemp} | ${y.precipTotal} |`)
+    .join('\n');
+
+  return `---
+type: weather-stats
+continent: ${d.continent}
+country: ${d.country}
+city: ${d.name}
+lat: ${d.lat}
+lon: ${d.lon}
+years: ${d.range.startYear}-${d.range.endYear}
+avg_temp: ${d.summary.overallAvgMean}
+avg_precip: ${d.summary.overallAvgPrecip}
+---
+
+# ${d.name} — 10年天氣統計（${d.range.startYear}–${d.range.endYear}）
+
+> 自動產生，請勿手動編輯。資料來源：Open-Meteo（ERA5）。更新方式：在 \`Tools/Weather-Stats/pipeline/\` 執行 \`node fetch-weather.js\`
+
+## 總覽
+
+| 指標 | 數值 |
+|---|---|
+| 10年平均氣溫 | ${d.summary.overallAvgMean} °C |
+| 年均降雨量 | ${d.summary.overallAvgPrecip} mm |
+| 最熱年份 | ${d.summary.hottestYear} |
+| 最冷年份 | ${d.summary.coldestYear} |
+
+## 月均統計（10年平均）
+
+| 月份 | 平均高溫 °C | 平均低溫 °C | 均溫 °C | 平均降雨 mm |
+|---|---|---|---|---|
+${monthRows}
+
+## 年度統計
+
+| 年份 | 年均溫 °C | 極端高溫 °C | 極端低溫 °C | 年總雨量 mm |
+|---|---|---|---|---|
+${yearRows}
+
+互動地球總覽：[[10年天氣統計]]
+`;
+}
+
+function writeNotes(result) {
+  for (const d of Object.values(result)) {
+    const dir = path.join(NOTES_ROOT, d.continent, d.country);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, `${d.name}.md`), buildNote(d), 'utf-8');
+  }
 }
 
 async function main() {
@@ -134,9 +201,14 @@ async function main() {
     result[loc.id] = await fetchLocation(loc);
     await new Promise((r) => setTimeout(r, 300));
   }
-  const output = `// 自動產生，請勿手動編輯。重新產生：node pipeline/fetch-weather.js\nconst WEATHER_DATA = ${JSON.stringify(result, null, 2)};\n`;
-  fs.writeFileSync(OUTPUT_FILE, output, 'utf-8');
-  console.log(`完成！已寫入 ${OUTPUT_FILE}`);
+  const block = `/* WEATHER_DATA_START */\n// 自動產生，請勿手動編輯。重新產生：node pipeline/fetch-weather.js\nconst WEATHER_DATA = ${JSON.stringify(result, null, 2)};\n/* WEATHER_DATA_END */`;
+  const html = fs.readFileSync(INDEX_FILE, 'utf-8');
+  const markerRe = /\/\* WEATHER_DATA_START \*\/[\s\S]*?\/\* WEATHER_DATA_END \*\//;
+  if (!markerRe.test(html)) throw new Error('在 index.html 找不到 WEATHER_DATA 標記區塊');
+  fs.writeFileSync(INDEX_FILE, html.replace(markerRe, block), 'utf-8');
+  console.log(`已注入 ${INDEX_FILE}`);
+  writeNotes(result);
+  console.log(`已產生 ${Object.keys(result).length} 份城市筆記於 ${NOTES_ROOT}`);
 }
 
 main().catch((err) => {

@@ -1,5 +1,13 @@
 [
-  { "id": "taipei", "name": "台北", "lat": 25.0330, "lon": 121.5654 },
-  { "id": "taichung", "name": "台中", "lat": 24.1477, "lon": 120.6736 },
-  { "id": "kaohsiung", "name": "高雄", "lat": 22.6273, "lon": 120.3014 }
+  { "id": "taipei", "name": "台北", "continent": "亞洲", "country": "台灣", "lat": 25.0330, "lon": 121.5654 },
+  { "id": "new-taipei", "name": "新北", "continent": "亞洲", "country": "台灣", "lat": 25.0117, "lon": 121.4625 },
+  { "id": "taoyuan", "name": "桃園", "continent": "亞洲", "country": "台灣", "lat": 24.9937, "lon": 121.2969 },
+  { "id": "taichung", "name": "台中", "continent": "亞洲", "country": "台灣", "lat": 24.1477, "lon": 120.6736 },
+  { "id": "tainan", "name": "台南", "continent": "亞洲", "country": "台灣", "lat": 22.9908, "lon": 120.2133 },
+  { "id": "kaohsiung", "name": "高雄", "continent": "亞洲", "country": "台灣", "lat": 22.6273, "lon": 120.3014 },
+  { "id": "tokyo", "name": "東京", "continent": "亞洲", "country": "日本", "lat": 35.6762, "lon": 139.6503 },
+  { "id": "singapore", "name": "新加坡", "continent": "亞洲", "country": "新加坡", "lat": 1.3521, "lon": 103.8198 },
+  { "id": "new-york", "name": "紐約", "continent": "美洲", "country": "美國", "lat": 40.7128, "lon": -74.0060 },
+  { "id": "london", "name": "倫敦", "continent": "歐洲", "country": "英國", "lat": 51.5074, "lon": -0.1278 },
+  { "id": "sydney", "name": "雪梨", "continent": "大洋洲", "country": "澳洲", "lat": -33.8688, "lon": 151.2093 }
 ]
