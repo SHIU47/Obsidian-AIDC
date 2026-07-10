@@ -8,3 +8,6 @@
 .DS_Store
 Thumbs.db
 *.tmp
+
+# Weather-Stats pipeline: raw hourly API cache (large, permanent local cache, never commit)
+Tools/Weather-Stats/pipeline/cache/

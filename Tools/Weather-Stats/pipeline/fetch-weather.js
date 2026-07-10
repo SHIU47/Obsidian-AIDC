@@ -8,6 +8,7 @@ const path = require('path');
 const LOCATIONS_FILE = path.join(__dirname, 'locations.json');
 const INDEX_FILE = path.join(__dirname, '..', 'index.html');
 const NOTES_ROOT = path.join(__dirname, '..', '..', '..', '天氣統計'); // vault 根目錄下的筆記樹：天氣統計/洲/國家/城市.md
+const CACHE_DIR = path.join(__dirname, 'cache'); // hourly 原始資料快取：cache/<city-id>/<year>.json（永久快取，不會過期，且已加入 .gitignore）
 
 const DAILY_VARS = [
   'temperature_2m_max',
@@ -15,6 +16,20 @@ const DAILY_VARS = [
   'temperature_2m_mean',
   'precipitation_sum',
 ];
+
+// Phase 1：hourly 變數（名稱已依 NOTES-dev.md 實測驗證，逐字勿改）
+const HOURLY_VARS = [
+  'temperature_2m',
+  'relative_humidity_2m',
+  'dew_point_2m',
+  'surface_pressure',
+  'wind_speed_10m',
+  'wind_direction_10m',
+  'precipitation',
+  'wet_bulb_temperature_2m',
+];
+
+const HOURLY_API_CALL_DELAY_MS = 2000; // 逐年呼叫之間的延遲，避免觸發每分鐘流量限制（快取命中不需延遲）
 
 const now = new Date();
 const END_YEAR = now.getFullYear() - 1; // 只取完整年度，不含今年
@@ -135,6 +150,85 @@ async function fetchLocation(loc) {
   };
 }
 
+// ============================================================
+// Phase 1：hourly 資料抓取 + 本地永久快取
+// ============================================================
+
+function buildHourlyUrl(lat, lon, year) {
+  const params = new URLSearchParams({
+    latitude: lat,
+    longitude: lon,
+    start_date: `${year}-01-01`,
+    end_date: `${year}-12-31`,
+    hourly: HOURLY_VARS.join(','),
+    timezone: 'auto',
+  });
+  return `https://archive-api.open-meteo.com/v1/archive?${params.toString()}`;
+}
+
+function hourlyCachePath(cityId, year) {
+  return path.join(CACHE_DIR, cityId, `${year}.json`);
+}
+
+// 抓取（或讀快取）單一城市單一年度的 hourly 原始資料。
+// 回傳 { data, fromCache }：fromCache=true 表示直接讀本地快取，未呼叫 API。
+async function fetchHourlyYear(loc, year) {
+  const cachePath = hourlyCachePath(loc.id, year);
+  if (fs.existsSync(cachePath)) {
+    const cached = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+    return { data: cached, fromCache: true };
+  }
+
+  const url = buildHourlyUrl(loc.lat, loc.lon, year);
+  console.log(`抓取 hourly ${loc.name} (${loc.id}) ${year} ...`);
+  let res = await fetch(url);
+  if (res.status === 429) {
+    console.log('  達到每分鐘流量限制，等待 65 秒後重試...');
+    await new Promise((r) => setTimeout(r, 65000));
+    res = await fetch(url);
+  }
+  if (!res.ok) {
+    throw new Error(`${loc.name} ${year} hourly 抓取失敗：HTTP ${res.status} ${await res.text()}`);
+  }
+  const json = await res.json();
+
+  fs.mkdirSync(path.dirname(cachePath), { recursive: true });
+  fs.writeFileSync(cachePath, JSON.stringify(json), 'utf-8');
+
+  return { data: json, fromCache: false };
+}
+
+// 取得單一地點跨 START_YEAR–END_YEAR（10個完整年度）合併後的 hourly 資料。
+// 逐年抓取／讀快取後串接成單一陣列，供 Phase 3 的設計條件統計直接使用。
+async function getHourlyDataForLocation(loc) {
+  const merged = { time: [] };
+  for (const v of HOURLY_VARS) merged[v] = [];
+
+  for (let year = START_YEAR; year <= END_YEAR; year++) {
+    const { data, fromCache } = await fetchHourlyYear(loc, year);
+    const hourly = data.hourly;
+    merged.time.push(...hourly.time);
+    for (const v of HOURLY_VARS) {
+      merged[v].push(...hourly[v]);
+    }
+    if (!fromCache) {
+      await new Promise((r) => setTimeout(r, HOURLY_API_CALL_DELAY_MS));
+    }
+  }
+
+  return merged;
+}
+
+// 對 locations.json 內所有地點依序抓取（或讀快取）hourly 資料。
+// 主要用途是「跑一次把 10 年 × 11 城市的快取補齊」；回傳值目前不做聚合（那是 Phase 3 的工作）。
+async function fetchAllLocationsHourly() {
+  const locations = JSON.parse(fs.readFileSync(LOCATIONS_FILE, 'utf-8'));
+  for (const loc of locations) {
+    await getHourlyDataForLocation(loc);
+  }
+  console.log('全部地點 hourly 快取抓取完成。');
+}
+
 const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
 function buildNote(d) {
@@ -211,7 +305,28 @@ async function main() {
   console.log(`已產生 ${Object.keys(result).length} 份城市筆記於 ${NOTES_ROOT}`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+module.exports = {
+  START_YEAR,
+  END_YEAR,
+  HOURLY_VARS,
+  getHourlyDataForLocation,
+  fetchAllLocationsHourly,
+  fetchHourlyYear, // 供 smoke test / 除錯用：單一城市單一年度
+  hourlyCachePath,
+};
+
+// 標準執行方式維持不變：`node fetch-weather.js` = 既有 daily 抓取 + index.html 注入 + 筆記產生。
+// 新增 `node fetch-weather.js --hourly-cache` = Phase 1 的 hourly 逐年抓取／快取（不動 index.html、不動筆記）。
+if (require.main === module) {
+  if (process.argv[2] === '--hourly-cache') {
+    fetchAllLocationsHourly().catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+  } else {
+    main().catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+  }
+}

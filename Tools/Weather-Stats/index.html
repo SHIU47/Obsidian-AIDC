@@ -14,6 +14,8 @@ const WEATHER_DATA = {
   "taipei": {
     "id": "taipei",
     "name": "台北",
+    "continent": "亞洲",
+    "country": "台灣",
     "lat": 25.033,
     "lon": 121.5654,
     "range": {
@@ -185,9 +187,363 @@ const WEATHER_DATA = {
       "coldestYear": 2018
     }
   },
+  "new-taipei": {
+    "id": "new-taipei",
+    "name": "新北",
+    "continent": "亞洲",
+    "country": "台灣",
+    "lat": 25.0117,
+    "lon": 121.4625,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 19.1,
+        "avgLow": 13.8,
+        "avgMean": 16.2,
+        "avgPrecip": 77.8
+      },
+      {
+        "month": 2,
+        "avgHigh": 19.7,
+        "avgLow": 13.9,
+        "avgMean": 16.5,
+        "avgPrecip": 88.6
+      },
+      {
+        "month": 3,
+        "avgHigh": 22.5,
+        "avgLow": 15.4,
+        "avgMean": 18.7,
+        "avgPrecip": 127
+      },
+      {
+        "month": 4,
+        "avgHigh": 25.8,
+        "avgLow": 18.7,
+        "avgMean": 22,
+        "avgPrecip": 130
+      },
+      {
+        "month": 5,
+        "avgHigh": 28.8,
+        "avgLow": 22.1,
+        "avgMean": 25.1,
+        "avgPrecip": 204.3
+      },
+      {
+        "month": 6,
+        "avgHigh": 31.3,
+        "avgLow": 24.9,
+        "avgMean": 27.8,
+        "avgPrecip": 240.1
+      },
+      {
+        "month": 7,
+        "avgHigh": 33.3,
+        "avgLow": 26.2,
+        "avgMean": 29.4,
+        "avgPrecip": 150.3
+      },
+      {
+        "month": 8,
+        "avgHigh": 32.9,
+        "avgLow": 25.9,
+        "avgMean": 29,
+        "avgPrecip": 125.2
+      },
+      {
+        "month": 9,
+        "avgHigh": 31.2,
+        "avgLow": 24.8,
+        "avgMean": 27.6,
+        "avgPrecip": 211.3
+      },
+      {
+        "month": 10,
+        "avgHigh": 27.6,
+        "avgLow": 22.4,
+        "avgMean": 24.6,
+        "avgPrecip": 191.8
+      },
+      {
+        "month": 11,
+        "avgHigh": 24.6,
+        "avgLow": 19.5,
+        "avgMean": 21.7,
+        "avgPrecip": 82
+      },
+      {
+        "month": 12,
+        "avgHigh": 20.3,
+        "avgLow": 15.5,
+        "avgMean": 17.7,
+        "avgPrecip": 76.7
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 22.2,
+        "maxTemp": 35,
+        "minTemp": 2.9,
+        "precipTotal": 2241.1
+      },
+      {
+        "year": 2017,
+        "avgMean": 23,
+        "maxTemp": 37.7,
+        "minTemp": 8.4,
+        "precipTotal": 1732.1
+      },
+      {
+        "year": 2018,
+        "avgMean": 22.8,
+        "maxTemp": 35.6,
+        "minTemp": 7.6,
+        "precipTotal": 1341
+      },
+      {
+        "year": 2019,
+        "avgMean": 23,
+        "maxTemp": 34.6,
+        "minTemp": 11.3,
+        "precipTotal": 1953.1
+      },
+      {
+        "year": 2020,
+        "avgMean": 23.2,
+        "maxTemp": 37.6,
+        "minTemp": 6.5,
+        "precipTotal": 1369.3
+      },
+      {
+        "year": 2021,
+        "avgMean": 23.3,
+        "maxTemp": 37.2,
+        "minTemp": 6.1,
+        "precipTotal": 1551.4
+      },
+      {
+        "year": 2022,
+        "avgMean": 22.9,
+        "maxTemp": 38.1,
+        "minTemp": 7.9,
+        "precipTotal": 2152.9
+      },
+      {
+        "year": 2023,
+        "avgMean": 23.2,
+        "maxTemp": 38.5,
+        "minTemp": 7,
+        "precipTotal": 1203.4
+      },
+      {
+        "year": 2024,
+        "avgMean": 23.5,
+        "maxTemp": 37.5,
+        "minTemp": 7.4,
+        "precipTotal": 1639.4
+      },
+      {
+        "year": 2025,
+        "avgMean": 23.2,
+        "maxTemp": 38.8,
+        "minTemp": 7.2,
+        "precipTotal": 1867.8
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 23,
+      "overallAvgPrecip": 1705.1,
+      "hottestYear": 2024,
+      "coldestYear": 2016
+    }
+  },
+  "taoyuan": {
+    "id": "taoyuan",
+    "name": "桃園",
+    "continent": "亞洲",
+    "country": "台灣",
+    "lat": 24.9937,
+    "lon": 121.2969,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 18.7,
+        "avgLow": 13.1,
+        "avgMean": 15.6,
+        "avgPrecip": 99
+      },
+      {
+        "month": 2,
+        "avgHigh": 19.1,
+        "avgLow": 13,
+        "avgMean": 15.7,
+        "avgPrecip": 125.6
+      },
+      {
+        "month": 3,
+        "avgHigh": 22.1,
+        "avgLow": 14.6,
+        "avgMean": 18,
+        "avgPrecip": 172.1
+      },
+      {
+        "month": 4,
+        "avgHigh": 25.4,
+        "avgLow": 18,
+        "avgMean": 21.4,
+        "avgPrecip": 165.3
+      },
+      {
+        "month": 5,
+        "avgHigh": 28.5,
+        "avgLow": 21.5,
+        "avgMean": 24.7,
+        "avgPrecip": 256.8
+      },
+      {
+        "month": 6,
+        "avgHigh": 30.8,
+        "avgLow": 24.2,
+        "avgMean": 27.2,
+        "avgPrecip": 277.3
+      },
+      {
+        "month": 7,
+        "avgHigh": 32.8,
+        "avgLow": 25.4,
+        "avgMean": 28.8,
+        "avgPrecip": 131.4
+      },
+      {
+        "month": 8,
+        "avgHigh": 32.7,
+        "avgLow": 25.3,
+        "avgMean": 28.5,
+        "avgPrecip": 149.4
+      },
+      {
+        "month": 9,
+        "avgHigh": 31.1,
+        "avgLow": 24.2,
+        "avgMean": 27.2,
+        "avgPrecip": 193.1
+      },
+      {
+        "month": 10,
+        "avgHigh": 27.5,
+        "avgLow": 22,
+        "avgMean": 24.3,
+        "avgPrecip": 173.6
+      },
+      {
+        "month": 11,
+        "avgHigh": 24.3,
+        "avgLow": 19,
+        "avgMean": 21.3,
+        "avgPrecip": 97.7
+      },
+      {
+        "month": 12,
+        "avgHigh": 19.9,
+        "avgLow": 14.9,
+        "avgMean": 17.1,
+        "avgPrecip": 113.9
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 21.9,
+        "maxTemp": 33.6,
+        "minTemp": 2.7,
+        "precipTotal": 1582.9
+      },
+      {
+        "year": 2017,
+        "avgMean": 22.5,
+        "maxTemp": 37.4,
+        "minTemp": 8.2,
+        "precipTotal": 2207
+      },
+      {
+        "year": 2018,
+        "avgMean": 22.4,
+        "maxTemp": 36.5,
+        "minTemp": 6.2,
+        "precipTotal": 1499.4
+      },
+      {
+        "year": 2019,
+        "avgMean": 22.5,
+        "maxTemp": 35.8,
+        "minTemp": 10.1,
+        "precipTotal": 2229.1
+      },
+      {
+        "year": 2020,
+        "avgMean": 22.8,
+        "maxTemp": 37.9,
+        "minTemp": 5.6,
+        "precipTotal": 1634.8
+      },
+      {
+        "year": 2021,
+        "avgMean": 22.7,
+        "maxTemp": 36.6,
+        "minTemp": 5.5,
+        "precipTotal": 1744.7
+      },
+      {
+        "year": 2022,
+        "avgMean": 22.3,
+        "maxTemp": 37.2,
+        "minTemp": 6.9,
+        "precipTotal": 2669.2
+      },
+      {
+        "year": 2023,
+        "avgMean": 22.5,
+        "maxTemp": 36.9,
+        "minTemp": 6.1,
+        "precipTotal": 1542.4
+      },
+      {
+        "year": 2024,
+        "avgMean": 22.7,
+        "maxTemp": 36.7,
+        "minTemp": 6.4,
+        "precipTotal": 2121.4
+      },
+      {
+        "year": 2025,
+        "avgMean": 22.8,
+        "maxTemp": 38.6,
+        "minTemp": 6.3,
+        "precipTotal": 2319.4
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 22.5,
+      "overallAvgPrecip": 1955,
+      "hottestYear": 2020,
+      "coldestYear": 2016
+    }
+  },
   "taichung": {
     "id": "taichung",
     "name": "台中",
+    "continent": "亞洲",
+    "country": "台灣",
     "lat": 24.1477,
     "lon": 120.6736,
     "range": {
@@ -359,9 +715,187 @@ const WEATHER_DATA = {
       "coldestYear": 2016
     }
   },
+  "tainan": {
+    "id": "tainan",
+    "name": "台南",
+    "continent": "亞洲",
+    "country": "台灣",
+    "lat": 22.9908,
+    "lon": 120.2133,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 22.8,
+        "avgLow": 14.2,
+        "avgMean": 17.9,
+        "avgPrecip": 41.1
+      },
+      {
+        "month": 2,
+        "avgHigh": 23.7,
+        "avgLow": 14.6,
+        "avgMean": 18.5,
+        "avgPrecip": 30.9
+      },
+      {
+        "month": 3,
+        "avgHigh": 25.9,
+        "avgLow": 17.1,
+        "avgMean": 21.1,
+        "avgPrecip": 50.9
+      },
+      {
+        "month": 4,
+        "avgHigh": 28.6,
+        "avgLow": 20.8,
+        "avgMean": 24.4,
+        "avgPrecip": 70.9
+      },
+      {
+        "month": 5,
+        "avgHigh": 30,
+        "avgLow": 23.9,
+        "avgMean": 26.8,
+        "avgPrecip": 189.1
+      },
+      {
+        "month": 6,
+        "avgHigh": 30.7,
+        "avgLow": 25.7,
+        "avgMean": 28,
+        "avgPrecip": 324.1
+      },
+      {
+        "month": 7,
+        "avgHigh": 31.2,
+        "avgLow": 26,
+        "avgMean": 28.4,
+        "avgPrecip": 324.3
+      },
+      {
+        "month": 8,
+        "avgHigh": 30.5,
+        "avgLow": 25.6,
+        "avgMean": 27.8,
+        "avgPrecip": 387.7
+      },
+      {
+        "month": 9,
+        "avgHigh": 30.7,
+        "avgLow": 25.1,
+        "avgMean": 27.6,
+        "avgPrecip": 230.3
+      },
+      {
+        "month": 10,
+        "avgHigh": 29.9,
+        "avgLow": 23,
+        "avgMean": 26.1,
+        "avgPrecip": 115
+      },
+      {
+        "month": 11,
+        "avgHigh": 27.7,
+        "avgLow": 20.1,
+        "avgMean": 23.4,
+        "avgPrecip": 41.8
+      },
+      {
+        "month": 12,
+        "avgHigh": 24.6,
+        "avgLow": 16.2,
+        "avgMean": 19.7,
+        "avgPrecip": 19.1
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 24.1,
+        "maxTemp": 32.8,
+        "minTemp": 7.3,
+        "precipTotal": 2900.8
+      },
+      {
+        "year": 2017,
+        "avgMean": 24.1,
+        "maxTemp": 33.1,
+        "minTemp": 10,
+        "precipTotal": 1365.3
+      },
+      {
+        "year": 2018,
+        "avgMean": 23.8,
+        "maxTemp": 33.7,
+        "minTemp": 6,
+        "precipTotal": 2072.7
+      },
+      {
+        "year": 2019,
+        "avgMean": 24.2,
+        "maxTemp": 32.5,
+        "minTemp": 11.3,
+        "precipTotal": 1742.1
+      },
+      {
+        "year": 2020,
+        "avgMean": 24.5,
+        "maxTemp": 34,
+        "minTemp": 7.7,
+        "precipTotal": 1053.8
+      },
+      {
+        "year": 2021,
+        "avgMean": 24.1,
+        "maxTemp": 33.7,
+        "minTemp": 6.9,
+        "precipTotal": 1798.3
+      },
+      {
+        "year": 2022,
+        "avgMean": 23.9,
+        "maxTemp": 33.3,
+        "minTemp": 7.5,
+        "precipTotal": 1359.7
+      },
+      {
+        "year": 2023,
+        "avgMean": 24.2,
+        "maxTemp": 34.6,
+        "minTemp": 7.7,
+        "precipTotal": 1713
+      },
+      {
+        "year": 2024,
+        "avgMean": 24.5,
+        "maxTemp": 35.5,
+        "minTemp": 8.3,
+        "precipTotal": 2315.3
+      },
+      {
+        "year": 2025,
+        "avgMean": 24.2,
+        "maxTemp": 34.4,
+        "minTemp": 7.8,
+        "precipTotal": 1932.6
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 24.2,
+      "overallAvgPrecip": 1825.4,
+      "hottestYear": 2020,
+      "coldestYear": 2018
+    }
+  },
   "kaohsiung": {
     "id": "kaohsiung",
     "name": "高雄",
+    "continent": "亞洲",
+    "country": "台灣",
     "lat": 22.6273,
     "lon": 120.3014,
     "range": {
@@ -532,6 +1066,886 @@ const WEATHER_DATA = {
       "hottestYear": 2020,
       "coldestYear": 2016
     }
+  },
+  "tokyo": {
+    "id": "tokyo",
+    "name": "東京",
+    "continent": "亞洲",
+    "country": "日本",
+    "lat": 35.6762,
+    "lon": 139.6503,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 9.2,
+        "avgLow": 0,
+        "avgMean": 4.2,
+        "avgPrecip": 51.5
+      },
+      {
+        "month": 2,
+        "avgHigh": 10.5,
+        "avgLow": 1,
+        "avgMean": 5.5,
+        "avgPrecip": 50.8
+      },
+      {
+        "month": 3,
+        "avgHigh": 14.4,
+        "avgLow": 4.8,
+        "avgMean": 9.5,
+        "avgPrecip": 143.5
+      },
+      {
+        "month": 4,
+        "avgHigh": 18.9,
+        "avgLow": 9.7,
+        "avgMean": 14.2,
+        "avgPrecip": 134.6
+      },
+      {
+        "month": 5,
+        "avgHigh": 23.1,
+        "avgLow": 14.5,
+        "avgMean": 18.7,
+        "avgPrecip": 154.1
+      },
+      {
+        "month": 6,
+        "avgHigh": 26.3,
+        "avgLow": 18.8,
+        "avgMean": 22.3,
+        "avgPrecip": 192.3
+      },
+      {
+        "month": 7,
+        "avgHigh": 30.4,
+        "avgLow": 23.2,
+        "avgMean": 26.4,
+        "avgPrecip": 177.8
+      },
+      {
+        "month": 8,
+        "avgHigh": 31.8,
+        "avgLow": 24.4,
+        "avgMean": 27.7,
+        "avgPrecip": 139.7
+      },
+      {
+        "month": 9,
+        "avgHigh": 27.8,
+        "avgLow": 21.1,
+        "avgMean": 24.1,
+        "avgPrecip": 207.8
+      },
+      {
+        "month": 10,
+        "avgHigh": 21.6,
+        "avgLow": 14.4,
+        "avgMean": 17.7,
+        "avgPrecip": 200.9
+      },
+      {
+        "month": 11,
+        "avgHigh": 16.7,
+        "avgLow": 8.2,
+        "avgMean": 12.1,
+        "avgPrecip": 83
+      },
+      {
+        "month": 12,
+        "avgHigh": 11.5,
+        "avgLow": 2.4,
+        "avgMean": 6.6,
+        "avgPrecip": 55.7
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 15.3,
+        "maxTemp": 35.1,
+        "minTemp": -4.5,
+        "precipTotal": 1551.3
+      },
+      {
+        "year": 2017,
+        "avgMean": 14.8,
+        "maxTemp": 35.9,
+        "minTemp": -4.7,
+        "precipTotal": 1480.9
+      },
+      {
+        "year": 2018,
+        "avgMean": 15.6,
+        "maxTemp": 39.1,
+        "minTemp": -7.2,
+        "precipTotal": 1478.7
+      },
+      {
+        "year": 2019,
+        "avgMean": 15.4,
+        "maxTemp": 35.5,
+        "minTemp": -3.4,
+        "precipTotal": 1886.6
+      },
+      {
+        "year": 2020,
+        "avgMean": 15.5,
+        "maxTemp": 36.2,
+        "minTemp": -3.9,
+        "precipTotal": 1668.8
+      },
+      {
+        "year": 2021,
+        "avgMean": 15.5,
+        "maxTemp": 35.2,
+        "minTemp": -5,
+        "precipTotal": 1874.7
+      },
+      {
+        "year": 2022,
+        "avgMean": 15.4,
+        "maxTemp": 36.7,
+        "minTemp": -7.7,
+        "precipTotal": 1563.7
+      },
+      {
+        "year": 2023,
+        "avgMean": 16.7,
+        "maxTemp": 39.4,
+        "minTemp": -6.1,
+        "precipTotal": 1369.4
+      },
+      {
+        "year": 2024,
+        "avgMean": 16.7,
+        "maxTemp": 38.8,
+        "minTemp": -4.7,
+        "precipTotal": 1721.3
+      },
+      {
+        "year": 2025,
+        "avgMean": 16.9,
+        "maxTemp": 38.8,
+        "minTemp": -1.7,
+        "precipTotal": 1322.1
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 15.8,
+      "overallAvgPrecip": 1591.8,
+      "hottestYear": 2025,
+      "coldestYear": 2017
+    }
+  },
+  "singapore": {
+    "id": "singapore",
+    "name": "新加坡",
+    "continent": "亞洲",
+    "country": "新加坡",
+    "lat": 1.3521,
+    "lon": 103.8198,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 29.1,
+        "avgLow": 23.6,
+        "avgMean": 25.9,
+        "avgPrecip": 292.1
+      },
+      {
+        "month": 2,
+        "avgHigh": 30,
+        "avgLow": 23.7,
+        "avgMean": 26.3,
+        "avgPrecip": 120.6
+      },
+      {
+        "month": 3,
+        "avgHigh": 30.6,
+        "avgLow": 24.1,
+        "avgMean": 26.9,
+        "avgPrecip": 226.9
+      },
+      {
+        "month": 4,
+        "avgHigh": 30.3,
+        "avgLow": 24.5,
+        "avgMean": 27,
+        "avgPrecip": 304
+      },
+      {
+        "month": 5,
+        "avgHigh": 30.2,
+        "avgLow": 25.2,
+        "avgMean": 27.5,
+        "avgPrecip": 311.5
+      },
+      {
+        "month": 6,
+        "avgHigh": 29.6,
+        "avgLow": 25.1,
+        "avgMean": 27.1,
+        "avgPrecip": 291.6
+      },
+      {
+        "month": 7,
+        "avgHigh": 29.6,
+        "avgLow": 25.1,
+        "avgMean": 27.1,
+        "avgPrecip": 201.8
+      },
+      {
+        "month": 8,
+        "avgHigh": 29.5,
+        "avgLow": 24.8,
+        "avgMean": 26.9,
+        "avgPrecip": 242.4
+      },
+      {
+        "month": 9,
+        "avgHigh": 29.7,
+        "avgLow": 24.6,
+        "avgMean": 26.9,
+        "avgPrecip": 220.2
+      },
+      {
+        "month": 10,
+        "avgHigh": 29.9,
+        "avgLow": 24.3,
+        "avgMean": 26.8,
+        "avgPrecip": 300.6
+      },
+      {
+        "month": 11,
+        "avgHigh": 29.5,
+        "avgLow": 24,
+        "avgMean": 26.2,
+        "avgPrecip": 371.8
+      },
+      {
+        "month": 12,
+        "avgHigh": 29.4,
+        "avgLow": 23.8,
+        "avgMean": 26,
+        "avgPrecip": 319.3
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 26.9,
+        "maxTemp": 30.8,
+        "minTemp": 23.7,
+        "precipTotal": 2544.4
+      },
+      {
+        "year": 2017,
+        "avgMean": 26.7,
+        "maxTemp": 31.5,
+        "minTemp": 22.3,
+        "precipTotal": 3144.1
+      },
+      {
+        "year": 2018,
+        "avgMean": 26.6,
+        "maxTemp": 32.2,
+        "minTemp": 21.7,
+        "precipTotal": 2990.8
+      },
+      {
+        "year": 2019,
+        "avgMean": 27,
+        "maxTemp": 35.6,
+        "minTemp": 22.1,
+        "precipTotal": 2807.3
+      },
+      {
+        "year": 2020,
+        "avgMean": 26.7,
+        "maxTemp": 33.2,
+        "minTemp": 22.1,
+        "precipTotal": 3750.7
+      },
+      {
+        "year": 2021,
+        "avgMean": 26.5,
+        "maxTemp": 33.6,
+        "minTemp": 21.9,
+        "precipTotal": 3641.8
+      },
+      {
+        "year": 2022,
+        "avgMean": 26.5,
+        "maxTemp": 32.2,
+        "minTemp": 22,
+        "precipTotal": 3021.6
+      },
+      {
+        "year": 2023,
+        "avgMean": 26.6,
+        "maxTemp": 33.2,
+        "minTemp": 21.7,
+        "precipTotal": 3400.9
+      },
+      {
+        "year": 2024,
+        "avgMean": 26.8,
+        "maxTemp": 34.2,
+        "minTemp": 21.6,
+        "precipTotal": 3853.9
+      },
+      {
+        "year": 2025,
+        "avgMean": 26.8,
+        "maxTemp": 34.1,
+        "minTemp": 21.7,
+        "precipTotal": 2873.8
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 26.7,
+      "overallAvgPrecip": 3202.9,
+      "hottestYear": 2019,
+      "coldestYear": 2021
+    }
+  },
+  "new-york": {
+    "id": "new-york",
+    "name": "紐約",
+    "continent": "美洲",
+    "country": "美國",
+    "lat": 40.7128,
+    "lon": -74.006,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 4.4,
+        "avgLow": -3.2,
+        "avgMean": 0.5,
+        "avgPrecip": 90.9
+      },
+      {
+        "month": 2,
+        "avgHigh": 6.6,
+        "avgLow": -2.2,
+        "avgMean": 2,
+        "avgPrecip": 93.3
+      },
+      {
+        "month": 3,
+        "avgHigh": 10.4,
+        "avgLow": 0.9,
+        "avgMean": 5.5,
+        "avgPrecip": 120.8
+      },
+      {
+        "month": 4,
+        "avgHigh": 15.7,
+        "avgLow": 6,
+        "avgMean": 10.7,
+        "avgPrecip": 109.4
+      },
+      {
+        "month": 5,
+        "avgHigh": 20.9,
+        "avgLow": 11.6,
+        "avgMean": 16,
+        "avgPrecip": 111.1
+      },
+      {
+        "month": 6,
+        "avgHigh": 26.6,
+        "avgLow": 17.1,
+        "avgMean": 21.6,
+        "avgPrecip": 87.1
+      },
+      {
+        "month": 7,
+        "avgHigh": 29.8,
+        "avgLow": 21,
+        "avgMean": 25.1,
+        "avgPrecip": 143.8
+      },
+      {
+        "month": 8,
+        "avgHigh": 28.3,
+        "avgLow": 20,
+        "avgMean": 23.9,
+        "avgPrecip": 113.5
+      },
+      {
+        "month": 9,
+        "avgHigh": 24.8,
+        "avgLow": 16.5,
+        "avgMean": 20.3,
+        "avgPrecip": 122.5
+      },
+      {
+        "month": 10,
+        "avgHigh": 19.1,
+        "avgLow": 10.8,
+        "avgMean": 14.6,
+        "avgPrecip": 130
+      },
+      {
+        "month": 11,
+        "avgHigh": 12,
+        "avgLow": 3.7,
+        "avgMean": 7.7,
+        "avgPrecip": 77.5
+      },
+      {
+        "month": 12,
+        "avgHigh": 6.3,
+        "avgLow": -0.9,
+        "avgMean": 2.6,
+        "avgPrecip": 112.2
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 12.5,
+        "maxTemp": 35,
+        "minTemp": -18.7,
+        "precipTotal": 898.5
+      },
+      {
+        "year": 2017,
+        "avgMean": 12.4,
+        "maxTemp": 34.3,
+        "minTemp": -16,
+        "precipTotal": 1160.6
+      },
+      {
+        "year": 2018,
+        "avgMean": 12.1,
+        "maxTemp": 34.3,
+        "minTemp": -20.5,
+        "precipTotal": 1750.5
+      },
+      {
+        "year": 2019,
+        "avgMean": 12.1,
+        "maxTemp": 35.2,
+        "minTemp": -16.5,
+        "precipTotal": 1349.8
+      },
+      {
+        "year": 2020,
+        "avgMean": 12.9,
+        "maxTemp": 36,
+        "minTemp": -9.5,
+        "precipTotal": 1237.3
+      },
+      {
+        "year": 2021,
+        "avgMean": 12.8,
+        "maxTemp": 35.6,
+        "minTemp": -11.5,
+        "precipTotal": 1411.6
+      },
+      {
+        "year": 2022,
+        "avgMean": 12.5,
+        "maxTemp": 37.6,
+        "minTemp": -17.3,
+        "precipTotal": 1385.4
+      },
+      {
+        "year": 2023,
+        "avgMean": 13,
+        "maxTemp": 35.9,
+        "minTemp": -16.5,
+        "precipTotal": 1520.1
+      },
+      {
+        "year": 2024,
+        "avgMean": 13,
+        "maxTemp": 36.3,
+        "minTemp": -14.9,
+        "precipTotal": 1291.9
+      },
+      {
+        "year": 2025,
+        "avgMean": 12.5,
+        "maxTemp": 40.4,
+        "minTemp": -16.7,
+        "precipTotal": 1116.1
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 12.6,
+      "overallAvgPrecip": 1312.2,
+      "hottestYear": 2023,
+      "coldestYear": 2018
+    }
+  },
+  "london": {
+    "id": "london",
+    "name": "倫敦",
+    "continent": "歐洲",
+    "country": "英國",
+    "lat": 51.5074,
+    "lon": -0.1278,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 7.6,
+        "avgLow": 1.8,
+        "avgMean": 4.7,
+        "avgPrecip": 62.9
+      },
+      {
+        "month": 2,
+        "avgHigh": 9.3,
+        "avgLow": 2.9,
+        "avgMean": 6.1,
+        "avgPrecip": 54.2
+      },
+      {
+        "month": 3,
+        "avgHigh": 11.2,
+        "avgLow": 4,
+        "avgMean": 7.5,
+        "avgPrecip": 56.9
+      },
+      {
+        "month": 4,
+        "avgHigh": 14.2,
+        "avgLow": 5.2,
+        "avgMean": 9.6,
+        "avgPrecip": 40.2
+      },
+      {
+        "month": 5,
+        "avgHigh": 17.9,
+        "avgLow": 8.7,
+        "avgMean": 13.3,
+        "avgPrecip": 54.9
+      },
+      {
+        "month": 6,
+        "avgHigh": 21.3,
+        "avgLow": 12.2,
+        "avgMean": 16.8,
+        "avgPrecip": 62.5
+      },
+      {
+        "month": 7,
+        "avgHigh": 22.9,
+        "avgLow": 14.3,
+        "avgMean": 18.7,
+        "avgPrecip": 60
+      },
+      {
+        "month": 8,
+        "avgHigh": 22.6,
+        "avgLow": 14,
+        "avgMean": 18.2,
+        "avgPrecip": 49.3
+      },
+      {
+        "month": 9,
+        "avgHigh": 19.9,
+        "avgLow": 11.8,
+        "avgMean": 15.7,
+        "avgPrecip": 64
+      },
+      {
+        "month": 10,
+        "avgHigh": 15.6,
+        "avgLow": 9,
+        "avgMean": 12.2,
+        "avgPrecip": 78.3
+      },
+      {
+        "month": 11,
+        "avgHigh": 10.9,
+        "avgLow": 5.2,
+        "avgMean": 8.1,
+        "avgPrecip": 68.5
+      },
+      {
+        "month": 12,
+        "avgHigh": 9,
+        "avgLow": 4,
+        "avgMean": 6.5,
+        "avgPrecip": 67
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 10.9,
+        "maxTemp": 29.8,
+        "minTemp": -4,
+        "precipTotal": 582.5
+      },
+      {
+        "year": 2017,
+        "avgMean": 11.2,
+        "maxTemp": 31.6,
+        "minTemp": -4.8,
+        "precipTotal": 659.8
+      },
+      {
+        "year": 2018,
+        "avgMean": 11.5,
+        "maxTemp": 32.7,
+        "minTemp": -6,
+        "precipTotal": 615.3
+      },
+      {
+        "year": 2019,
+        "avgMean": 11.1,
+        "maxTemp": 35.2,
+        "minTemp": -5,
+        "precipTotal": 828.8
+      },
+      {
+        "year": 2020,
+        "avgMean": 11.6,
+        "maxTemp": 33.9,
+        "minTemp": -3.4,
+        "precipTotal": 764.8
+      },
+      {
+        "year": 2021,
+        "avgMean": 10.8,
+        "maxTemp": 29.2,
+        "minTemp": -10.3,
+        "precipTotal": 783
+      },
+      {
+        "year": 2022,
+        "avgMean": 11.9,
+        "maxTemp": 37.9,
+        "minTemp": -5.5,
+        "precipTotal": 662.8
+      },
+      {
+        "year": 2023,
+        "avgMean": 11.6,
+        "maxTemp": 31.4,
+        "minTemp": -4.7,
+        "precipTotal": 781
+      },
+      {
+        "year": 2024,
+        "avgMean": 11.7,
+        "maxTemp": 31.3,
+        "minTemp": -5.1,
+        "precipTotal": 893.6
+      },
+      {
+        "year": 2025,
+        "avgMean": 12.4,
+        "maxTemp": 33.6,
+        "minTemp": -4.5,
+        "precipTotal": 613.4
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 11.5,
+      "overallAvgPrecip": 718.5,
+      "hottestYear": 2025,
+      "coldestYear": 2021
+    }
+  },
+  "sydney": {
+    "id": "sydney",
+    "name": "雪梨",
+    "continent": "大洋洲",
+    "country": "澳洲",
+    "lat": -33.8688,
+    "lon": 151.2093,
+    "range": {
+      "startYear": 2016,
+      "endYear": 2025
+    },
+    "monthly": [
+      {
+        "month": 1,
+        "avgHigh": 26.5,
+        "avgLow": 19.3,
+        "avgMean": 22.8,
+        "avgPrecip": 106.8
+      },
+      {
+        "month": 2,
+        "avgHigh": 26,
+        "avgLow": 19.1,
+        "avgMean": 22.4,
+        "avgPrecip": 108.7
+      },
+      {
+        "month": 3,
+        "avgHigh": 24.8,
+        "avgLow": 18.1,
+        "avgMean": 21.3,
+        "avgPrecip": 157.3
+      },
+      {
+        "month": 4,
+        "avgHigh": 22.7,
+        "avgLow": 14.6,
+        "avgMean": 18.4,
+        "avgPrecip": 77
+      },
+      {
+        "month": 5,
+        "avgHigh": 19.6,
+        "avgLow": 11.2,
+        "avgMean": 15,
+        "avgPrecip": 78
+      },
+      {
+        "month": 6,
+        "avgHigh": 16.8,
+        "avgLow": 8.7,
+        "avgMean": 12.3,
+        "avgPrecip": 73.6
+      },
+      {
+        "month": 7,
+        "avgHigh": 17,
+        "avgLow": 8.1,
+        "avgMean": 12.1,
+        "avgPrecip": 74.9
+      },
+      {
+        "month": 8,
+        "avgHigh": 18.1,
+        "avgLow": 8.7,
+        "avgMean": 13,
+        "avgPrecip": 69.2
+      },
+      {
+        "month": 9,
+        "avgHigh": 20.9,
+        "avgLow": 10.6,
+        "avgMean": 15.6,
+        "avgPrecip": 53.9
+      },
+      {
+        "month": 10,
+        "avgHigh": 22.6,
+        "avgLow": 13.3,
+        "avgMean": 17.8,
+        "avgPrecip": 73.4
+      },
+      {
+        "month": 11,
+        "avgHigh": 23.7,
+        "avgLow": 15.4,
+        "avgMean": 19.5,
+        "avgPrecip": 80.7
+      },
+      {
+        "month": 12,
+        "avgHigh": 25.9,
+        "avgLow": 17.6,
+        "avgMean": 21.6,
+        "avgPrecip": 65.2
+      }
+    ],
+    "yearly": [
+      {
+        "year": 2016,
+        "avgMean": 18.1,
+        "maxTemp": 34.9,
+        "minTemp": 4.9,
+        "precipTotal": 782.3
+      },
+      {
+        "year": 2017,
+        "avgMean": 17.9,
+        "maxTemp": 39.5,
+        "minTemp": 2.7,
+        "precipTotal": 826.4
+      },
+      {
+        "year": 2018,
+        "avgMean": 17.6,
+        "maxTemp": 41.2,
+        "minTemp": 1.1,
+        "precipTotal": 633.9
+      },
+      {
+        "year": 2019,
+        "avgMean": 17.9,
+        "maxTemp": 40.5,
+        "minTemp": 3,
+        "precipTotal": 667.3
+      },
+      {
+        "year": 2020,
+        "avgMean": 17.4,
+        "maxTemp": 42,
+        "minTemp": 4.4,
+        "precipTotal": 1350.5
+      },
+      {
+        "year": 2021,
+        "avgMean": 16.8,
+        "maxTemp": 36.8,
+        "minTemp": 3.3,
+        "precipTotal": 1131.2
+      },
+      {
+        "year": 2022,
+        "avgMean": 17,
+        "maxTemp": 32.8,
+        "minTemp": 2.8,
+        "precipTotal": 1588.5
+      },
+      {
+        "year": 2023,
+        "avgMean": 17.6,
+        "maxTemp": 39.3,
+        "minTemp": 2.9,
+        "precipTotal": 875.5
+      },
+      {
+        "year": 2024,
+        "avgMean": 17.8,
+        "maxTemp": 36.6,
+        "minTemp": 2.4,
+        "precipTotal": 1068.1
+      },
+      {
+        "year": 2025,
+        "avgMean": 18.1,
+        "maxTemp": 39.1,
+        "minTemp": 3.9,
+        "precipTotal": 1262.8
+      }
+    ],
+    "summary": {
+      "overallAvgMean": 17.6,
+      "overallAvgPrecip": 1018.6,
+      "hottestYear": 2016,
+      "coldestYear": 2021
+    }
   }
 };
 /* WEATHER_DATA_END */
@@ -623,6 +2037,8 @@ const WEATHER_DATA = {
                 .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
                 .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
                 .htmlElementsData(LOCATIONS)
+                .htmlLat(d => d.lat)
+                .htmlLng(d => d.lon)
                 .htmlElement(d => {
                     const el = document.createElement('div');
                     el.innerHTML = `
