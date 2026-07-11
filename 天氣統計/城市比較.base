@@ -18,6 +18,8 @@ views:
       - free_cooling_ws_hours
       - climate_zone
     sort:
+      - property: avg_precip
+        direction: DESC
       - property: wb_04
         direction: DESC
   - type: table
