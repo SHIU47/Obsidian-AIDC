@@ -9,5 +9,45 @@
   { "id": "singapore", "name": "新加坡", "continent": "亞洲", "country": "新加坡", "lat": 1.3521, "lon": 103.8198 },
   { "id": "new-york", "name": "紐約", "continent": "美洲", "country": "美國", "lat": 40.7128, "lon": -74.0060 },
   { "id": "london", "name": "倫敦", "continent": "歐洲", "country": "英國", "lat": 51.5074, "lon": -0.1278 },
-  { "id": "sydney", "name": "雪梨", "continent": "大洋洲", "country": "澳洲", "lat": -33.8688, "lon": 151.2093 }
+  { "id": "sydney", "name": "雪梨", "continent": "大洋洲", "country": "澳洲", "lat": -33.8688, "lon": 151.2093 },
+
+  { "id": "ashburn", "name": "阿什本", "continent": "美洲", "country": "美國", "lat": 39.0438, "lon": -77.4874 },
+  { "id": "columbus", "name": "哥倫布", "continent": "美洲", "country": "美國", "lat": 39.9612, "lon": -82.9988 },
+  { "id": "phoenix", "name": "鳳凰城", "continent": "美洲", "country": "美國", "lat": 33.4484, "lon": -112.0740 },
+  { "id": "santa-clara", "name": "聖塔克拉拉", "continent": "美洲", "country": "美國", "lat": 37.3541, "lon": -121.9552 },
+  { "id": "hillsboro", "name": "希爾斯伯勒", "continent": "美洲", "country": "美國", "lat": 45.5231, "lon": -122.9898 },
+  { "id": "salt-lake-city", "name": "鹽湖城", "continent": "美洲", "country": "美國", "lat": 40.7608, "lon": -111.8910 },
+  { "id": "dallas", "name": "達拉斯", "continent": "美洲", "country": "美國", "lat": 32.7767, "lon": -96.7970 },
+  { "id": "seattle", "name": "西雅圖", "continent": "美洲", "country": "美國", "lat": 47.6062, "lon": -122.3321 },
+  { "id": "queretaro", "name": "克雷塔羅", "continent": "美洲", "country": "墨西哥", "lat": 20.5881, "lon": -100.3899 },
+  { "id": "montreal", "name": "蒙特婁", "continent": "美洲", "country": "加拿大", "lat": 45.5017, "lon": -73.5673 },
+  { "id": "toronto", "name": "多倫多", "continent": "美洲", "country": "加拿大", "lat": 43.6510, "lon": -79.3470 },
+  { "id": "sao-paulo", "name": "聖保羅", "continent": "美洲", "country": "巴西", "lat": -23.5505, "lon": -46.6333 },
+  { "id": "santiago", "name": "聖地牙哥", "continent": "美洲", "country": "智利", "lat": -33.4489, "lon": -70.6693 },
+
+  { "id": "frankfurt", "name": "法蘭克福", "continent": "歐洲", "country": "德國", "lat": 50.1109, "lon": 8.6821 },
+  { "id": "stockholm", "name": "斯德哥爾摩", "continent": "歐洲", "country": "瑞典", "lat": 59.3293, "lon": 18.0686 },
+  { "id": "warsaw", "name": "華沙", "continent": "歐洲", "country": "波蘭", "lat": 52.2297, "lon": 21.0122 },
+  { "id": "dublin", "name": "都柏林", "continent": "歐洲", "country": "愛爾蘭", "lat": 53.3498, "lon": -6.2603 },
+  { "id": "amsterdam", "name": "阿姆斯特丹", "continent": "歐洲", "country": "荷蘭", "lat": 52.3676, "lon": 4.9041 },
+  { "id": "paris", "name": "巴黎", "continent": "歐洲", "country": "法國", "lat": 48.8566, "lon": 2.3522 },
+  { "id": "milan", "name": "米蘭", "continent": "歐洲", "country": "義大利", "lat": 45.4642, "lon": 9.1900 },
+  { "id": "helsinki", "name": "赫爾辛基", "continent": "歐洲", "country": "芬蘭", "lat": 60.1695, "lon": 24.9354 },
+
+  { "id": "beijing", "name": "北京", "continent": "亞洲", "country": "中國", "lat": 39.9042, "lon": 116.4074 },
+  { "id": "shanghai", "name": "上海", "continent": "亞洲", "country": "中國", "lat": 31.2304, "lon": 121.4737 },
+  { "id": "osaka", "name": "大阪", "continent": "亞洲", "country": "日本", "lat": 34.6937, "lon": 135.5023 },
+  { "id": "seoul", "name": "首爾", "continent": "亞洲", "country": "南韓", "lat": 37.5665, "lon": 126.9780 },
+  { "id": "hong-kong", "name": "香港", "continent": "亞洲", "country": "香港", "lat": 22.3193, "lon": 114.1694 },
+  { "id": "jakarta", "name": "雅加達", "continent": "亞洲", "country": "印尼", "lat": -6.2088, "lon": 106.8456 },
+  { "id": "kuala-lumpur", "name": "吉隆坡", "continent": "亞洲", "country": "馬來西亞", "lat": 3.1390, "lon": 101.6869 },
+  { "id": "chennai", "name": "清奈", "continent": "亞洲", "country": "印度", "lat": 13.0827, "lon": 80.2707 },
+  { "id": "mumbai", "name": "孟買", "continent": "亞洲", "country": "印度", "lat": 19.0760, "lon": 72.8777 },
+
+  { "id": "doha", "name": "杜哈", "continent": "中東", "country": "卡達", "lat": 25.2854, "lon": 51.5310 },
+  { "id": "dubai", "name": "杜拜", "continent": "中東", "country": "阿聯", "lat": 25.2048, "lon": 55.2708 },
+  { "id": "tel-aviv", "name": "特拉維夫", "continent": "中東", "country": "以色列", "lat": 32.0853, "lon": 34.7818 },
+
+  { "id": "nairobi", "name": "奈洛比", "continent": "非洲", "country": "肯亞", "lat": -1.2921, "lon": 36.8219 },
+  { "id": "johannesburg", "name": "約翰尼斯堡", "continent": "非洲", "country": "南非", "lat": -26.2041, "lon": 28.0473 }
 ]
