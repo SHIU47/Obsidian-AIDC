@@ -1,0 +1,123 @@
+{
+  "id": "salt-lake-city",
+  "name": "鹽湖城",
+  "continent": "美洲",
+  "country": "美國",
+  "lat": 40.7608,
+  "lon": -111.891,
+  "dataRange": {
+    "startYear": 2016,
+    "endYear": 2025,
+    "totalHours": 87672
+  },
+  "methodology": {
+    "percentileInterpolation": "線性內插（linear interpolation between closest ranks，等同 numpy 預設 \"linear\" 方法 / Excel PERCENTILE.INC）：陣列由小到大排序後，第 p 百分位的索引 = (p/100) × (N-1)，非整數索引取相鄰兩值線性內插。",
+    "dataSourceDisclaimer": "Open-Meteo ERA5 reanalysis 資料，非氣象站實測值（non station-observed ASHRAE data）。與 ASHRAE 官方氣候設計條件表（氣象站資料為主）相比，預期會有小幅差異，僅供工程初估參考。"
+  },
+  "cooling": {
+    "db": {
+      "1": {
+        "value": 35.7,
+        "mcwb": 16.6,
+        "coincidentHours": 677
+      },
+      "2": {
+        "value": 34.5,
+        "mcwb": 16.5,
+        "coincidentHours": 962
+      },
+      "0.4": {
+        "value": 36.9,
+        "mcwb": 16.8,
+        "coincidentHours": 302
+      }
+    },
+    "wb": {
+      "1": {
+        "value": 18.5,
+        "mcdb": 30.8,
+        "coincidentHours": 1297
+      },
+      "2": {
+        "value": 17.9,
+        "mcdb": 30.7,
+        "coincidentHours": 1881
+      },
+      "0.4": {
+        "value": 19.1,
+        "mcdb": 31.2,
+        "coincidentHours": 700
+      }
+    },
+    "dp": {
+      "1": {
+        "value": 13.5,
+        "mcdb": 21.9,
+        "humidityRatio_g_per_kg": 11.2,
+        "coincidentHours": 498
+      },
+      "2": {
+        "value": 12.1,
+        "mcdb": 22.4,
+        "humidityRatio_g_per_kg": 10.22,
+        "coincidentHours": 885
+      },
+      "0.4": {
+        "value": 15,
+        "mcdb": 21.9,
+        "humidityRatio_g_per_kg": 12.35,
+        "coincidentHours": 305
+      }
+    }
+  },
+  "heating": {
+    "99": -9.4,
+    "99.6": -11.8
+  },
+  "extremes": {
+    "extremeMaxDB": {
+      "value": 40.2,
+      "yearMonth": "2021-06"
+    },
+    "extremeMinDB": {
+      "value": -22.4,
+      "yearMonth": "2016-01"
+    },
+    "extremeMaxWB": {
+      "value": 21.6,
+      "yearMonth": "2022-08"
+    },
+    "yearlyExtremeSpread": {
+      "label": "10年年度極值的平均與標準差（非官方 ASHRAE n-year return period 統計方法，僅為簡易變異度參考指標）",
+      "maxDB": {
+        "mean": 39,
+        "stdDev": 1.24
+      },
+      "minDB": {
+        "mean": -17,
+        "stdDev": 3.38
+      }
+    }
+  },
+  "degreeDays": {
+    "hdd18_3": 3165.2,
+    "cdd18_3": 763.2,
+    "cdd10": 2011.1
+  },
+  "freeCooling": {
+    "airSideHoursPerYear": 5362.9,
+    "waterSideHoursPerYear": 6935.8,
+    "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+  },
+  "highWetBulbHours": {
+    "over24": 0,
+    "over26": 0,
+    "over28": 0
+  },
+  "ashraeZone": {
+    "zone": 5,
+    "rule": "Zone 5: 3000 < HDD18°C ≤ 4000",
+    "cdd10_for_zone": 2011.1,
+    "hdd18_for_zone": 3090.9
+  }
+}

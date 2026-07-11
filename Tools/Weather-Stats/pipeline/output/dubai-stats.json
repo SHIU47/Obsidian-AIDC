@@ -1,0 +1,123 @@
+{
+  "id": "dubai",
+  "name": "杜拜",
+  "continent": "中東",
+  "country": "阿聯",
+  "lat": 25.2048,
+  "lon": 55.2708,
+  "dataRange": {
+    "startYear": 2016,
+    "endYear": 2025,
+    "totalHours": 87672
+  },
+  "methodology": {
+    "percentileInterpolation": "線性內插（linear interpolation between closest ranks，等同 numpy 預設 \"linear\" 方法 / Excel PERCENTILE.INC）：陣列由小到大排序後，第 p 百分位的索引 = (p/100) × (N-1)，非整數索引取相鄰兩值線性內插。",
+    "dataSourceDisclaimer": "Open-Meteo ERA5 reanalysis 資料，非氣象站實測值（non station-observed ASHRAE data）。與 ASHRAE 官方氣候設計條件表（氣象站資料為主）相比，預期會有小幅差異，僅供工程初估參考。"
+  },
+  "cooling": {
+    "db": {
+      "1": {
+        "value": 42.3,
+        "mcwb": 25.1,
+        "coincidentHours": 603
+      },
+      "2": {
+        "value": 41,
+        "mcwb": 25.4,
+        "coincidentHours": 973
+      },
+      "0.4": {
+        "value": 43.5,
+        "mcwb": 24.8,
+        "coincidentHours": 339
+      }
+    },
+    "wb": {
+      "1": {
+        "value": 30.1,
+        "mcdb": 34.3,
+        "coincidentHours": 1782
+      },
+      "2": {
+        "value": 29.6,
+        "mcdb": 34.1,
+        "coincidentHours": 3072
+      },
+      "0.4": {
+        "value": 30.5,
+        "mcdb": 34.4,
+        "coincidentHours": 1017
+      }
+    },
+    "dp": {
+      "1": {
+        "value": 29.1,
+        "mcdb": 32.3,
+        "humidityRatio_g_per_kg": 26.07,
+        "coincidentHours": 1422
+      },
+      "2": {
+        "value": 28.6,
+        "mcdb": 32.2,
+        "humidityRatio_g_per_kg": 25.34,
+        "coincidentHours": 2041
+      },
+      "0.4": {
+        "value": 29.6,
+        "mcdb": 32.5,
+        "humidityRatio_g_per_kg": 26.85,
+        "coincidentHours": 815
+      }
+    }
+  },
+  "heating": {
+    "99": 14.1,
+    "99.6": 13
+  },
+  "extremes": {
+    "extremeMaxDB": {
+      "value": 47.2,
+      "yearMonth": "2018-08"
+    },
+    "extremeMinDB": {
+      "value": 8.7,
+      "yearMonth": "2021-01"
+    },
+    "extremeMaxWB": {
+      "value": 32,
+      "yearMonth": "2024-07"
+    },
+    "yearlyExtremeSpread": {
+      "label": "10年年度極值的平均與標準差（非官方 ASHRAE n-year return period 統計方法，僅為簡易變異度參考指標）",
+      "maxDB": {
+        "mean": 46.2,
+        "stdDev": 0.75
+      },
+      "minDB": {
+        "mean": 10.9,
+        "stdDev": 1.31
+      }
+    }
+  },
+  "degreeDays": {
+    "hdd18_3": 7.7,
+    "cdd18_3": 3579.7,
+    "cdd10": 6603.9
+  },
+  "freeCooling": {
+    "airSideHoursPerYear": 140.3,
+    "waterSideHoursPerYear": 245.1,
+    "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+  },
+  "highWetBulbHours": {
+    "over24": 3190.5,
+    "over26": 2110.8,
+    "over28": 871
+  },
+  "ashraeZone": {
+    "zone": 0,
+    "rule": "Zone 0: 6000 < CDD10°C",
+    "cdd10_for_zone": 6603.9,
+    "hdd18_for_zone": 5.3
+  }
+}

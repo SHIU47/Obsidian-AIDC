@@ -1,0 +1,123 @@
+{
+  "id": "dallas",
+  "name": "達拉斯",
+  "continent": "美洲",
+  "country": "美國",
+  "lat": 32.7767,
+  "lon": -96.797,
+  "dataRange": {
+    "startYear": 2016,
+    "endYear": 2025,
+    "totalHours": 87672
+  },
+  "methodology": {
+    "percentileInterpolation": "線性內插（linear interpolation between closest ranks，等同 numpy 預設 \"linear\" 方法 / Excel PERCENTILE.INC）：陣列由小到大排序後，第 p 百分位的索引 = (p/100) × (N-1)，非整數索引取相鄰兩值線性內插。",
+    "dataSourceDisclaimer": "Open-Meteo ERA5 reanalysis 資料，非氣象站實測值（non station-observed ASHRAE data）。與 ASHRAE 官方氣候設計條件表（氣象站資料為主）相比，預期會有小幅差異，僅供工程初估參考。"
+  },
+  "cooling": {
+    "db": {
+      "1": {
+        "value": 37.3,
+        "mcwb": 24.5,
+        "coincidentHours": 548
+      },
+      "2": {
+        "value": 35.9,
+        "mcwb": 24.4,
+        "coincidentHours": 905
+      },
+      "0.4": {
+        "value": 38.8,
+        "mcwb": 24.4,
+        "coincidentHours": 231
+      }
+    },
+    "wb": {
+      "1": {
+        "value": 26,
+        "mcdb": 32.9,
+        "coincidentHours": 1835
+      },
+      "2": {
+        "value": 25.6,
+        "mcdb": 32.6,
+        "coincidentHours": 3080
+      },
+      "0.4": {
+        "value": 26.5,
+        "mcdb": 33.3,
+        "coincidentHours": 821
+      }
+    },
+    "dp": {
+      "1": {
+        "value": 24.2,
+        "mcdb": 28.3,
+        "humidityRatio_g_per_kg": 19.26,
+        "coincidentHours": 1667
+      },
+      "2": {
+        "value": 23.7,
+        "mcdb": 27.9,
+        "humidityRatio_g_per_kg": 18.71,
+        "coincidentHours": 2964
+      },
+      "0.4": {
+        "value": 24.7,
+        "mcdb": 28.7,
+        "humidityRatio_g_per_kg": 19.84,
+        "coincidentHours": 754
+      }
+    }
+  },
+  "heating": {
+    "99": -2.7,
+    "99.6": -5.5
+  },
+  "extremes": {
+    "extremeMaxDB": {
+      "value": 42.9,
+      "yearMonth": "2023-08"
+    },
+    "extremeMinDB": {
+      "value": -18.9,
+      "yearMonth": "2021-02"
+    },
+    "extremeMaxWB": {
+      "value": 29.7,
+      "yearMonth": "2023-06"
+    },
+    "yearlyExtremeSpread": {
+      "label": "10年年度極值的平均與標準差（非官方 ASHRAE n-year return period 統計方法，僅為簡易變異度參考指標）",
+      "maxDB": {
+        "mean": 40.3,
+        "stdDev": 1.99
+      },
+      "minDB": {
+        "mean": -9.2,
+        "stdDev": 4.69
+      }
+    }
+  },
+  "degreeDays": {
+    "hdd18_3": 1105.9,
+    "cdd18_3": 1629.8,
+    "cdd10": 3810.8
+  },
+  "freeCooling": {
+    "airSideHoursPerYear": 2679.4,
+    "waterSideHoursPerYear": 3132.8,
+    "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+  },
+  "highWetBulbHours": {
+    "over24": 992.2,
+    "over26": 79.5,
+    "over28": 2.7
+  },
+  "ashraeZone": {
+    "zone": 2,
+    "rule": "Zone 2: 3500 < CDD10°C ≤ 5000",
+    "cdd10_for_zone": 3810.8,
+    "hdd18_for_zone": 1061.5
+  }
+}

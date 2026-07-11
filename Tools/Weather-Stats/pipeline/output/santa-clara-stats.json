@@ -1,0 +1,123 @@
+{
+  "id": "santa-clara",
+  "name": "聖塔克拉拉",
+  "continent": "美洲",
+  "country": "美國",
+  "lat": 37.3541,
+  "lon": -121.9552,
+  "dataRange": {
+    "startYear": 2016,
+    "endYear": 2025,
+    "totalHours": 87672
+  },
+  "methodology": {
+    "percentileInterpolation": "線性內插（linear interpolation between closest ranks，等同 numpy 預設 \"linear\" 方法 / Excel PERCENTILE.INC）：陣列由小到大排序後，第 p 百分位的索引 = (p/100) × (N-1)，非整數索引取相鄰兩值線性內插。",
+    "dataSourceDisclaimer": "Open-Meteo ERA5 reanalysis 資料，非氣象站實測值（non station-observed ASHRAE data）。與 ASHRAE 官方氣候設計條件表（氣象站資料為主）相比，預期會有小幅差異，僅供工程初估參考。"
+  },
+  "cooling": {
+    "db": {
+      "1": {
+        "value": 32.4,
+        "mcwb": 18.7,
+        "coincidentHours": 369
+      },
+      "2": {
+        "value": 30.6,
+        "mcwb": 18.2,
+        "coincidentHours": 681
+      },
+      "0.4": {
+        "value": 34.8,
+        "mcwb": 19.1,
+        "coincidentHours": 167
+      }
+    },
+    "wb": {
+      "1": {
+        "value": 19.5,
+        "mcdb": 30.2,
+        "coincidentHours": 1184
+      },
+      "2": {
+        "value": 18.9,
+        "mcdb": 29.1,
+        "coincidentHours": 1919
+      },
+      "0.4": {
+        "value": 20.2,
+        "mcdb": 32.1,
+        "coincidentHours": 559
+      }
+    },
+    "dp": {
+      "1": {
+        "value": 15.6,
+        "mcdb": 20.3,
+        "humidityRatio_g_per_kg": 11.01,
+        "coincidentHours": 1085
+      },
+      "2": {
+        "value": 14.9,
+        "mcdb": 19.7,
+        "humidityRatio_g_per_kg": 10.53,
+        "coincidentHours": 2218
+      },
+      "0.4": {
+        "value": 16.3,
+        "mcdb": 21.2,
+        "humidityRatio_g_per_kg": 11.52,
+        "coincidentHours": 527
+      }
+    }
+  },
+  "heating": {
+    "99": 3.9,
+    "99.6": 2.6
+  },
+  "extremes": {
+    "extremeMaxDB": {
+      "value": 46.7,
+      "yearMonth": "2022-09"
+    },
+    "extremeMinDB": {
+      "value": -1.3,
+      "yearMonth": "2022-02"
+    },
+    "extremeMaxWB": {
+      "value": 23.7,
+      "yearMonth": "2017-09"
+    },
+    "yearlyExtremeSpread": {
+      "label": "10年年度極值的平均與標準差（非官方 ASHRAE n-year return period 統計方法，僅為簡易變異度參考指標）",
+      "maxDB": {
+        "mean": 40.1,
+        "stdDev": 3.49
+      },
+      "minDB": {
+        "mean": 0.1,
+        "stdDev": 0.94
+      }
+    }
+  },
+  "degreeDays": {
+    "hdd18_3": 1260.2,
+    "cdd18_3": 362.2,
+    "cdd10": 2200.1
+  },
+  "freeCooling": {
+    "airSideHoursPerYear": 4375.6,
+    "waterSideHoursPerYear": 5141.2,
+    "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+  },
+  "highWetBulbHours": {
+    "over24": 0,
+    "over26": 0,
+    "over28": 0
+  },
+  "ashraeZone": {
+    "zone": 3,
+    "rule": "Zone 3: CDD10°C < 3500 AND HDD18°C ≤ 2000",
+    "cdd10_for_zone": 2200.1,
+    "hdd18_for_zone": 1189.4
+  }
+}
