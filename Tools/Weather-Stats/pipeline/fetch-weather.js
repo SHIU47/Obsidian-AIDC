@@ -9,6 +9,7 @@ const LOCATIONS_FILE = path.join(__dirname, 'locations.json');
 const INDEX_FILE = path.join(__dirname, '..', 'index.html');
 const NOTES_ROOT = path.join(__dirname, '..', '..', '..', '天氣統計'); // vault 根目錄下的筆記樹：天氣統計/洲/國家/城市.md
 const CACHE_DIR = path.join(__dirname, 'cache'); // hourly 原始資料快取：cache/<city-id>/<year>.json（永久快取，不會過期，且已加入 .gitignore）
+const OUTPUT_DIR = path.join(__dirname, 'output'); // Phase 3（design-conditions.js）產生的 <city-id>-stats.json 讀取來源，Phase 4 只讀不寫
 
 const DAILY_VARS = [
   'temperature_2m_max',
@@ -231,6 +232,125 @@ async function fetchAllLocationsHourly() {
 
 const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
+// ============================================================
+// Phase 4：讀取 Phase 3（design-conditions.js）產生的 <city-id>-stats.json，
+// 只讀不算——所有設計條件數字都來自該檔案，這裡只做格式化排版。
+// ============================================================
+
+function loadStats(cityId) {
+  const p = path.join(OUTPUT_DIR, `${cityId}-stats.json`);
+  if (!fs.existsSync(p)) return null;
+  return JSON.parse(fs.readFileSync(p, 'utf-8'));
+}
+
+// 冷卻設計條件：DB/WB/DP 三組，各含 0.4%/1%/2% 百分位，組合成單一表格（欄位分組）
+function buildCoolingTable(cooling) {
+  const pcts = ['0.4', '1', '2'];
+  const rows = pcts
+    .map((p) => {
+      const db = cooling.db[p];
+      const wb = cooling.wb[p];
+      const dp = cooling.dp[p];
+      return `| ${p}% | ${db.value} | ${db.mcwb} | ${wb.value} | ${wb.mcdb} | ${dp.value} | ${dp.humidityRatio_g_per_kg} | ${dp.mcdb} |`;
+    })
+    .join('\n');
+  return `| 百分位 | DB °C | MCWB °C | WB °C | MCDB(WB) °C | DP °C | 濕度比 g/kg | MCDB(DP) °C |
+|---|---|---|---|---|---|---|---|
+${rows}`;
+}
+
+function buildHeatingTable(heating) {
+  const pcts = ['99.6', '99'];
+  const rows = pcts.map((p) => `| ${p}% | ${heating[p]} |`).join('\n');
+  return `| 百分位 | DB °C |
+|---|---|
+${rows}`;
+}
+
+function buildExtremesSection(extremes) {
+  const spread = extremes.yearlyExtremeSpread;
+  return `| 項目 | 數值 | 發生年月 |
+|---|---|---|
+| 10年極端最高乾球 | ${extremes.extremeMaxDB.value} °C | ${extremes.extremeMaxDB.yearMonth} |
+| 10年極端最低乾球 | ${extremes.extremeMinDB.value} °C | ${extremes.extremeMinDB.yearMonth} |
+| 10年極端最高濕球 | ${extremes.extremeMaxWB.value} °C | ${extremes.extremeMaxWB.yearMonth} |
+
+| 年度極值變異度 | 平均 | 標準差 |
+|---|---|---|
+| 年度極端最高乾球 | ${spread.maxDB.mean} °C | ${spread.maxDB.stdDev} °C |
+| 年度極端最低乾球 | ${spread.minDB.mean} °C | ${spread.minDB.stdDev} °C |
+
+> ${spread.label}`;
+}
+
+function buildDegreeDaysSection(stats) {
+  const dd = stats.degreeDays;
+  const fc = stats.freeCooling;
+  const hwb = stats.highWetBulbHours;
+  return `| 度日指標 | 數值 |
+|---|---|
+| HDD18.3（基準18.3°C） | ${dd.hdd18_3} °C·day |
+| CDD18.3（基準18.3°C） | ${dd.cdd18_3} °C·day |
+| CDD10（基準10°C） | ${dd.cdd10} °C·day |
+
+| 自然冷卻類型 | 門檻 | 年均時數 hr/year |
+|---|---|---|
+| 氣側自然冷卻（Air-side economizer） | 乾球 < 15°C | ${fc.airSideHoursPerYear} |
+| 水側自然冷卻（Water-side economizer） | 濕球 < 12.8°C | ${fc.waterSideHoursPerYear} |
+
+> ${fc.assumption}
+
+| 高濕球時數門檻 | 年均時數 hr/year |
+|---|---|
+| 濕球 > 24°C | ${hwb.over24} |
+| 濕球 > 26°C | ${hwb.over26} |
+| 濕球 > 28°C | ${hwb.over28} |`;
+}
+
+function buildZoneSection(ashraeZone) {
+  if (!ashraeZone) {
+    return '— （Phase 3 統計資料未提供氣候分區判定，故不標示，避免編造數字）';
+  }
+  return `**Zone ${ashraeZone.zone}**：${ashraeZone.rule}
+
+| 分區判定依據 | 數值 |
+|---|---|
+| CDD10°C（分區用） | ${ashraeZone.cdd10_for_zone} °C·day |
+| HDD18°C（分區用） | ${ashraeZone.hdd18_for_zone} °C·day |`;
+}
+
+function buildAshraeSections(stats) {
+  return `
+## ASHRAE 風格設計條件
+
+### 冷房設計條件（Cooling，全年小時排序取百分位）
+
+${buildCoolingTable(stats.cooling)}
+
+### 暖房設計條件（Heating）
+
+${buildHeatingTable(stats.heating)}
+
+### 極端值
+
+${buildExtremesSection(stats.extremes)}
+
+## 度日與自然冷卻
+
+${buildDegreeDaysSection(stats)}
+
+## ASHRAE 169 氣候分區
+
+${buildZoneSection(stats.ashraeZone)}
+
+## 資料來源與方法說明
+
+> ${stats.methodology.dataSourceDisclaimer}
+
+> 百分位計算方式：${stats.methodology.percentileInterpolation}
+`;
+}
+
 function buildNote(d) {
   const monthRows = d.monthly
     .map((m) => `| ${MONTH_NAMES[m.month - 1]} | ${m.avgHigh} | ${m.avgLow} | ${m.avgMean} | ${m.avgPrecip} |`)
@@ -238,6 +358,21 @@ function buildNote(d) {
   const yearRows = d.yearly
     .map((y) => `| ${y.year} | ${y.avgMean} | ${y.maxTemp} | ${y.minTemp} | ${y.precipTotal} |`)
     .join('\n');
+
+  const stats = loadStats(d.id);
+
+  const frontmatterExtra = stats
+    ? `db_04: ${stats.cooling.db['0.4'].value}
+wb_04: ${stats.cooling.wb['0.4'].value}
+dp_04: ${stats.cooling.dp['0.4'].value}
+hdd18: ${stats.ashraeZone ? stats.ashraeZone.hdd18_for_zone : stats.degreeDays.hdd18_3}
+cdd18: ${stats.ashraeZone ? stats.ashraeZone.cdd10_for_zone : stats.degreeDays.cdd10}
+free_cooling_ws_hours: ${stats.freeCooling.waterSideHoursPerYear}
+climate_zone: ${stats.ashraeZone ? stats.ashraeZone.zone : 'null'}
+`
+    : '';
+
+  const ashraeSections = stats ? buildAshraeSections(stats) : '';
 
   return `---
 type: weather-stats
@@ -249,7 +384,7 @@ lon: ${d.lon}
 years: ${d.range.startYear}-${d.range.endYear}
 avg_temp: ${d.summary.overallAvgMean}
 avg_precip: ${d.summary.overallAvgPrecip}
----
+${frontmatterExtra}---
 
 # ${d.name} — 10年天氣統計（${d.range.startYear}–${d.range.endYear}）
 
@@ -275,7 +410,7 @@ ${monthRows}
 | 年份 | 年均溫 °C | 極端高溫 °C | 極端低溫 °C | 年總雨量 mm |
 |---|---|---|---|---|
 ${yearRows}
-
+${ashraeSections}
 互動地球總覽：[[10年天氣統計]]
 `;
 }

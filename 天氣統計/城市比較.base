@@ -1,0 +1,40 @@
+filters:
+  and:
+    - type == "weather-stats"
+views:
+  - type: table
+    name: 依濕球排序（冷卻風險）
+    order:
+      - city
+      - country
+      - continent
+      - avg_temp
+      - avg_precip
+      - db_04
+      - wb_04
+      - dp_04
+      - hdd18
+      - cdd18
+      - free_cooling_ws_hours
+      - climate_zone
+    sort:
+      - property: wb_04
+        direction: DESC
+  - type: table
+    name: 依氣候分區排序
+    order:
+      - city
+      - country
+      - continent
+      - avg_temp
+      - avg_precip
+      - db_04
+      - wb_04
+      - dp_04
+      - hdd18
+      - cdd18
+      - free_cooling_ws_hours
+      - climate_zone
+    sort:
+      - property: climate_zone
+        direction: ASC
