@@ -2,9 +2,8 @@
 # This script consolidates all markdown files in the wiki directory into a single file Engineering_Wiki_Consolidated.md.
 # It also ensures all files are read and written with UTF-8 encoding.
 
-$workingDir = Get-Location
-$wikiDir = Join-Path $workingDir "wiki"
-$consolidatedPath = Join-Path $workingDir "Engineering_Wiki_Consolidated.md"
+$wikiDir = $PSScriptRoot
+$consolidatedPath = Join-Path $PSScriptRoot "Engineering_Wiki_Consolidated.md"
 
 Write-Output "Starting wiki consolidation..."
 

@@ -450,16 +450,53 @@ ${monthRows}
 |---|---|---|---|---|
 ${yearRows}
 ${ashraeSections}
-互動地球總覽：[[10年天氣統計]]
+所屬洲別：[[天氣統計/${d.continent}|${d.continent}]]
+`;
+}
+
+function buildContinentNote(continent, cities) {
+  const byCountry = {};
+  for (const d of cities) {
+    if (!byCountry[d.country]) byCountry[d.country] = [];
+    byCountry[d.country].push(d);
+  }
+  const countryBlocks = Object.keys(byCountry).sort().map((country) => {
+    const rows = byCountry[country]
+      .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'))
+      .map((d) => `- [[天氣統計/${d.continent}/${d.country}/${d.name}|${d.name}]]（10年均溫 ${d.summary.overallAvgMean}°C，Zone ${d.design?.ashraeZone?.zone ?? '—'}）`)
+      .join('\n');
+    return `### ${country}\n\n${rows}`;
+  }).join('\n\n');
+
+  return `# ${continent} — 天氣統計城市總覽
+
+> 自動產生，請勿手動編輯。重新產生：在 \`Tools/Weather-Stats/pipeline/\` 執行 \`node fetch-weather.js\`
+
+共 ${cities.length} 個城市。
+
+${countryBlocks}
+
+上層總覽：[[10年天氣統計]]
 `;
 }
 
 function writeNotes(result) {
+  const byContinent = {};
   for (const d of Object.values(result)) {
     const dir = path.join(NOTES_ROOT, d.continent, d.country);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, `${d.name}.md`), buildNote(d), 'utf-8');
+
+    if (!byContinent[d.continent]) byContinent[d.continent] = [];
+    byContinent[d.continent].push(d);
   }
+
+  for (const continent of Object.keys(byContinent)) {
+    const notePath = path.join(NOTES_ROOT, `${continent}.md`);
+    fs.writeFileSync(notePath, buildContinentNote(continent, byContinent[continent]), 'utf-8');
+  }
+
+  return Object.keys(byContinent).sort();
 }
 
 async function main() {
@@ -476,8 +513,8 @@ async function main() {
   if (!markerRe.test(html)) throw new Error('在 index.html 找不到 WEATHER_DATA 標記區塊');
   fs.writeFileSync(INDEX_FILE, html.replace(markerRe, block), 'utf-8');
   console.log(`已注入 ${INDEX_FILE}`);
-  writeNotes(result);
-  console.log(`已產生 ${Object.keys(result).length} 份城市筆記於 ${NOTES_ROOT}`);
+  const continents = writeNotes(result);
+  console.log(`已產生 ${Object.keys(result).length} 份城市筆記 + ${continents.length} 份洲別總覽於 ${NOTES_ROOT}（${continents.join('、')}）`);
 }
 
 module.exports = {
