@@ -243,6 +243,45 @@ function loadStats(cityId) {
   return JSON.parse(fs.readFileSync(p, 'utf-8'));
 }
 
+// ============================================================
+// Phase 5：condensed 設計條件摘要，供 index.html 內嵌（給地球工具的設計條件面板用）。
+// 只挑 UI 實際會顯示的欄位，不塞 coincidentHours / methodology / yearlyExtremeSpread
+// 等筆記用不到的細節，避免 index.html 超過 2MB 預算。欄位命名沿用 stats.json 原始命名。
+// ============================================================
+function buildDesignSummary(stats) {
+  if (!stats) return null;
+  const pct = (obj) => ({
+    '0.4': { value: obj['0.4'].value, mcwb: obj['0.4'].mcwb, mcdb: obj['0.4'].mcdb, humidityRatio_g_per_kg: obj['0.4'].humidityRatio_g_per_kg },
+    '1': { value: obj['1'].value, mcwb: obj['1'].mcwb, mcdb: obj['1'].mcdb, humidityRatio_g_per_kg: obj['1'].humidityRatio_g_per_kg },
+    '2': { value: obj['2'].value, mcwb: obj['2'].mcwb, mcdb: obj['2'].mcdb, humidityRatio_g_per_kg: obj['2'].humidityRatio_g_per_kg },
+  });
+  return {
+    cooling: {
+      db: pct(stats.cooling.db),
+      wb: pct(stats.cooling.wb),
+      dp: pct(stats.cooling.dp),
+    },
+    heating: { '99.6': stats.heating['99.6'], '99': stats.heating['99'] },
+    extremes: {
+      maxDB: stats.extremes.extremeMaxDB,
+      minDB: stats.extremes.extremeMinDB,
+      maxWB: stats.extremes.extremeMaxWB,
+    },
+    degreeDays: {
+      hdd18_3: stats.degreeDays.hdd18_3,
+      cdd18_3: stats.degreeDays.cdd18_3,
+      cdd10: stats.degreeDays.cdd10,
+    },
+    freeCooling: {
+      airSideHoursPerYear: stats.freeCooling.airSideHoursPerYear,
+      waterSideHoursPerYear: stats.freeCooling.waterSideHoursPerYear,
+      assumption: stats.freeCooling.assumption,
+    },
+    highWetBulbHours: stats.highWetBulbHours,
+    ashraeZone: stats.ashraeZone || null,
+  };
+}
+
 // 冷卻設計條件：DB/WB/DP 三組，各含 0.4%/1%/2% 百分位，組合成單一表格（欄位分組）
 function buildCoolingTable(cooling) {
   const pcts = ['0.4', '1', '2'];
@@ -428,6 +467,7 @@ async function main() {
   const result = {};
   for (const loc of locations) {
     result[loc.id] = await fetchLocation(loc);
+    result[loc.id].design = buildDesignSummary(loadStats(loc.id));
     await new Promise((r) => setTimeout(r, 300));
   }
   const block = `/* WEATHER_DATA_START */\n// 自動產生，請勿手動編輯。重新產生：node pipeline/fetch-weather.js\nconst WEATHER_DATA = ${JSON.stringify(result, null, 2)};\n/* WEATHER_DATA_END */`;

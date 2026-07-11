@@ -185,6 +185,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1784.2,
       "hottestYear": 2021,
       "coldestYear": 2018
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 34.1,
+            "mcwb": 26.6
+          },
+          "2": {
+            "value": 33.2,
+            "mcwb": 26.6
+          },
+          "0.4": {
+            "value": 35.2,
+            "mcwb": 26.5
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 27.4,
+            "mcdb": 31.5
+          },
+          "2": {
+            "value": 27.2,
+            "mcdb": 31.3
+          },
+          "0.4": {
+            "value": 27.7,
+            "mcdb": 31.8
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 26.4,
+            "mcdb": 28.9,
+            "humidityRatio_g_per_kg": 21.82
+          },
+          "2": {
+            "value": 26.1,
+            "mcdb": 28.8,
+            "humidityRatio_g_per_kg": 21.46
+          },
+          "0.4": {
+            "value": 26.7,
+            "mcdb": 29.1,
+            "humidityRatio_g_per_kg": 22.18
+          }
+        }
+      },
+      "heating": {
+        "99": 10.4,
+        "99.6": 8.9
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 38.2,
+          "yearMonth": "2020-07"
+        },
+        "minDB": {
+          "value": 3.8,
+          "yearMonth": "2016-01"
+        },
+        "maxWB": {
+          "value": 28.9,
+          "yearMonth": "2024-07"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 210.4,
+        "cdd18_3": 1943.2,
+        "cdd10": 4766.9
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 729.2,
+        "waterSideHoursPerYear": 792.4,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 3043.7,
+        "over26": 1060.2,
+        "over28": 7.7
+      },
+      "ashraeZone": {
+        "zone": 2,
+        "rule": "Zone 2: 3500 < CDD10°C ≤ 5000",
+        "cdd10_for_zone": 4766.9,
+        "hdd18_for_zone": 188.1
+      }
     }
   },
   "new-taipei": {
@@ -361,6 +449,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1705.1,
       "hottestYear": 2024,
       "coldestYear": 2016
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 34.5,
+            "mcwb": 26
+          },
+          "2": {
+            "value": 33.5,
+            "mcwb": 26
+          },
+          "0.4": {
+            "value": 35.7,
+            "mcwb": 26
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 26.9,
+            "mcdb": 31.2
+          },
+          "2": {
+            "value": 26.7,
+            "mcdb": 31
+          },
+          "0.4": {
+            "value": 27.2,
+            "mcdb": 31.5
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 25.9,
+            "mcdb": 28.6,
+            "humidityRatio_g_per_kg": 21.17
+          },
+          "2": {
+            "value": 25.6,
+            "mcdb": 28.5,
+            "humidityRatio_g_per_kg": 20.82
+          },
+          "0.4": {
+            "value": 26.2,
+            "mcdb": 28.6,
+            "humidityRatio_g_per_kg": 21.51
+          }
+        }
+      },
+      "heating": {
+        "99": 10.3,
+        "99.6": 8.7
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 38.8,
+          "yearMonth": "2025-08"
+        },
+        "minDB": {
+          "value": 2.9,
+          "yearMonth": "2016-01"
+        },
+        "maxWB": {
+          "value": 28.2,
+          "yearMonth": "2016-08"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 220.6,
+        "cdd18_3": 1957,
+        "cdd10": 4770.9
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 771.7,
+        "waterSideHoursPerYear": 849.9,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 2797.1,
+        "over26": 633.4,
+        "over28": 0.5
+      },
+      "ashraeZone": {
+        "zone": 2,
+        "rule": "Zone 2: 3500 < CDD10°C ≤ 5000",
+        "cdd10_for_zone": 4770.9,
+        "hdd18_for_zone": 197.6
+      }
     }
   },
   "taoyuan": {
@@ -537,6 +713,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1955,
       "hottestYear": 2020,
       "coldestYear": 2016
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 34.2,
+            "mcwb": 25.9
+          },
+          "2": {
+            "value": 33.3,
+            "mcwb": 26
+          },
+          "0.4": {
+            "value": 35.2,
+            "mcwb": 25.8
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 26.8,
+            "mcdb": 31.5
+          },
+          "2": {
+            "value": 26.6,
+            "mcdb": 31.2
+          },
+          "0.4": {
+            "value": 27.1,
+            "mcdb": 31.9
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 25.6,
+            "mcdb": 28.6,
+            "humidityRatio_g_per_kg": 21
+          },
+          "2": {
+            "value": 25.4,
+            "mcdb": 28.5,
+            "humidityRatio_g_per_kg": 20.77
+          },
+          "0.4": {
+            "value": 25.9,
+            "mcdb": 28.7,
+            "humidityRatio_g_per_kg": 21.35
+          }
+        }
+      },
+      "heating": {
+        "99": 9.7,
+        "99.6": 8.1
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 38.6,
+          "yearMonth": "2025-07"
+        },
+        "minDB": {
+          "value": 2.7,
+          "yearMonth": "2016-01"
+        },
+        "maxWB": {
+          "value": 28.2,
+          "yearMonth": "2021-07"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 271,
+        "cdd18_3": 1813.3,
+        "cdd10": 4578
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 965.9,
+        "waterSideHoursPerYear": 978.2,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 2545.7,
+        "over26": 502.9,
+        "over28": 0.4
+      },
+      "ashraeZone": {
+        "zone": 2,
+        "rule": "Zone 2: 3500 < CDD10°C ≤ 5000",
+        "cdd10_for_zone": 4578,
+        "hdd18_for_zone": 244.3
+      }
     }
   },
   "taichung": {
@@ -713,6 +977,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 2466.5,
       "hottestYear": 2020,
       "coldestYear": 2016
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 32.5,
+            "mcwb": 25.3
+          },
+          "2": {
+            "value": 31.6,
+            "mcwb": 25.4
+          },
+          "0.4": {
+            "value": 33.6,
+            "mcwb": 24.9
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 26.6,
+            "mcdb": 30.1
+          },
+          "2": {
+            "value": 26.3,
+            "mcdb": 29.8
+          },
+          "0.4": {
+            "value": 26.9,
+            "mcdb": 30.5
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 25.5,
+            "mcdb": 28.3,
+            "humidityRatio_g_per_kg": 20.81
+          },
+          "2": {
+            "value": 25.3,
+            "mcdb": 28.2,
+            "humidityRatio_g_per_kg": 20.59
+          },
+          "0.4": {
+            "value": 25.9,
+            "mcdb": 28.7,
+            "humidityRatio_g_per_kg": 21.3
+          }
+        }
+      },
+      "heating": {
+        "99": 9.6,
+        "99.6": 7.8
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 38.2,
+          "yearMonth": "2021-05"
+        },
+        "minDB": {
+          "value": 4.6,
+          "yearMonth": "2018-01"
+        },
+        "maxWB": {
+          "value": 28.4,
+          "yearMonth": "2019-07"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 186.5,
+        "cdd18_3": 1857.8,
+        "cdd10": 4705.9
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 830.3,
+        "waterSideHoursPerYear": 806.3,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 2261.8,
+        "over26": 317.3,
+        "over28": 0.9
+      },
+      "ashraeZone": {
+        "zone": 2,
+        "rule": "Zone 2: 3500 < CDD10°C ≤ 5000",
+        "cdd10_for_zone": 4705.9,
+        "hdd18_for_zone": 166.7
+      }
     }
   },
   "tainan": {
@@ -889,6 +1241,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1825.4,
       "hottestYear": 2020,
       "coldestYear": 2018
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 32.1,
+            "mcwb": 26.4
+          },
+          "2": {
+            "value": 31.6,
+            "mcwb": 26.4
+          },
+          "0.4": {
+            "value": 32.7,
+            "mcwb": 26.4
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 27.3,
+            "mcdb": 30.2
+          },
+          "2": {
+            "value": 27.1,
+            "mcdb": 29.9
+          },
+          "0.4": {
+            "value": 27.5,
+            "mcdb": 30.5
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 26.6,
+            "mcdb": 28.3,
+            "humidityRatio_g_per_kg": 22.05
+          },
+          "2": {
+            "value": 26.4,
+            "mcdb": 28.3,
+            "humidityRatio_g_per_kg": 21.83
+          },
+          "0.4": {
+            "value": 26.8,
+            "mcdb": 28.3,
+            "humidityRatio_g_per_kg": 22.28
+          }
+        }
+      },
+      "heating": {
+        "99": 12,
+        "99.6": 10.4
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 35.5,
+          "yearMonth": "2024-07"
+        },
+        "minDB": {
+          "value": 6,
+          "yearMonth": "2018-01"
+        },
+        "maxWB": {
+          "value": 28.7,
+          "yearMonth": "2019-08"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 77.7,
+        "cdd18_3": 2226.1,
+        "cdd10": 5180.6
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 406.9,
+        "waterSideHoursPerYear": 457,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 3714,
+        "over26": 1455.5,
+        "over28": 2.1
+      },
+      "ashraeZone": {
+        "zone": 1,
+        "rule": "Zone 1: 5000 < CDD10°C ≤ 6000",
+        "cdd10_for_zone": 5180.6,
+        "hdd18_for_zone": 65.9
+      }
     }
   },
   "kaohsiung": {
@@ -1065,6 +1505,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1971.5,
       "hottestYear": 2020,
       "coldestYear": 2016
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 31.9,
+            "mcwb": 26.5
+          },
+          "2": {
+            "value": 31.4,
+            "mcwb": 26.4
+          },
+          "0.4": {
+            "value": 32.4,
+            "mcwb": 26.5
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 27.2,
+            "mcdb": 29.9
+          },
+          "2": {
+            "value": 27,
+            "mcdb": 29.7
+          },
+          "0.4": {
+            "value": 27.4,
+            "mcdb": 30.2
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 26.5,
+            "mcdb": 28.4,
+            "humidityRatio_g_per_kg": 21.86
+          },
+          "2": {
+            "value": 26.2,
+            "mcdb": 28.3,
+            "humidityRatio_g_per_kg": 21.53
+          },
+          "0.4": {
+            "value": 26.7,
+            "mcdb": 28.5,
+            "humidityRatio_g_per_kg": 22.09
+          }
+        }
+      },
+      "heating": {
+        "99": 13.8,
+        "99.6": 12.3
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 35,
+          "yearMonth": "2024-07"
+        },
+        "minDB": {
+          "value": 7.4,
+          "yearMonth": "2016-01"
+        },
+        "maxWB": {
+          "value": 28.6,
+          "yearMonth": "2016-05"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 34.7,
+        "cdd18_3": 2425.8,
+        "cdd10": 5423.3
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 158.1,
+        "waterSideHoursPerYear": 271.5,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 3870.2,
+        "over26": 1430.7,
+        "over28": 3.6
+      },
+      "ashraeZone": {
+        "zone": 1,
+        "rule": "Zone 1: 5000 < CDD10°C ≤ 6000",
+        "cdd10_for_zone": 5423.3,
+        "hdd18_for_zone": 28.9
+      }
     }
   },
   "tokyo": {
@@ -1241,6 +1769,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1591.8,
       "hottestYear": 2025,
       "coldestYear": 2017
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 33.5,
+            "mcwb": 25.9
+          },
+          "2": {
+            "value": 32,
+            "mcwb": 25.7
+          },
+          "0.4": {
+            "value": 35,
+            "mcwb": 26
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 26.6,
+            "mcdb": 31.3
+          },
+          "2": {
+            "value": 26.1,
+            "mcdb": 30.4
+          },
+          "0.4": {
+            "value": 27.1,
+            "mcdb": 32.2
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 25.3,
+            "mcdb": 28.5,
+            "humidityRatio_g_per_kg": 20.49
+          },
+          "2": {
+            "value": 24.9,
+            "mcdb": 28.1,
+            "humidityRatio_g_per_kg": 20.01
+          },
+          "0.4": {
+            "value": 25.8,
+            "mcdb": 29,
+            "humidityRatio_g_per_kg": 21.05
+          }
+        }
+      },
+      "heating": {
+        "99": -1.3,
+        "99.6": -2.5
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 39.4,
+          "yearMonth": "2023-07"
+        },
+        "minDB": {
+          "value": -7.7,
+          "yearMonth": "2022-01"
+        },
+        "maxWB": {
+          "value": 28.7,
+          "yearMonth": "2024-07"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 1824,
+        "cdd18_3": 916.7,
+        "cdd10": 2615.9
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 4021.4,
+        "waterSideHoursPerYear": 4252.2,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 1047.4,
+        "over26": 188.3,
+        "over28": 2.5
+      },
+      "ashraeZone": {
+        "zone": 3,
+        "rule": "Zone 3: CDD10°C < 3500 AND HDD18°C ≤ 2000",
+        "cdd10_for_zone": 2615.9,
+        "hdd18_for_zone": 1761.9
+      }
     }
   },
   "singapore": {
@@ -1417,6 +2033,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 3202.9,
       "hottestYear": 2019,
       "coldestYear": 2021
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 31.7,
+            "mcwb": 25.7
+          },
+          "2": {
+            "value": 31.2,
+            "mcwb": 25.8
+          },
+          "0.4": {
+            "value": 32.3,
+            "mcwb": 25.7
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 26.9,
+            "mcdb": 29.8
+          },
+          "2": {
+            "value": 26.6,
+            "mcdb": 29.5
+          },
+          "0.4": {
+            "value": 27.2,
+            "mcdb": 30.1
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 26,
+            "mcdb": 28.3,
+            "humidityRatio_g_per_kg": 21.25
+          },
+          "2": {
+            "value": 25.8,
+            "mcdb": 28.1,
+            "humidityRatio_g_per_kg": 21.01
+          },
+          "0.4": {
+            "value": 26.3,
+            "mcdb": 28.7,
+            "humidityRatio_g_per_kg": 21.61
+          }
+        }
+      },
+      "heating": {
+        "99": 23,
+        "99.6": 22.7
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 35.6,
+          "yearMonth": "2019-03"
+        },
+        "minDB": {
+          "value": 21.6,
+          "yearMonth": "2024-09"
+        },
+        "maxWB": {
+          "value": 28.7,
+          "yearMonth": "2019-05"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 0,
+        "cdd18_3": 3084.2,
+        "cdd10": 6116.2
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 0,
+        "waterSideHoursPerYear": 0,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 6720.8,
+        "over26": 673,
+        "over28": 0.9
+      },
+      "ashraeZone": {
+        "zone": 0,
+        "rule": "Zone 0: 6000 < CDD10°C",
+        "cdd10_for_zone": 6116.2,
+        "hdd18_for_zone": 0
+      }
     }
   },
   "new-york": {
@@ -1593,6 +2297,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1312.2,
       "hottestYear": 2023,
       "coldestYear": 2018
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 31.5,
+            "mcwb": 23.4
+          },
+          "2": {
+            "value": 30,
+            "mcwb": 22.6
+          },
+          "0.4": {
+            "value": 33.1,
+            "mcwb": 24
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 24.8,
+            "mcdb": 29.2
+          },
+          "2": {
+            "value": 24.1,
+            "mcdb": 28
+          },
+          "0.4": {
+            "value": 25.5,
+            "mcdb": 30.4
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 23.5,
+            "mcdb": 26.7,
+            "humidityRatio_g_per_kg": 18.25
+          },
+          "2": {
+            "value": 22.9,
+            "mcdb": 26,
+            "humidityRatio_g_per_kg": 17.63
+          },
+          "0.4": {
+            "value": 24.1,
+            "mcdb": 27.5,
+            "humidityRatio_g_per_kg": 18.86
+          }
+        }
+      },
+      "heating": {
+        "99": -8.2,
+        "99.6": -10.6
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 40.4,
+          "yearMonth": "2025-06"
+        },
+        "minDB": {
+          "value": -20.5,
+          "yearMonth": "2018-01"
+        },
+        "maxWB": {
+          "value": 27.8,
+          "yearMonth": "2016-08"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 2683.8,
+        "cdd18_3": 604.8,
+        "cdd10": 2002.9
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 4927.7,
+        "waterSideHoursPerYear": 5152,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 182,
+        "over26": 12.9,
+        "over28": 0
+      },
+      "ashraeZone": {
+        "zone": 4,
+        "rule": "Zone 4: CDD10°C ≤ 2500 AND 2000 < HDD18°C ≤ 3000",
+        "cdd10_for_zone": 2002.9,
+        "hdd18_for_zone": 2612.2
+      }
     }
   },
   "london": {
@@ -1769,6 +2561,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 718.5,
       "hottestYear": 2025,
       "coldestYear": 2021
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 26.6,
+            "mcwb": 18.5
+          },
+          "2": {
+            "value": 24.4,
+            "mcwb": 17.5
+          },
+          "0.4": {
+            "value": 29,
+            "mcwb": 19.7
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 19.2,
+            "mcdb": 24.8
+          },
+          "2": {
+            "value": 18.3,
+            "mcdb": 23
+          },
+          "0.4": {
+            "value": 20.4,
+            "mcdb": 27.4
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 17.2,
+            "mcdb": 21.3,
+            "humidityRatio_g_per_kg": 12.24
+          },
+          "2": {
+            "value": 16.5,
+            "mcdb": 20.4,
+            "humidityRatio_g_per_kg": 11.72
+          },
+          "0.4": {
+            "value": 17.9,
+            "mcdb": 22.3,
+            "humidityRatio_g_per_kg": 12.78
+          }
+        }
+      },
+      "heating": {
+        "99": -1.8,
+        "99.6": -3.1
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 37.9,
+          "yearMonth": "2022-07"
+        },
+        "minDB": {
+          "value": -10.3,
+          "yearMonth": "2021-02"
+        },
+        "maxWB": {
+          "value": 24.4,
+          "yearMonth": "2019-07"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 2578.9,
+        "cdd18_3": 92.7,
+        "cdd10": 1148.8
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 6164.2,
+        "waterSideHoursPerYear": 6416.2,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 0.6,
+        "over26": 0,
+        "over28": 0
+      },
+      "ashraeZone": {
+        "zone": 4,
+        "rule": "Zone 4: CDD10°C ≤ 2500 AND 2000 < HDD18°C ≤ 3000",
+        "cdd10_for_zone": 1148.8,
+        "hdd18_for_zone": 2483.1
+      }
     }
   },
   "sydney": {
@@ -1945,6 +2825,94 @@ const WEATHER_DATA = {
       "overallAvgPrecip": 1018.6,
       "hottestYear": 2016,
       "coldestYear": 2021
+    },
+    "design": {
+      "cooling": {
+        "db": {
+          "1": {
+            "value": 30.3,
+            "mcwb": 21.6
+          },
+          "2": {
+            "value": 28.5,
+            "mcwb": 21.2
+          },
+          "0.4": {
+            "value": 33.1,
+            "mcwb": 21.2
+          }
+        },
+        "wb": {
+          "1": {
+            "value": 23.3,
+            "mcdb": 27.9
+          },
+          "2": {
+            "value": 22.5,
+            "mcdb": 26.4
+          },
+          "0.4": {
+            "value": 24.2,
+            "mcdb": 29.7
+          }
+        },
+        "dp": {
+          "1": {
+            "value": 21.9,
+            "mcdb": 25.3,
+            "humidityRatio_g_per_kg": 16.68
+          },
+          "2": {
+            "value": 21.3,
+            "mcdb": 24.5,
+            "humidityRatio_g_per_kg": 16.08
+          },
+          "0.4": {
+            "value": 22.6,
+            "mcdb": 26.2,
+            "humidityRatio_g_per_kg": 17.43
+          }
+        }
+      },
+      "heating": {
+        "99": 6.4,
+        "99.6": 5.4
+      },
+      "extremes": {
+        "maxDB": {
+          "value": 42,
+          "yearMonth": "2020-01"
+        },
+        "minDB": {
+          "value": 1.1,
+          "yearMonth": "2018-07"
+        },
+        "maxWB": {
+          "value": 28.5,
+          "yearMonth": "2024-02"
+        }
+      },
+      "degreeDays": {
+        "hdd18_3": 807.1,
+        "cdd18_3": 564.5,
+        "cdd10": 2793.2
+      },
+      "freeCooling": {
+        "airSideHoursPerYear": 2772.2,
+        "waterSideHoursPerYear": 3372.1,
+        "assumption": "水側自然冷卻（濕球 < 12.8°C）門檻假設：冷卻水塔 approach 溫差 3.9K，對應供應約 18°C 冷卻水可直接免主機自然冷卻；此為設計假設，非量測值，實際門檻依水塔選型與 approach 而異。"
+      },
+      "highWetBulbHours": {
+        "over24": 41,
+        "over26": 3.7,
+        "over28": 0.4
+      },
+      "ashraeZone": {
+        "zone": 3,
+        "rule": "Zone 3: CDD10°C < 3500 AND HDD18°C ≤ 2000",
+        "cdd10_for_zone": 2793.2,
+        "hdd18_for_zone": 749.6
+      }
     }
   }
 };
@@ -2014,6 +2982,21 @@ const WEATHER_DATA = {
         <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
             <div id="globePanel" class="flex-1 glass-panel rounded-[1.5rem] relative overflow-hidden min-h-[280px]">
                 <div id="globeViz" class="w-full h-full cursor-move globe-container"></div>
+
+                <div id="citySelector" class="absolute top-3 left-3 z-10 max-w-[220px]">
+                    <button id="citySelectorToggle" type="button" class="glass-card rounded-xl px-3 py-2 flex items-center gap-2 text-[11px] font-mono text-slate-200 uppercase tracking-[0.15em] w-full">
+                        <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                        <span>城市清單</span>
+                        <svg id="citySelectorChevron" class="w-3 h-3 ml-auto shrink-0 text-slate-400 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <div id="citySelectorList" class="mt-2 glass-card rounded-xl p-2 max-h-[55vh] overflow-y-auto"></div>
+                </div>
+
+                <div id="wbLegend" class="absolute bottom-3 left-3 z-10 glass-card rounded-xl px-3 py-2 pointer-events-none">
+                    <p class="text-[9px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-1.5">0.4% 設計濕球溫度</p>
+                    <div class="w-32 h-2 rounded-full" style="background: linear-gradient(to right, #3987e5, #d95926, #e66767);"></div>
+                    <div id="wbLegendLabels" class="flex justify-between mt-1 text-[9px] font-mono text-slate-400"></div>
+                </div>
             </div>
 
             <div id="detailPanel" class="w-full lg:w-[440px] glass-panel rounded-[1.5rem] p-5 shrink-0 overflow-y-auto">
@@ -2026,6 +3009,105 @@ const WEATHER_DATA = {
         const LOCATIONS = Object.values(WEATHER_DATA);
         let myGlobe = null;
         let selectedId = null;
+
+        // ------------------------------------------------------------------
+        // 標記顏色：依 0.4% 冷卻設計濕球溫度（wb04）做冷暖色階（藍→橘→紅）。
+        // 三個色標都取自既有 dataviz 色票（--series-low / 既有分類色橘 / --series-high），
+        // 避免引入新色相、也避免彩虹色階（見 dataviz skill 反模式）。
+        // ------------------------------------------------------------------
+        const WB_COLOR_STOPS = [
+            { stop: 0,   rgb: [0x39, 0x87, 0xe5] }, // 藍：低濕球
+            { stop: 0.5, rgb: [0xd9, 0x59, 0x26] }, // 橘：中間
+            { stop: 1,   rgb: [0xe6, 0x67, 0x67] }, // 紅：高濕球
+        ];
+
+        function interpolateColor(stops, t) {
+            t = Math.max(0, Math.min(1, t));
+            for (let i = 0; i < stops.length - 1; i++) {
+                const a = stops[i], b = stops[i + 1];
+                if (t >= a.stop && t <= b.stop) {
+                    const lt = (t - a.stop) / (b.stop - a.stop || 1);
+                    const r = Math.round(a.rgb[0] + (b.rgb[0] - a.rgb[0]) * lt);
+                    const g = Math.round(a.rgb[1] + (b.rgb[1] - a.rgb[1]) * lt);
+                    const bch = Math.round(a.rgb[2] + (b.rgb[2] - a.rgb[2]) * lt);
+                    return `rgb(${r}, ${g}, ${bch})`;
+                }
+            }
+            const last = stops[stops.length - 1].rgb;
+            return `rgb(${last[0]}, ${last[1]}, ${last[2]})`;
+        }
+
+        function getWb04(d) {
+            return d.design && d.design.cooling && d.design.cooling.wb && d.design.cooling.wb['0.4']
+                ? d.design.cooling.wb['0.4'].value
+                : null;
+        }
+
+        const WB04_VALUES = LOCATIONS.map(getWb04).filter(v => v != null);
+        const WB04_MIN = WB04_VALUES.length ? Math.min(...WB04_VALUES) : 0;
+        const WB04_MAX = WB04_VALUES.length ? Math.max(...WB04_VALUES) : 1;
+
+        function markerColor(d) {
+            const wb = getWb04(d);
+            if (wb == null) return 'rgb(56, 189, 248)'; // fallback：無設計條件資料時退回原本 sky-400
+            const t = (wb - WB04_MIN) / ((WB04_MAX - WB04_MIN) || 1);
+            return interpolateColor(WB_COLOR_STOPS, t);
+        }
+
+        function renderWbLegend() {
+            const labels = document.getElementById('wbLegendLabels');
+            if (!labels) return;
+            labels.innerHTML = `<span>${WB04_MIN}°C</span><span>${WB04_MAX}°C</span>`;
+        }
+
+        // ------------------------------------------------------------------
+        // 城市清單側欄：依洲別分組（沿用 LOCATIONS 原始順序，等同 天氣統計/<洲>/ 目錄結構）
+        // ------------------------------------------------------------------
+        function buildCitySelector() {
+            const list = document.getElementById('citySelectorList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            const groups = {};
+            const order = [];
+            LOCATIONS.forEach(d => {
+                if (!groups[d.continent]) { groups[d.continent] = []; order.push(d.continent); }
+                groups[d.continent].push(d);
+            });
+
+            order.forEach(continent => {
+                const groupEl = document.createElement('div');
+                groupEl.className = 'mb-2 last:mb-0';
+
+                const heading = document.createElement('p');
+                heading.className = 'text-[9px] font-mono text-slate-500 uppercase tracking-[0.15em] px-2 pt-1 pb-0.5';
+                heading.textContent = continent;
+                groupEl.appendChild(heading);
+
+                groups[continent].forEach(d => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.dataset.cityId = d.id;
+                    btn.className = 'city-selector-item w-full text-left px-2 py-1.5 rounded-lg text-[11px] text-slate-200 hover:bg-white/10 transition-colors flex items-center justify-between gap-2';
+                    btn.innerHTML = `<span class="truncate">${d.name}</span><span class="text-slate-500 text-[9px] shrink-0">${d.country}</span>`;
+                    btn.onclick = () => selectLocation(d.id);
+                    groupEl.appendChild(btn);
+                });
+
+                list.appendChild(groupEl);
+            });
+
+            updateCitySelectorActiveState();
+        }
+
+        function updateCitySelectorActiveState() {
+            document.querySelectorAll('.city-selector-item').forEach(btn => {
+                const active = btn.dataset.cityId === selectedId;
+                btn.classList.toggle('bg-white/10', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('font-semibold', active);
+            });
+        }
 
         function initGlobe() {
             const container = document.getElementById('globeViz');
@@ -2041,14 +3123,16 @@ const WEATHER_DATA = {
                 .htmlLng(d => d.lon)
                 .htmlElement(d => {
                     const el = document.createElement('div');
+                    const color = markerColor(d);
+                    const wb04 = getWb04(d);
                     el.innerHTML = `
                         <div class="flex items-center gap-2 cursor-pointer group pointer-events-auto" style="transform: translate(-50%, -50%);">
                             <div class="relative flex h-3 w-3 sm:h-4 sm:w-4">
-                                <span class="absolute inline-flex h-full w-full rounded-full bg-sky-400 globe-marker-ping"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 sm:h-4 sm:w-4 bg-sky-400 shadow-[0_0_8px_rgba(255,255,255,0.8)] border border-white/80"></span>
+                                <span class="absolute inline-flex h-full w-full rounded-full globe-marker-ping" style="background:${color};"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 sm:h-4 sm:w-4 shadow-[0_0_8px_rgba(255,255,255,0.8)] border border-white/80" style="background:${color};"></span>
                             </div>
                             <div class="hidden group-hover:block px-2.5 py-1 bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-bold rounded-lg whitespace-nowrap border border-white/20 shadow-xl">
-                                ${d.name}
+                                ${d.name}${wb04 != null ? ` · WB0.4% ${wb04}°C` : ''}
                             </div>
                         </div>
                     `;
@@ -2080,6 +3164,19 @@ const WEATHER_DATA = {
                 container.addEventListener(evt, resetIdleTimer, { passive: true })
             );
 
+            buildCitySelector();
+            renderWbLegend();
+
+            const toggleBtn = document.getElementById('citySelectorToggle');
+            const listEl = document.getElementById('citySelectorList');
+            const chevron = document.getElementById('citySelectorChevron');
+            if (toggleBtn && listEl) {
+                toggleBtn.onclick = () => {
+                    const collapsed = listEl.classList.toggle('hidden');
+                    if (chevron) chevron.style.transform = collapsed ? 'rotate(-90deg)' : '';
+                };
+            }
+
             // 預設選第一個地點
             if (LOCATIONS.length) selectLocation(LOCATIONS[0].id);
         }
@@ -2089,6 +3186,7 @@ const WEATHER_DATA = {
             const loc = WEATHER_DATA[id];
             if (!loc) return;
             renderDetailPanel(loc);
+            updateCitySelectorActiveState();
             if (myGlobe) {
                 myGlobe.controls().autoRotate = false;
                 myGlobe.pointOfView({ lat: loc.lat, lng: loc.lon, altitude: 1.4 }, 1000);
@@ -2218,6 +3316,126 @@ const WEATHER_DATA = {
             return div;
         }
 
+        // 設計條件用的小標題與表格 helper（沿用既有 text-[9px]/[10px] font-mono uppercase 風格）
+        function subheading(text, extraClass) {
+            const p = document.createElement('p');
+            p.className = `text-[9px] font-mono text-slate-500 uppercase tracking-[0.1em] mb-1.5 ${extraClass || ''}`;
+            p.textContent = text;
+            return p;
+        }
+
+        function designTable(headers, rows) {
+            const table = document.createElement('table');
+            table.className = 'w-full text-[10px] font-mono border-separate border-spacing-y-1';
+            const thead = document.createElement('thead');
+            thead.innerHTML = `<tr>${headers.map(h => `<th class="text-left text-slate-500 uppercase tracking-[0.08em] font-normal pb-1 pr-2">${h}</th>`).join('')}</tr>`;
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = r.map((c, i) => `<td class="${i === 0 ? 'text-white font-semibold' : 'text-slate-300'} pr-2 py-0.5 whitespace-nowrap">${c}</td>`).join('');
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            return table;
+        }
+
+        // 「設計條件」區塊：對應筆記的 ASHRAE 風格設計條件表，改用緊湊表格 + KPI 卡呈現。
+        function renderDesignSection(design) {
+            const wrap = document.createElement('div');
+            wrap.className = 'mt-5';
+
+            const title = document.createElement('p');
+            title.className = 'text-[10px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-2';
+            title.textContent = '設計條件（ASHRAE 風格）';
+            wrap.appendChild(title);
+
+            if (!design) {
+                const empty = document.createElement('p');
+                empty.className = 'text-[11px] text-slate-500';
+                empty.textContent = '無設計條件資料';
+                wrap.appendChild(empty);
+                return wrap;
+            }
+
+            // 冷房設計條件
+            wrap.appendChild(subheading('冷房設計條件 Cooling'));
+            const pcts = ['0.4', '1', '2'];
+            const coolRows = pcts.map(p => {
+                const db = design.cooling.db[p], wb = design.cooling.wb[p], dp = design.cooling.dp[p];
+                return [
+                    `${p}%`,
+                    `${db.value}°C / ${db.mcwb}°C`,
+                    `${wb.value}°C / ${wb.mcdb}°C`,
+                    `${dp.value}°C / ${dp.humidityRatio_g_per_kg}g`,
+                ];
+            });
+            wrap.appendChild(designTable(['百分位', 'DB / MCWB', 'WB / MCDB', 'DP / 濕度比'], coolRows));
+
+            // 暖房設計條件
+            wrap.appendChild(subheading('暖房設計條件 Heating', 'mt-4'));
+            const heatRow = document.createElement('div');
+            heatRow.className = 'grid grid-cols-2 gap-2';
+            heatRow.appendChild(kpiCard('99.6% DB', design.heating['99.6'], '°C'));
+            heatRow.appendChild(kpiCard('99% DB', design.heating['99'], '°C'));
+            wrap.appendChild(heatRow);
+
+            // 極端值
+            wrap.appendChild(subheading('極端值 Extremes（10年）', 'mt-4'));
+            wrap.appendChild(designTable(['項目', '數值', '發生年月'], [
+                ['最高DB', `${design.extremes.maxDB.value}°C`, design.extremes.maxDB.yearMonth],
+                ['最低DB', `${design.extremes.minDB.value}°C`, design.extremes.minDB.yearMonth],
+                ['最高WB', `${design.extremes.maxWB.value}°C`, design.extremes.maxWB.yearMonth],
+            ]));
+
+            // 度日
+            wrap.appendChild(subheading('度日 Degree Days', 'mt-4'));
+            const ddRow = document.createElement('div');
+            ddRow.className = 'grid grid-cols-3 gap-2';
+            ddRow.appendChild(kpiCard('HDD18.3', design.degreeDays.hdd18_3, '°C·d'));
+            ddRow.appendChild(kpiCard('CDD18.3', design.degreeDays.cdd18_3, '°C·d'));
+            ddRow.appendChild(kpiCard('CDD10', design.degreeDays.cdd10, '°C·d'));
+            wrap.appendChild(ddRow);
+
+            // 自然冷卻時數
+            wrap.appendChild(subheading('自然冷卻時數 Free Cooling（hr/year）', 'mt-4'));
+            const fcRow = document.createElement('div');
+            fcRow.className = 'grid grid-cols-2 gap-2';
+            fcRow.appendChild(kpiCard('氣側 Air-side', design.freeCooling.airSideHoursPerYear, 'hr'));
+            fcRow.appendChild(kpiCard('水側 Water-side', design.freeCooling.waterSideHoursPerYear, 'hr'));
+            wrap.appendChild(fcRow);
+            const fcNote = document.createElement('p');
+            fcNote.className = 'text-[9px] text-slate-500 mt-1.5 leading-relaxed';
+            fcNote.title = design.freeCooling.assumption;
+            fcNote.textContent = design.freeCooling.assumption;
+            wrap.appendChild(fcNote);
+
+            // 高濕球時數
+            wrap.appendChild(subheading('高濕球時數 High Wet-Bulb Hours（hr/year）', 'mt-4'));
+            const hwbRow = document.createElement('div');
+            hwbRow.className = 'grid grid-cols-3 gap-2';
+            hwbRow.appendChild(kpiCard('>24°C', design.highWetBulbHours.over24, 'hr'));
+            hwbRow.appendChild(kpiCard('>26°C', design.highWetBulbHours.over26, 'hr'));
+            hwbRow.appendChild(kpiCard('>28°C', design.highWetBulbHours.over28, 'hr'));
+            wrap.appendChild(hwbRow);
+
+            // ASHRAE 169 氣候分區
+            wrap.appendChild(subheading('ASHRAE 169 氣候分區', 'mt-4'));
+            const zoneCard = document.createElement('div');
+            zoneCard.className = 'glass-card rounded-xl p-3';
+            if (design.ashraeZone) {
+                zoneCard.innerHTML = `
+                    <p class="heading text-lg font-bold text-white">Zone ${design.ashraeZone.zone}</p>
+                    <p class="text-[10px] text-slate-400 mt-1">${design.ashraeZone.rule}</p>
+                `;
+            } else {
+                zoneCard.innerHTML = `<p class="text-[11px] text-slate-500">未分區（資料不足，避免編造）</p>`;
+            }
+            wrap.appendChild(zoneCard);
+
+            return wrap;
+        }
+
         function renderDetailPanel(loc) {
             const panel = document.getElementById('detailPanel');
             panel.innerHTML = '';
@@ -2254,6 +3472,8 @@ const WEATHER_DATA = {
             trendSection.innerHTML = `<p class="text-[10px] font-mono text-slate-400 uppercase tracking-[0.15em] mb-2">年均溫趨勢（${loc.range.startYear}–${loc.range.endYear}）</p>`;
             trendSection.appendChild(renderYearlyTrendChart(loc.yearly));
             panel.appendChild(trendSection);
+
+            panel.appendChild(renderDesignSection(loc.design));
         }
 
         setTimeout(initGlobe, 100);
